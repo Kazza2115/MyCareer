@@ -8,6 +8,8 @@ la profondeur par couches. Chaque palier est jouable et testable.
 La boucle 15 ans → retraite, entièrement jouable dans le navigateur, sans compte.
 
 - [ ] Création de joueur : nationalité, poste, origine, entourage, trait, style de jeu
+- [ ] Monde généré par seed à chaque carrière : hiérarchie des clubs retirée, ère du
+  football, génération de rivaux (le socle de l'imprévisibilité, cf. doc 05)
 - [ ] Moteur de stats : ~30 attributs, OVR par poste, stats cachées de base
   (potentiel, professionnalisme, fragilité, consistance)
 - [ ] Simulation de saison complète en un tour : notes de match, buts/passes (Poisson),
@@ -36,6 +38,9 @@ La méta-progression qui donne envie de relancer.
 - [ ] Panthéon personnel (galerie des carrières)
 - [ ] Matchs clés minute par minute (finales, derbys) avec décisions in-game
 - [ ] Rivaux de génération (2-3 IA persistantes comparées par la presse)
+- [ ] Cygnes noirs : premier lot de ~10 événements rarissimes à arcs longs
+- [ ] Garanties de nouveauté : anti-répétition mémorielle + ≥1 "première fois" par carrière
+- [ ] Télémétrie de variété : mesure de la distance entre carrières (objectif doc 05 §5)
 - [ ] Carte de carrière partageable (image générée)
 
 ## V0.3 — "Le rendez-vous quotidien"

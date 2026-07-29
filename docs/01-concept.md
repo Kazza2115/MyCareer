@@ -14,7 +14,14 @@ sans téléchargement.
 La promesse : **aucune carrière ne se ressemble**, et pourtant tout est cohérent — chaque
 gloire et chaque échec s'explique par tes choix, tes stats et un peu de chance.
 
-## Les 5 piliers de design
+## Les 6 piliers de design
+
+### 0. On ne sait jamais quelle carrière on va vivre — LE pilier maître
+Au 1er comme au 50e essai, cliquer sur "Commencer la carrière", c'est ouvrir une porte sur
+l'inconnu. Le monde est retiré à chaque carrière, ton propre joueur est une inconnue à
+découvrir, des événements rarissimes peuvent tout rebattre, et aucune "soluce" n'existe.
+Tous les autres piliers servent celui-ci. Le système complet est décrit dans
+[05-imprevisibilite.md](05-imprevisibilite.md).
 
 ### 1. Chaque choix a un coût
 Il n'y a jamais de "bon" choix évident. Signer au grand club, c'est du prestige mais un banc ;

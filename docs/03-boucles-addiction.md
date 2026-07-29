@@ -98,7 +98,9 @@ Ce qui transforme un jeu qu'on finit en jeu qu'on habite :
 
 ## 5. Économie de l'aléa (le cœur psychologique)
 
-Le moteur d'addiction le plus puissant du genre, à manier avec éthique :
+Le moteur d'addiction le plus puissant du genre, à manier avec éthique. C'est le versant
+psychologique du pilier maître — le système complet qui garantit la surprise au 50e essai
+est décrit dans [05-imprevisibilite.md](05-imprevisibilite.md) :
 
 - **Récompenses variables** : événements rares et désirables (repérage surprise par un géant,
   "génération dorée" en sélection, mentor légendaire) à faible probabilité — le joueur

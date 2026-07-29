@@ -19,6 +19,7 @@ matchs vécus minute par minute et après-carrière.
 | [02 — Système de statistiques](docs/02-systeme-stats.md) | Attributs, stats cachées, formules de progression, simulation |
 | [03 — Boucles d'engagement](docs/03-boucles-addiction.md) | Boucles de jeu, méta-progression, rétention |
 | [04 — Roadmap](docs/04-roadmap.md) | MVP → V1 → V2 |
+| [05 — Imprévisibilité](docs/05-imprevisibilite.md) | **Le pilier maître** : pourquoi on ne sait jamais quelle carrière on va vivre, même au 50e essai |
 
 ## Statut
 
