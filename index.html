@@ -140,6 +140,41 @@
   .staterow .lbl2 b{font-family:var(--cond);font-variant-numeric:tabular-nums}
   .profile-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .profile-head h2{font-size:24px}
+  /* Bilan de saison */
+  .hero-season{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .hero-season .club{font-family:var(--cond);font-size:20px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.5px;line-height:1.1}
+  .divchip{display:inline-block;font-family:var(--cond);font-size:11px;letter-spacing:1.5px;
+    text-transform:uppercase;border:1px solid var(--gold-soft);color:var(--gold);border-radius:20px;
+    padding:2px 9px;margin-top:6px}
+  .notebadge{flex:none;width:64px;height:64px;border-radius:12px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;border:1px solid var(--line);background:var(--card2)}
+  .notebadge .v{font-family:var(--cond);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+  .notebadge .l{font-size:8px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+  .notebadge.good{border-color:rgba(111,207,142,.5)} .notebadge.good .v{color:var(--ok)}
+  .notebadge.gold{border-color:rgba(232,184,75,.6)} .notebadge.gold .v{color:var(--gold)}
+  .notebadge.bad{border-color:rgba(224,108,91,.5)} .notebadge.bad .v{color:var(--bad)}
+  .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+  .tile{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px 4px;text-align:center}
+  .tile .v{font-family:var(--cond);font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+  .tile .l{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim)}
+  .trophy-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .trophy-card{border:1px solid rgba(232,184,75,.55);border-radius:8px;padding:10px 8px;text-align:center;
+    background:linear-gradient(160deg,rgba(232,184,75,.15),rgba(232,184,75,.02))}
+  .trophy-card .ic{font-size:26px;line-height:1.2}
+  .trophy-card .tl{font-family:var(--cond);text-transform:uppercase;font-size:13px;letter-spacing:.5px;
+    margin-top:3px;color:var(--gold)}
+  .trophy-card .sub{font-size:10.5px;color:var(--dim)}
+  .trophy-card.sad{border-color:rgba(224,108,91,.4);
+    background:linear-gradient(160deg,rgba(224,108,91,.12),transparent)}
+  .trophy-card.sad .tl{color:var(--bad)}
+  .obj{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;
+    border-bottom:1px solid rgba(44,61,49,.5);font-size:14px}
+  .obj:last-child{border-bottom:none}
+  .obj .st{font-family:var(--cond);font-weight:700;flex:none;font-size:15px}
+  .obj.ok .st{color:var(--ok)} .obj.ko .st{color:var(--bad)}
+  .exploit{padding:7px 0 7px 12px;border-left:2px solid var(--gold-soft);font-size:13.5px;margin:6px 0}
+  .attr .dl{font-family:var(--cond);font-size:11px;margin-left:5px;font-variant-numeric:tabular-nums}
   @media (prefers-reduced-motion:no-preference){
     .card{animation:rise .25s ease-out}
     @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -1692,38 +1727,77 @@ async function seasonReport(st,res){
   clearApp();
   mountTopbar(st);
   var p=st.p,lg=leagueOf(st);
-  var head='<div class="season-head"><span class="yr">Saison '+st.year+'</span>'+
-    '<span class="ag">'+p.age+' ans · '+esc(res.lgName||lg.name)+'</span></div>';
-  var trophies='';
-  if(res.champion&&res.oldDiv==='Élite')trophies+='<div class="press trophy">🏆 CHAMPION — '+esc(p.club)+' !</div>';
-  else if(res.champion)trophies+='<div class="press trophy">🏆 Champion de '+esc(res.oldDiv)+' !</div>';
-  if(res.promoted)trophies+='<div class="press trophy">📈 MONTÉE ! '+esc(p.club)+' jouera en '+esc(res.newDiv)+
-    (res.influence>3?' — et c’est en grande partie grâce à toi.':' la saison prochaine !')+'</div>';
-  if(res.relegated)trophies+='<div class="press" style="color:var(--bad)">📉 Relégation… '+esc(p.club)+' descend en '+esc(res.newDiv)+'.</div>';
-  if(res.titleLost)trophies+='<div class="press" style="color:var(--bad)">💔 Le titre s’est joué au dernier match — et perdu.</div>';
-  if(res.promoLost)trophies+='<div class="press" style="color:var(--bad)">Barrage de montée perdu. La saison prochaine sera la bonne ?</div>';
-  if(res.cupLost)trophies+='<div class="press" style="color:var(--bad)">Finale de Coupe perdue au bout du suspense.</div>';
-  if(res.contLost)trophies+='<div class="press" style="color:var(--bad)">Finale continentale perdue — le continent retiendra quand même votre épopée.</div>';
-  if(res.cup)trophies+='<div class="press trophy">🏆 Vainqueur de la coupe nationale</div>';
-  if(res.continental)trophies+='<div class="press trophy">🌟 VAINQUEUR — '+esc(res.contName)+' !</div>';
-  if(res.bdo)trophies+='<div class="press trophy">👑 BALLON D’OR — le monde s’incline.</div>';
-  if(res.nat.txt)trophies+='<div class="press">'+esc(res.nat.txt)+'</div>';
-  var injHtml=res.inj?'<div class="result bad">'+esc(res.inj.txt)+'</div>':'';
+  /* ---- En-tête de saison : club, division, note en badge ---- */
+  var noteCls=res.apps<8?'':res.note>=7.2?'gold':res.note>=6.6?'good':res.note<6?'bad':'';
+  app.appendChild(h('<div class="card">'+
+    '<div class="season-head" style="margin:0 0 10px"><span class="yr">Saison '+st.year+'</span>'+
+    '<span class="ag">'+p.age+' ans</span></div>'+
+    '<div class="hero-season"><div>'+
+    '<div class="club">'+esc(p.club)+'</div>'+
+    '<div class="small">'+esc(res.lgName||lg.name)+'</div>'+
+    '<span class="divchip">'+esc(res.oldDiv||lg.divLabel)+' · '+res.rank+'ᵉ / 10</span></div>'+
+    '<div class="notebadge '+noteCls+'"><span class="v">'+res.note.toFixed(1)+'</span><span class="l">Note</span></div>'+
+    '</div>'+
+    '<div class="newsline">'+esc(pressLine(st,res))+'</div></div>'));
+  /* ---- Trophées & coups durs, bien visibles ---- */
+  var tr=[];
+  if(res.champion&&res.levelPlayed===1)tr.push({ic:'🏆',tl:'CHAMPION',sub:res.lgName});
+  else if(res.champion)tr.push({ic:'🏆',tl:'Champion de '+res.oldDiv,sub:'Saison parfaite'});
+  if(res.promoted)tr.push({ic:'📈',tl:'Montée en '+res.newDiv,sub:res.influence>3?'Porté par toi':'Tout un club en fête'});
+  if(res.cup)tr.push({ic:'🏆',tl:'Coupe nationale',sub:'Vainqueur'});
+  if(res.continental)tr.push({ic:'🌟',tl:res.contName,sub:'VAINQUEUR'});
+  if(res.bdo)tr.push({ic:'👑',tl:'Ballon d’Or',sub:'Le monde s’incline'});
+  if(res.nat.wcWon)tr.push({ic:'🌍',tl:'Champion du monde',sub:p.natName});
+  var sad=[];
+  if(res.relegated)sad.push({ic:'📉',tl:'Relégation en '+res.newDiv,sub:'Saison noire'});
+  if(res.titleLost)sad.push({ic:'💔',tl:'Titre perdu',sub:'Au dernier match'});
+  if(res.promoLost)sad.push({ic:'💔',tl:'Barrage perdu',sub:'À un match de la montée'});
+  if(res.cupLost)sad.push({ic:'🥈',tl:'Finale de Coupe perdue',sub:'Les médailles d’argent pèsent'});
+  if(res.contLost)sad.push({ic:'🥈',tl:'Finale continentale perdue',sub:'Au pied de la marche'});
+  if(tr.length||sad.length){
+    var tg='<div class="trophy-grid">'+
+      tr.map(function(t){return '<div class="trophy-card"><div class="ic">'+t.ic+'</div><div class="tl">'+esc(t.tl)+'</div><div class="sub">'+esc(t.sub||'')+'</div></div>';}).join('')+
+      sad.map(function(t){return '<div class="trophy-card sad"><div class="ic">'+t.ic+'</div><div class="tl">'+esc(t.tl)+'</div><div class="sub">'+esc(t.sub||'')+'</div></div>';}).join('')+
+      '</div>';
+    app.appendChild(h('<div class="card kick"><div class="kicker">Le palmarès de la saison</div>'+tg+'</div>'));
+  }
+  /* ---- Objectifs du club : atteints ou pas ---- */
+  if(res.objectives&&res.objectives.length){
+    var oHtml=res.objectives.map(function(o){
+      return '<div class="obj '+(o.ok?'ok':'ko')+'"><span>'+esc(o.label)+'</span><span class="st">'+(o.ok?'✓ Atteint':'✗ Manqué')+'</span></div>';
+    }).join('');
+    var okCount=res.objectives.filter(function(o){return o.ok;}).length;
+    app.appendChild(h('<div class="card"><div class="kicker grey">Objectifs du club · '+okCount+'/'+res.objectives.length+'</div>'+oHtml+'</div>'));
+  }
+  /* ---- Stats de la saison en tuiles ---- */
+  var isGB=POSITIONS[p.pos].g==='GB';
+  var tiles='<div class="tiles">'+
+    '<div class="tile"><div class="v">'+res.apps+'</div><div class="l">Matchs</div></div>'+
+    '<div class="tile"><div class="v">'+res.goals+'</div><div class="l">'+(isGB&&res.goals>0?'Buts 🤯':'Buts')+'</div></div>'+
+    '<div class="tile"><div class="v">'+res.assists+'</div><div class="l">Passes déc.</div></div>'+
+    '<div class="tile '+(noteCls?'':'')+'"><div class="v"'+(noteCls==='gold'?' style="color:var(--gold)"':noteCls==='good'?' style="color:var(--ok)"':noteCls==='bad'?' style="color:var(--bad)"':'')+'>'+res.note.toFixed(2)+'</div><div class="l">Note moy.</div></div>'+
+    '</div>';
   var d=res.ovrDelta;
-  var table='<table class="stats">'+
-    statRow('Matchs joués',res.apps)+
-    statRow('Buts / Passes déc.',res.goals+' / '+res.assists)+
-    statRow('Note moyenne',res.note.toFixed(2))+
-    statRow('Classement du club',res.rank+'ᵉ / 10 <span class="small">('+esc(res.oldDiv||'')+')</span>')+
+  var table='<table class="stats" style="margin-top:12px">'+
     statRow('Évolution générale',(d>=0?'+':'')+d+' → <b style="color:var(--gold)">'+ovr(p)+'</b>')+
     statRow('Salaire',p.salary.toFixed(1)+' M€/an')+
     '</table>';
-  var card=h('<div class="card">'+head+trophies+injHtml+table+
-    '<div class="newsline">'+esc(pressLine(st,res))+'</div></div>');
-  app.appendChild(card);
-  // attributs
+  var injHtml=res.inj?'<div class="result bad" style="margin-top:10px">'+esc(res.inj.txt)+'</div>':'';
+  var natHtml=(res.nat.txt&&!res.nat.wcWon)?'<div class="press" style="margin-top:10px">'+esc(res.nat.txt)+'</div>':'';
+  app.appendChild(h('<div class="card"><div class="kicker grey">Ta saison en chiffres</div>'+tiles+table+injHtml+natHtml+'</div>'));
+  /* ---- Exploits gravés cette année ---- */
+  if(res.exploits&&res.exploits.length){
+    var ex=res.exploits.map(function(e){return '<div class="exploit">'+esc(e.replace(st.year+' — ',''))+'</div>';}).join('');
+    app.appendChild(h('<div class="card"><div class="kicker">Gravé dans les mémoires</div>'+ex+'</div>'));
+  }
+  /* ---- Attributs avec évolution ---- */
   var ag='<div class="attr-grid">';
-  for(var k in ATTRS)ag+='<div class="attr"><span>'+attrLabel(p,k)+'</span><b>'+Math.round(p.attrs[k])+'</b></div>';
+  for(var k in ATTRS){
+    var cur=Math.round(p.attrs[k]);
+    var dd=st.attrsBefore?cur-st.attrsBefore[k]:0;
+    var dl=dd>0?'<span class="dl up2">▲'+dd+'</span>':dd<0?'<span class="dl down2">▼'+(-dd)+'</span>':'';
+    ag+='<div class="attr"><span>'+attrLabel(p,k)+dl+'</span><b>'+cur+'</b></div>';
+  }
   ag+='<div class="attr"><span style="color:var(--gold)">Aura</span><b style="color:var(--gold)">'+Math.round(p.aura||0)+'</b></div>';
   ag+='</div>';
   app.appendChild(h('<div class="card"><div class="kicker grey">Attributs</div>'+ag+'</div>'));
@@ -1742,9 +1816,43 @@ function pressLine(st,res){
 }
 
 /* ================= BOUCLE DE CARRIÈRE ================= */
+/* Objectifs fixés par le club pour la saison */
+function genObjectives(st){
+  var p=st.p,lg=leagueOf(st);
+  var idx=lg.clubs.findIndex(function(c){return c.n===p.club;});
+  var obj=[];
+  if(lg.level===1&&idx<=1)obj.push({label:'Viser le titre',check:function(r){return r.champion;}});
+  else if(lg.level>1&&idx<=2)obj.push({label:'Obtenir la montée en '+LVL_LABEL[lg.level-1],check:function(r){return r.promoted;}});
+  else if(idx>=7)obj.push({label:'Assurer le maintien',check:function(r){return !r.relegated;}});
+  else obj.push({label:'Finir dans le top 5',check:function(r){return r.rank<=5;}});
+  var target=p.age<=17?8:p.trust>55?28:18;
+  obj.push({label:'Disputer '+target+' matchs',check:function(r){return r.apps>=target;}});
+  var g=POSITIONS[p.pos].g,young=p.age<=17;
+  if(g==='ATT'){var gb=young?3:(lg.level===1?(p.age<=19?8:14):(p.age<=19?10:17));
+    obj.push({label:'Marquer '+gb+' buts',check:function(r){return r.goals>=gb;}});}
+  else if(g==='MIL'){var ab=young?3:(lg.level===1?7:9);
+    obj.push({label:'Délivrer '+ab+' passes décisives',check:function(r){return r.assists>=ab;}});}
+  else if(young)obj.push({label:'Tenir une note moyenne de 6,3',check:function(r){return r.note>=6.3;}});
+  else obj.push({label:'Tenir une note moyenne de 6,8',check:function(r){return r.note>=6.8;}});
+  return obj;
+}
+async function roadmapScreen(st,objs){
+  clearApp();mountTopbar(st);
+  var rows=objs.map(function(o){
+    return '<div class="obj"><span>'+esc(o.label)+'</span><span class="st" style="color:var(--dim)">—</span></div>';
+  }).join('');
+  var card=h('<div class="card"><div class="kicker">Pré-saison '+st.year+' · '+esc(st.p.club)+'</div>'+
+    '<h2>La feuille de route</h2>'+
+    '<p>Le staff t’a convoqué pour fixer tes objectifs de la saison. Ils seront jugés au bilan.</p>'+
+    '<div style="margin-top:8px">'+rows+'</div></div>');
+  app.appendChild(card);
+  await waitClick(card,'Jouer la saison ➜');
+}
 async function runYear(st,profile){
   var p=st.p;
   st.ovrBefore=ovr(p);
+  st.attrsBefore={};for(var ak in p.attrs)st.attrsBefore[ak]=Math.round(p.attrs[ak]);
+  st.momentsBefore=p.moments.length;
   saveGame(st);
   var questions=[];
   // Identité de jeu : à 16-17 ans, question garantie
@@ -1762,6 +1870,9 @@ async function runYear(st,profile){
   for(var i=0;i<questions.length;i++){
     await askQuestion(st,questions[i],i+1,questions.length);
   }
+  // La feuille de route du club (après le mercato, avant la saison)
+  var objs=genObjectives(st);
+  await roadmapScreen(st,objs);
   var res=simulateSeason(st);
   // Les grands rendez-vous de la saison se jouent sur le terrain
   for(var j=0;j<res.pending.length;j++){
@@ -1771,6 +1882,8 @@ async function runYear(st,profile){
     applyFinalOutcome(st,res,m,out);
   }
   finalizeSeason(st,res);
+  res.objectives=objs.map(function(o){return {label:o.label,ok:!!o.check(res)};});
+  res.exploits=p.moments.slice(st.momentsBefore);
   await seasonReport(st,res);
   p.age++;st.year++;st.season++;
 }
