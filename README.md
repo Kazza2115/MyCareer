@@ -20,6 +20,7 @@ matchs vécus minute par minute et après-carrière.
 | [03 — Boucles d'engagement](docs/03-boucles-addiction.md) | Boucles de jeu, méta-progression, rétention |
 | [04 — Roadmap](docs/04-roadmap.md) | MVP → V1 → V2 |
 | [05 — Imprévisibilité](docs/05-imprevisibilite.md) | **Le pilier maître** : pourquoi on ne sait jamais quelle carrière on va vivre, même au 50e essai |
+| [06 — Carrières type](docs/06-carrieres-type.md) | "Ta carrière ressemble à celle de…" : bibliothèque de carrières réelles et algorithme de correspondance |
 
 ## Statut
 

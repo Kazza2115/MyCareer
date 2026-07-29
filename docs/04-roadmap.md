@@ -21,6 +21,9 @@ La boucle 15 ans → retraite, entièrement jouable dans le navigateur, sans com
 - [ ] Blessures (3 niveaux de gravité)
 - [ ] Sélection nationale (convocations, compétitions majeures)
 - [ ] Bilan de saison + Récit de carrière final + score de légende
+- [ ] Carrières type : empreinte de carrière + bibliothèque initiale (~40 références
+  couvrant tous les postes et tous les étages) + comparaison finale "Ta carrière
+  ressemble à…" (doc 06)
 - [ ] Sauvegarde locale (localStorage), reprise de partie
 - [ ] UI mobile-first, carte de joueur évolutive
 
@@ -39,6 +42,8 @@ La méta-progression qui donne envie de relancer.
 - [ ] Matchs clés minute par minute (finales, derbys) avec décisions in-game
 - [ ] Rivaux de génération (2-3 IA persistantes comparées par la presse)
 - [ ] Cygnes noirs : premier lot de ~10 événements rarissimes à arcs longs
+- [ ] Bibliothèque de carrières type étendue à ~100 références + collection des
+  silhouettes au Panthéon + badges secrets liés (ex. "obtenir Pirlo")
 - [ ] Garanties de nouveauté : anti-répétition mémorielle + ≥1 "première fois" par carrière
 - [ ] Télémétrie de variété : mesure de la distance entre carrières (objectif doc 05 §5)
 - [ ] Équilibrage par simulation de masse : des bots jouent des milliers de carrières pour

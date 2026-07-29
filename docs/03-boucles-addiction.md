@@ -54,6 +54,9 @@ Structure dramatique en 4 actes, chacun avec ses plaisirs propres :
 - **Le Récit de carrière** : à la retraite, le jeu génère une rétrospective — palmarès,
   records, moments clés, rivaux battus, regrets ("et si tu avais signé à Madrid en 2031 ?").
   C'est l'écran le plus partageable du jeu (→ acquisition virale).
+- **La comparaison finale** est le climax du récit : le jeu nomme 1-2 joueurs réels de
+  l'histoire dont ta carrière se rapproche le plus, avec un % de ressemblance ("Ta carrière
+  rappelle celle d'Iniesta — 87 %"). Système complet : [06-carrieres-type.md](06-carrieres-type.md).
 - **Score de légende** (0-100 + titre : "Espoir déchu", "Idole locale", "Légende mondiale",
   "GOAT") : un score composite comparable entre carrières et entre joueurs. *La* métrique
   que les joueurs chercheront à maximiser.
