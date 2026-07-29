@@ -10,8 +10,9 @@ La boucle 15 ans → retraite, entièrement jouable dans le navigateur, sans com
 - [ ] Création de joueur : nationalité, poste, origine, entourage, trait, style de jeu
 - [ ] Moteur de stats : ~30 attributs, OVR par poste, stats cachées de base
   (potentiel, professionnalisme, fragilité, consistance)
-- [ ] Simulation de saison par segments : notes de match, buts/passes (Poisson),
+- [ ] Simulation de saison complète en un tour : notes de match, buts/passes (Poisson),
   classement du club, XP et progression, courbe d'âge et déclin
+- [ ] Rythme de jeu : **2-3 questions par année** + bilan de saison condensé
 - [ ] Système d'événements data-driven (JSON) : ~120 événements avec conditions et effets
 - [ ] États dynamiques : forme, moral, fatigue, confiance du coach
 - [ ] Transferts et contrats simples (offres selon OVR/réputation, négo salaire basique)
@@ -22,7 +23,9 @@ La boucle 15 ans → retraite, entièrement jouable dans le navigateur, sans com
 - [ ] UI mobile-first, carte de joueur évolutive
 
 **Contenu cible MVP** : 1 univers (5 ligues, ~80 clubs fictifs), ~120 événements,
-carrière jouable en ~2 h.
+carrière jouable en **20-30 minutes** (~40-50 questions du début à la retraite). Le pool
+d'événements doit être ~3× plus grand que ce qu'une carrière consomme, pour que deux
+carrières d'affilée ne se ressemblent pas.
 
 ## V0.2 — "On y revient"
 

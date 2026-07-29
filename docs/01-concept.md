@@ -55,10 +55,20 @@ Entourage                  Premier contrat           Vie privée, sponsors      
 Trait de caractère         Prêts, D2, percée         Prime → déclin            coach, agent, président
 ```
 
-Chaque saison est découpée en **segments** (pré-saison, automne, hiver/mercato, printemps,
-fin de saison, été/mercato) : à chaque segment, le joueur reçoit 1 à 3 événements à choix,
-les matchs du segment sont simulés, et les stats évoluent. Une saison se joue en ~5-10 minutes,
-une carrière complète en 2-4 heures — mais peut se vivre en dizaines de courtes sessions.
+**Le rythme : 2 à 3 questions par année.** Chaque année de la vie du joueur se joue en
+2 à 3 décisions maximum — jamais plus. À 16 ans, ce sont 2-3 questions qui décident de ton
+avenir (académie ou club local ? études ou tout pour le foot ? quel agent ?) ; à 24 ans,
+2-3 questions qui décident de ton statut (prolonger ou partir ? clash avec le coach ?).
+Entre les questions, le moteur simule toute la saison (matchs, notes, stats, classement)
+et te livre un bilan condensé.
+
+Conséquences de design :
+- **Chaque question est un tournant**, pas de la micro-gestion. Si une question ne peut pas
+  changer la trajectoire de la carrière, elle ne mérite pas d'exister.
+- Une année se vit en **~1 minute**, une carrière complète en **15-30 minutes** : on peut
+  finir une carrière dans le bus, et en relancer une immédiatement.
+- La profondeur ne disparaît pas : elle est **dans la simulation**, pas dans le nombre de
+  clics. Le moteur joue chaque match en interne ; le joueur ne voit que l'essentiel.
 
 ## Différenciation vs Destiny Eleven
 

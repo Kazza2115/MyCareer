@@ -122,10 +122,10 @@ tes ischios"). Les joueurs avancés apprendront à les diagnostiquer — profond
 
 ### 3.1 Sources d'XP
 
-Chaque segment de saison, le joueur gagne de l'XP :
+Chaque saison (une année = 2-3 décisions du joueur, le reste est simulé), le joueur gagne de l'XP :
 
 ```
-XP_segment = XP_matchs + XP_entraînement + XP_événements
+XP_saison = XP_matchs + XP_entraînement + XP_événements
 
 XP_matchs      = Σ sur les matchs joués :
                  base(minutes) × facteur_note × importance × mult_âge
@@ -195,13 +195,17 @@ aussi. Une carrière moyenne peut basculer.
 
 ## 4. États dynamiques (le court terme)
 
+Ces états fluctuent **à l'intérieur de la simulation de saison** (le moteur joue chaque
+match en interne) ; le joueur en voit l'état au moment de chaque question et dans le bilan
+annuel ("saison en dents de scie : gros hiver, printemps en berne après ta blessure").
+
 | État | Échelle | Évolution | Effet |
 |---|---|---|---|
 | **Forme** | 0-100 | Moyenne mobile pondérée des 5 dernières notes | ±10 % sur toutes les perfs de match |
 | **Moral** | 0-100 | Temps de jeu, résultats, vie privée, relations | ±8 % perfs, ±20 % XP |
 | **Fatigue** | 0-100 | +par match/voyage, −par repos ; chronique si enchaînement | Perfs, et ×risque de blessure |
 | **Rythme** | 0-100 | Chute pendant blessure/tribune, remonte en jouant | Plafonne la note de match |
-| **Confiance du coach** | 0-100 | Perfs, événements, attitude | Détermine le temps de jeu du segment |
+| **Confiance du coach** | 0-100 | Perfs, événements, attitude | Détermine le temps de jeu de la saison |
 
 La boucle perverse à équilibrer soigneusement : mauvaise passe → moins de confiance coach →
 moins de temps de jeu → rythme en berne → pires perfs. Le jeu doit fournir des **portes de
@@ -234,8 +238,9 @@ offensifs, le niveau de l'équipe et le temps de jeu — pour qu'en fin de saiso
 
 ### 5.2 Matchs clés joués minute par minute
 
-~3-6 matchs par saison (finale, derby, barrage, match décisif) se jouent en **mode temps
-fort** : une séquence de 4-8 moments avec décisions :
+**Au plus 1 match par saison, et seulement les années charnières** (finale, derby décisif,
+barrage) — il compte alors comme l'une des 2-3 questions de l'année. Il se joue en **mode
+temps fort** : une séquence courte de 2-4 moments avec décisions :
 
 > 87e minute. 1-1. Penalty pour vous. Le tireur attitré est là, mais le Kop scande ton nom.
 > → Prendre le ballon (sang-froid + penaltys testés, gloire ou fardeau)
@@ -251,12 +256,32 @@ P(blessure) = base_minutes_jouées × fragilité × (1 + fatigue/150)
               × mult_agressivité_adverse × mult_hygiène_de_vie
 ```
 
-Gravité : 70 % bénigne (1 segment), 25 % sérieuse (2-3 segments), 5 % grave (6-12 mois,
-−1 à −3 attributs physiques permanents, PA ajusté si jeune). Les blessures graves déclenchent
-des **arcs narratifs dédiés** (rééducation, doute, come-back) — jamais juste un écran "blessé
-4 mois".
+Gravité : 70 % bénigne (quelques semaines), 25 % sérieuse (2-4 mois), 5 % grave (6-12 mois,
+−1 à −3 attributs physiques permanents, PA ajusté si jeune). Une blessure grave devient
+l'une des questions de l'année ("comment vis-tu ta rééducation ?") et colore le bilan de
+saison — jamais juste une ligne "blessé 4 mois".
 
 ---
+
+### 5.4 Sélection des 2-3 questions de l'année
+
+À chaque année, le moteur choisit les questions dans le pool d'événements selon un score
+de pertinence :
+
+```
+score_événement = conditions_remplies (âge, OVR, situation club, états, stats cachées)
+                × poids_dramatique   (un mercato chaud > une interview banale)
+                × continuité_d'arc   (suite d'un arc ouvert : blessure, rivalité, promesse)
+                × anti-répétition    (pénalité si vu dans une carrière récente)
+```
+
+Règles de composition d'une année :
+- **1 question "trajectoire"** garantie (club, contrat, poste, sélection) ;
+- **1 question "vie"** (entourage, argent, vie privée, médias) ;
+- la 3e est optionnelle : arc en cours, match clé, ou événement rare.
+
+Les arcs narratifs (rivalité, blessure grave, promesse faite à un club) s'étalent ainsi
+sur plusieurs années sans jamais dépasser le budget de questions.
 
 ## 6. Réputation, marché et argent
 
@@ -309,7 +334,7 @@ Pour que les stats du joueur aient un sens, le monde doit vivre :
 
 ## 8. Transparence : le contrat avec le joueur
 
-- Les **attributs et états** sont visibles, avec des flèches d'évolution après chaque segment.
+- Les **attributs et états** sont visibles, avec des flèches d'évolution après chaque saison.
 - Les **formules exactes** ne sont pas affichées, mais chaque conséquence est **expliquée**
   ("Note en baisse : tu manques de rythme après ta blessure").
 - Les **stats cachées** ne sont jamais chiffrées, seulement suggérées par le texte.

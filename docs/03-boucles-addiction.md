@@ -1,46 +1,46 @@
 # 03 — Boucles d'engagement & rétention
 
-Objectif : que le joueur pense "encore un segment" à 1h du matin, revienne le lendemain,
+Objectif : que le joueur pense "encore une saison" à 1h du matin, revienne le lendemain,
 et relance une nouvelle carrière après la retraite. On construit ça avec des boucles
 imbriquées à 4 échelles de temps — et **sans dark patterns** (pas de timer payant, pas de
 pay-to-win) : l'addiction vient de la structure du jeu, pas de la frustration monétisée.
 
 ```
-Boucle 1 — le segment      (2-3 min)   choix → conséquence → cliffhanger
-Boucle 2 — la saison       (5-10 min)  objectifs → bilan → mercato
-Boucle 3 — la carrière     (2-4 h)     ascension → prime → déclin → légende
-Boucle 4 — le méta-jeu     (∞)         héritage → nouvelles carrières plus riches
+Boucle 1 — l'année         (~1 min)     2-3 questions → bilan de saison → cliffhanger
+Boucle 2 — la carrière     (15-30 min)  ascension → prime → déclin → légende
+Boucle 3 — le méta-jeu     (∞)          héritage → nouvelles carrières plus riches
+Boucle 4 — le quotidien    (rituel)     défi du jour, classements, partage
 ```
 
 ---
 
-## 1. Boucle courte : le segment (2-3 minutes)
+## 1. Boucle courte : l'année (~1 minute)
 
-La brique de session. Chaque segment doit contenir :
+La brique de session : **2 à 3 questions, un bilan, une accroche**. Chaque année doit
+contenir :
 
-1. **Un feedback immédiat** : les flèches de stats, les notes de match, une réaction
-   (titre de presse, message d'un proche). Chaque choix produit un effet *visible dans
-   les 10 secondes*.
-2. **Une tension** : au moins un des 1-3 événements du segment est un vrai dilemme.
-3. **Un cliffhanger de sortie** : le segment se termine toujours sur une accroche —
-   une offre de transfert arrive, la liste de la sélection tombe demain, le derby
-   approche. *La règle : ne jamais terminer un segment sur un état "fermé".*
+1. **Des questions qui sont des tournants** : à ce rythme, une carrière entière tient en
+   ~40-50 décisions. Aucune ne peut être du remplissage — chaque question doit pouvoir
+   changer la trajectoire (club, poste, style, vie privée, clash, sélection). Le test :
+   *"deux joueurs qui répondent différemment ici peuvent-ils finir avec des carrières
+   différentes ?"* Si non, la question saute.
+2. **Un feedback immédiat** : après chaque réponse, un effet visible en 5 secondes
+   (flèches de stats, réaction de presse, message d'un proche).
+3. **Un bilan de saison condensé** : une carte de fin d'année — stats, note moyenne,
+   moment fort, évolution de l'OVR, une du journal. C'est la récompense visuelle
+   récurrente ; elle doit être belle et rapide à lire.
+4. **Un cliffhanger de sortie** : l'année se termine toujours sur une accroche — une
+   rumeur de transfert, la liste de la sélection qui tombe, un recruteur en tribune.
+   *La règle : ne jamais terminer une année sur un état "fermé".*
 
-> C'est le mécanisme "un chapitre de plus" des bons romans. Le coût pour continuer est
-> minuscule (2 min), la promesse est immédiate.
+> Le coût pour continuer est minuscule (~1 min pour une année de vie), la promesse est
+> immédiate. C'est le mécanisme "un chapitre de plus" — et ici les chapitres sont courts.
 
-## 2. Boucle moyenne : la saison (5-10 minutes)
+Le **mercato** est le cliffhanger récurrent le plus fort : quand une saison se termine sur
+des offres, la question d'ouverture de l'année suivante est le choix du club — le joueur
+enchaîne toujours "juste pour voir les offres".
 
-- **Objectifs de saison** fixés à la pré-saison (par le club, la presse, ton agent, toi) :
-  gagner sa place, 10 buts, une convocation… Le bilan de fin de saison les confronte aux
-  résultats — source de fierté ou de revanche à prendre.
-- **Le bilan de saison** est un moment de récompense soigné : stats annuelles, note moyenne,
-  moments forts rejoués, évolution de la carte du joueur, une du journal de fin de saison.
-- **Le mercato** est le cliffhanger géant entre deux saisons : les offres arrivent
-  progressivement, on peut faire monter les enchères, hésiter, se faire doubler. C'est le
-  pic dramatique récurrent du jeu.
-
-## 3. Boucle longue : la carrière (2-4 heures)
+## 2. Boucle longue : la carrière (15-30 minutes)
 
 Structure dramatique en 4 actes, chacun avec ses plaisirs propres :
 
@@ -60,7 +60,7 @@ Structure dramatique en 4 actes, chacun avec ses plaisirs propres :
 - **Les regrets** sont un outil de replay : montrer 2-3 bifurcations non prises donne
   immédiatement envie de relancer ("cette fois, je signe à l'étranger").
 
-## 4. Méta-boucle : entre les carrières
+## 3. Méta-boucle : entre les carrières
 
 Ce qui transforme un jeu qu'on finit en jeu qu'on habite :
 
@@ -80,7 +80,7 @@ Ce qui transforme un jeu qu'on finit en jeu qu'on habite :
 - **Dynastie** (V2) : rejouer en incarnant le fils/la fille d'une de tes légendes — traits
   hérités, nom à porter, presse qui compare. Boucle générationnelle unique sur le marché.
 
-## 5. Boucles sociales et quotidiennes
+## 4. Boucles sociales et quotidiennes
 
 - **Défi du jour** : même graine aléatoire pour tout le monde (même joueur de départ, mêmes
   événements), un classement quotidien du score de légende. Compétence pure, zéro grind —
@@ -96,7 +96,7 @@ Ce qui transforme un jeu qu'on finit en jeu qu'on habite :
   on peut être coéquipiers, rivaux du Ballon d'Or, s'échanger des records. Personne ne fait
   ça dans le genre.
 
-## 6. Économie de l'aléa (le cœur psychologique)
+## 5. Économie de l'aléa (le cœur psychologique)
 
 Le moteur d'addiction le plus puissant du genre, à manier avec éthique :
 
@@ -112,15 +112,16 @@ Le moteur d'addiction le plus puissant du genre, à manier avec éthique :
   monétisation de l'aléa. Les streaks pardonnent. On veut des joueurs qui reviennent par
   plaisir, pas par anxiété.
 
-## 7. Courbe de rétention visée
+## 6. Courbe de rétention visée
 
 | Moment | Objectif de design |
 |---|---|
-| Minute 0-3 | Créer un joueur et vivre son premier dilemme **sans compte ni tutoriel** |
-| Session 1 (15 min) | Atteindre le premier contrat pro = premier grand moment de fierté |
-| Jour 1 | Finir sa première carrière courte OU être en pleine ascension + découvrir le défi du jour |
-| Semaine 1 | 1re carrière finie, héritage dépensé, 2e carrière lancée avec un plan ("cette fois je…") |
-| Mois 1 | Chasse aux badges, défis hebdo, classements entre amis |
+| Minute 0-2 | Créer un joueur et répondre à sa première question **sans compte ni tutoriel** |
+| Minute 5 | Premier contrat pro signé = premier grand moment de fierté |
+| Session 1 (20-30 min) | **Une carrière complète terminée**, récit de carrière + carte partageable en main |
+| Jour 1 | 2e carrière lancée avec un plan ("cette fois je…") + découverte du défi du jour |
+| Semaine 1 | 4-5 carrières au Panthéon, héritage investi, streak du défi du jour en cours |
+| Mois 1 | Chasse aux badges secrets, défis hebdo, classements entre amis |
 
 **KPI nord** : % de joueurs qui lancent une **2e carrière** (c'est là que le méta-jeu prend),
 et rétention J7. Le partage de la carte de carrière est le KPI d'acquisition.
