@@ -29,6 +29,20 @@
   .topbar .pname{font-weight:800;font-size:17px;letter-spacing:.1px;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .topbar .pmeta{font-size:12.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar .pclub{margin-top:3px}
+  .clubline{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%}
+  .clubline .cn{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .divtag{flex:none;font-size:9.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
+    padding:2px 7px;border-radius:20px;border:1px solid var(--gold-soft);color:var(--gold);
+    background:var(--gold-tint)}
+  .divtag.elite{border-color:#8FCFAC;color:#0B6E3B;background:var(--accent-soft)}
+  .banner{margin-top:10px;padding:9px 12px;border-radius:10px;font-weight:700;font-size:14px}
+  .banner.win{background:var(--gold-tint);border:1px solid var(--gold-soft);color:#8A6508}
+  .banner.loss{background:#FBEFED;border:1px solid #F2C6BF;color:#A8382A}
+  .miniline{font-size:13px;color:var(--dim);margin-top:8px}
+  .miniline.bad{color:var(--bad)}
+  .tile.bank .v{font-size:15.5px;color:#0B6E3B;white-space:nowrap}
+  .tile.bank .l{font-size:8.5px}
   .ovrbox{text-align:center;flex:none;background:var(--card);border:1px solid var(--line);
     border-radius:12px;padding:5px 10px;box-shadow:var(--shadow)}
   .ovrbox .num{font-family:var(--cond);font-weight:700;font-size:26px;color:var(--gold);
@@ -1347,7 +1361,7 @@ function genOffers(st){
     var pick=cands.splice(rng.int(0,cands.length-1),1)[0];
     var role=pick.c.str-lvl>4?'rotation':pick.c.str-lvl>-4?'titulaire en devenir':'star attendue';
     var sal=Math.max(.05,Math.pow(Math.max(0,(ovr(p)-52))/10,2)*(pick.L.money/2.4)*.7*(1+rng.next()*.4));
-    offers.push({club:pick.c.n,lg:pick.L.id,lgName:pick.L.name,div:pick.L.divLabel,str:pick.c.str,role:role,
+    offers.push({club:pick.c.n,lg:pick.L.id,lgName:pick.L.name,div:pick.L.divLabel,country:pick.L.country,str:pick.c.str,role:role,
       salary:sal,abroad:pick.L.country!==NATIONS.find(function(nn){return nn.id===p.nat;}).lg.slice(0,2)});
   }
   return offers;
@@ -1357,11 +1371,13 @@ function transferQuestion(st,offers){
   var ch=offers.map(function(o){
     var risk=o.str-ovr(p)>3;
     return {l:'Signer : '+o.club,
-      d:o.lgName+' ('+o.div+') · niveau '+o.str+' · '+o.role+' · '+o.salary.toFixed(1)+' M€/an'+(o.abroad?' · étranger':''),
+      d:COUNTRIES[o.country].name+' · '+o.div+' · '+o.lgName+' · '+o.role+' · '+o.salary.toFixed(1)+' M€/an',
+      flagId:o.country,
       transfer:o,
       eff:{mor:6}};
   });
-  ch.push({l:'Rester à '+p.club,d:'La fidélité a sa valeur. Continuer l’aventure ici.',
+  ch.push({l:'Rester à '+p.club,d:leagueOf(st).countryName+' · '+leagueOf(st).divLabel+' · '+leagueOf(st).name,
+    flagId:leagueOf(st).country,
     eff:{trust:8,mor:2,hid:{pro:1}},res:'Le club salue ton engagement. Les supporters chantent ton nom.'});
   return {kind:'transfer',kicker:'Mercato',title:'Des offres sur la table',
     text:'Ton téléphone chauffe : ton agent a reçu des propositions concrètes.',ch:ch};
@@ -1372,7 +1388,7 @@ function applyTransfer(st,o){
   p.clubsCount++;p.clubsList.push(o.club);
   p.trust=o.role==='star attendue'?62:o.role==='titulaire en devenir'?50:34;
   st.prevRank=null;
-  var txt='Direction '+o.club+' ('+o.lgName+') !';
+  var txt='Direction '+o.club+' — '+COUNTRIES[o.country].name+', '+o.div+' ('+o.lgName+') !';
   if(o.abroad){
     p.abroad=true;
     if(rng.next()*100>p.hid.adapt+18){p.form-=12;p.mor-=8;
@@ -1749,12 +1765,25 @@ var app=document.getElementById('app');
 function h(html){var d=document.createElement('div');d.innerHTML=html;return d;}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function clearApp(){app.innerHTML='';}
+/* Identité du club : drapeau du pays + niveau de division, toujours visibles */
+function clubBadge(st,size,club,lg){
+  lg=lg||leagueOf(st);club=club||st.p.club;
+  return '<span class="clubline">'+flagSVG(lg.country,size||16)+
+    '<span class="cn">'+esc(club)+'</span>'+
+    '<span class="divtag'+(lg.level===1?' elite':'')+'">'+esc(lg.divLabel)+'</span></span>';
+}
+function money(v){
+  v=Math.max(0,v||0);
+  if(v<1)return Math.round(v*1000)+' K€';
+  return (v>=100?Math.round(v):v>=10?v.toFixed(1):v.toFixed(2))+' M€';
+}
 function topbar(st){
   if(!st||!st.p)return '';
   var p=st.p;
   return '<div class="topbar"><div class="who">'+
     '<div class="pname">'+esc(p.name)+'</div>'+
-    '<div class="pmeta">'+p.age+' ans · '+esc(POSITIONS[p.pos].label)+' · '+esc(p.club)+'</div></div>'+
+    '<div class="pmeta">'+p.age+' ans · '+esc(POSITIONS[p.pos].label)+'</div>'+
+    '<div class="pclub">'+clubBadge(st,15)+'</div></div>'+
     '<button class="btn-profile" type="button">Profil</button>'+
     '<div class="ovrbox"><div class="num">'+ovr(p)+'</div><div class="lbl">GÉNÉRAL</div></div></div>';
 }
@@ -1802,7 +1831,8 @@ function openProfile(st){
   var info='<table class="stats">'+
     statRow('Club',esc(p.club)+' <span class="small">('+esc(leagueOf(st).divLabel)+')</span>')+
     statRow('Championnat',esc(leagueOf(st).name))+
-    statRow('Salaire · Fortune',p.salary.toFixed(1)+' M€/an · '+Math.max(0,p.money).toFixed(1)+' M€')+
+    statRow('Salaire',money(p.salary)+' / an')+
+    statRow('Compte en banque','<b style="color:#0B6E3B">'+money(p.money)+'</b>')+
     statRow('Sélection',p.caps>0?(p.caps+' capes'+(p.natGoals?' · '+p.natGoals+' buts':'')):'jamais appelé')+
     statRow('Rival',esc(p.rival))+
     '</table>';
@@ -1868,7 +1898,8 @@ async function askQuestion(st,q,idx,total){
   var choice=await new Promise(function(res){
     q.ch.forEach(function(c){
       var b=document.createElement('button');
-      b.innerHTML='<span class="bl">'+esc(c.l)+'</span>'+(c.d?'<span class="bd">'+esc(c.d)+'</span>':'');
+      b.innerHTML='<span class="bl">'+(c.flagId?flagSVG(c.flagId,16)+' ':'')+esc(c.l)+'</span>'+
+        (c.d?'<span class="bd">'+esc(c.d)+'</span>':'');
       b.addEventListener('click',function(){res(c);},{once:true});
       box.appendChild(b);
     });
@@ -1897,71 +1928,69 @@ async function seasonReport(st,res){
   clearApp();
   mountTopbar(st);
   var p=st.p,lg=leagueOf(st);
-  /* ---- Carte unique : club, division, note, chiffres clés ---- */
   var noteCls=res.apps<8?'':res.note>=7.2?'gold':res.note>=6.6?'good':res.note<6?'bad':'';
   var d=res.ovrDelta;
   var isGB=POSITIONS[p.pos].g==='GB';
+  var playedLg=st.world.leagues[lg.country+(res.levelPlayed||lg.level)]||lg;
+  /* ---- Bandeaux : trophées et coups durs, en une ligne chacun ---- */
+  var wins=[];
+  if(res.champion&&res.levelPlayed===1)wins.push('\ud83c\udfc6 Champion !');
+  else if(res.champion)wins.push('\ud83c\udfc6 Champion de '+res.oldDiv+' !');
+  if(res.promoted)wins.push('\ud83d\udcc8 Montée en '+res.newDiv+' !');
+  if(res.cup)wins.push('\ud83e\udd48 Vainqueur de la Coupe');
+  if(res.continental)wins.push('\ud83c\udf1f Vainqueur : '+res.contName);
+  if(res.bdo)wins.push('\ud83d\udc51 BALLON D\u2019OR');
+  if(res.nat.wcWon)wins.push('\ud83c\udf0d CHAMPION DU MONDE');
+  var losses=[];
+  if(res.relegated)losses.push('\ud83d\udcc9 Relégation en '+res.newDiv);
+  if(res.titleLost)losses.push('\ud83d\udc94 Titre perdu au dernier match');
+  if(res.promoLost)losses.push('\ud83d\udc94 Barrage de montée perdu');
+  if(res.cupLost)losses.push('\ud83e\udd48 Finale de Coupe perdue');
+  if(res.contLost)losses.push('\ud83e\udd48 Finale continentale perdue');
+  var trophyLine='';
+  if(wins.length)trophyLine+='<div class="banner win">'+wins.map(esc).join('<br>')+'</div>';
+  if(losses.length)trophyLine+='<div class="banner loss">'+losses.map(esc).join('<br>')+'</div>';
   var extras='';
-  if(res.inj)extras+='<div class="result bad" style="margin-top:10px">'+esc(res.inj.txt)+'</div>';
-  if(res.nat.txt&&!res.nat.wcWon)extras+='<div class="press" style="margin-top:10px">'+esc(res.nat.txt)+'</div>';
+  if(res.inj)extras+='<div class="miniline bad">\ud83e\ude79 '+esc(res.inj.txt)+'</div>';
+  if(res.nat.txt&&!res.nat.wcWon)extras+='<div class="miniline">\ud83c\udfbd '+esc(res.nat.txt)+'</div>';
+  /* ---- Une seule carte pour toute la saison ---- */
   app.appendChild(h('<div class="card">'+
-    '<div class="season-head" style="margin:0 0 10px"><span class="yr">Saison '+st.year+'</span>'+
+    '<div class="season-head" style="margin:0 0 8px"><span class="yr">Saison '+st.year+'</span>'+
     '<span class="ag">'+p.age+' ans</span></div>'+
-    '<div class="hero-season"><div>'+
-    '<div class="club">'+esc(p.club)+'</div>'+
-    '<div class="small">'+esc(res.lgName||lg.name)+'</div>'+
-    '<span class="divchip">'+esc(res.oldDiv||lg.divLabel)+' · '+res.rank+'ᵉ / 10</span></div>'+
+    '<div class="hero-season"><div style="min-width:0">'+
+    clubBadge(st,18,p.club,playedLg)+
+    '<div class="small" style="margin-top:4px">'+res.rank+'<sup>e</sup> / 10 · '+esc(res.lgName||lg.name)+'</div></div>'+
     '<div class="notebadge '+noteCls+'"><span class="v">'+res.note.toFixed(1)+'</span><span class="l">Note</span></div>'+
     '</div>'+
-    '<div class="tiles" style="margin-top:14px;grid-template-columns:repeat(3,1fr)">'+
+    trophyLine+
+    '<div class="tiles" style="margin-top:12px">'+
     '<div class="tile"><div class="v">'+res.apps+'</div><div class="l">Matchs</div></div>'+
-    '<div class="tile"><div class="v">'+res.goals+'</div><div class="l">'+(isGB&&res.goals>0?'Buts 🤯':'Buts')+'</div></div>'+
-    '<div class="tile"><div class="v">'+res.assists+'</div><div class="l">Passes déc.</div></div>'+
+    '<div class="tile"><div class="v">'+res.goals+'</div><div class="l">'+(isGB&&res.goals>0?'Buts \ud83e\udd2f':'Buts')+'</div></div>'+
+    '<div class="tile"><div class="v">'+res.assists+'</div><div class="l">Passes</div></div>'+
+    '<div class="tile bank"><div class="v">'+esc(money(p.money))+'</div><div class="l">\ud83d\udcb0 Banque</div></div>'+
     '</div>'+
     '<div class="ovr-strip"><span class="big">'+ovr(p)+'</span>'+
     '<span class="txt">Note générale</span>'+
     '<span class="delta" style="color:'+(d>0?'var(--ok)':d<0?'var(--bad)':'var(--dim)')+'">'+
-    (d>0?'▲ +'+d:d<0?'▼ '+d:'—')+'</span></div>'+
-    '<div class="newsline">'+esc(pressLine(st,res))+'</div>'+extras+'</div>'));
-  /* ---- Trophées & coups durs, bien visibles ---- */
-  var tr=[];
-  if(res.champion&&res.levelPlayed===1)tr.push({ic:'🏆',tl:'CHAMPION',sub:res.lgName});
-  else if(res.champion)tr.push({ic:'🏆',tl:'Champion de '+res.oldDiv,sub:'Saison parfaite'});
-  if(res.promoted)tr.push({ic:'📈',tl:'Montée en '+res.newDiv,sub:res.influence>3?'Porté par toi':'Tout un club en fête'});
-  if(res.cup)tr.push({ic:'🏆',tl:'Coupe nationale',sub:'Vainqueur'});
-  if(res.continental)tr.push({ic:'🌟',tl:res.contName,sub:'VAINQUEUR'});
-  if(res.bdo)tr.push({ic:'👑',tl:'Ballon d’Or',sub:'Le monde s’incline'});
-  if(res.nat.wcWon)tr.push({ic:'🌍',tl:'Champion du monde',sub:p.natName});
-  var sad=[];
-  if(res.relegated)sad.push({ic:'📉',tl:'Relégation en '+res.newDiv,sub:'Saison noire'});
-  if(res.titleLost)sad.push({ic:'💔',tl:'Titre perdu',sub:'Au dernier match'});
-  if(res.promoLost)sad.push({ic:'💔',tl:'Barrage perdu',sub:'À un match de la montée'});
-  if(res.cupLost)sad.push({ic:'🥈',tl:'Finale de Coupe perdue',sub:'Les médailles d’argent pèsent'});
-  if(res.contLost)sad.push({ic:'🥈',tl:'Finale continentale perdue',sub:'Au pied de la marche'});
-  if(tr.length||sad.length){
-    var tg='<div class="trophy-grid">'+
-      tr.map(function(t){return '<div class="trophy-card"><div class="ic">'+t.ic+'</div><div class="tl">'+esc(t.tl)+'</div><div class="sub">'+esc(t.sub||'')+'</div></div>';}).join('')+
-      sad.map(function(t){return '<div class="trophy-card sad"><div class="ic">'+t.ic+'</div><div class="tl">'+esc(t.tl)+'</div><div class="sub">'+esc(t.sub||'')+'</div></div>';}).join('')+
-      '</div>';
-    app.appendChild(h('<div class="card kick"><div class="kicker">Le palmarès de la saison</div>'+tg+'</div>'));
-  }
-  /* ---- Objectifs + exploits, dans une seule carte ---- */
+    (d>0?'\u25b2 +'+d:d<0?'\u25bc '+d:'\u2014')+'</span></div>'+
+    extras+
+    '<div class="newsline">'+esc(pressLine(st,res))+'</div></div>'));
+  /* ---- Objectifs compacts + 2 exploits max ---- */
   var oHtml='';
   if(res.objectives&&res.objectives.length){
     var okCount=res.objectives.filter(function(o){return o.ok;}).length;
-    oHtml='<div class="kicker'+(res.allObjectives?'':' grey')+'">Objectifs du club · '+okCount+'/'+res.objectives.length+
+    oHtml='<div class="kicker'+(res.allObjectives?'':' grey')+'">Objectifs · '+okCount+'/'+res.objectives.length+
       (res.allObjectives?' · SANS-FAUTE':'')+'</div>'+
       res.objectives.map(function(o){
         return '<div class="obj '+(o.ok?'ok':'ko')+'"><span>'+objEmoji(o.label)+' '+esc(o.label)+'</span>'+
           '<span class="st">'+(o.ok?'\u2713':'\u2717')+'</span></div>';
-      }).join('')+
-      (res.allObjectives?'<div class="result gold" style="margin-top:12px">Saison parfaite : tous les objectifs remplis. Quelque chose se prépare…</div>':'');
+      }).join('');
   }
   var exHtml='';
   if(res.exploits&&res.exploits.length){
-    exHtml='<div class="kicker" style="margin-top:14px">\u2b50 Gravé dans les mémoires</div>'+
-      res.exploits.map(function(e){var t=e.replace(st.year+' \u2014 ','');
-        return '<div class="exploit">'+exploitEmoji(t)+' '+esc(t)+'</div>';}).join('');
+    exHtml=res.exploits.slice(0,2).map(function(e){var t=e.replace(st.year+' \u2014 ','');
+      return '<div class="exploit">'+exploitEmoji(t)+' '+esc(t)+'</div>';}).join('')+
+      (res.exploits.length>2?'<div class="small" style="padding-left:14px">+ '+(res.exploits.length-2)+' autre'+(res.exploits.length>3?'s':'')+'</div>':'');
   }
   if(oHtml||exHtml)app.appendChild(h('<div class="card">'+oHtml+exHtml+'</div>'));
   var cont=h('<div></div>');app.appendChild(cont);
@@ -2278,7 +2307,7 @@ async function retireScreen(st,profile){
     statRow('Clubs',p.clubsList.map(esc).join(' → '))+
     statRow('Sélections ('+esc(p.natName)+')',p.caps+' capes')+
     statRow('Saisons au très haut niveau',p.seasonsTop)+
-    statRow('Fortune',Math.max(0,p.money).toFixed(1)+' M€')+
+    statRow('Fortune',money(p.money))+
     '</table>';
   app.appendChild(h('<div class="card"><div class="kicker grey">Le bilan</div>'+t+'</div>'));
   if(p.palmares.length)
@@ -2512,7 +2541,9 @@ function creationScreen(){
     var grid=el.querySelector('#grid');
     offers.forEach(function(o){
       var b=document.createElement('button');
-      b.innerHTML='<span class="bl">'+esc(o.n)+'</span><span class="bd">'+esc(o.desc)+'</span>';
+      b.innerHTML='<span class="bl">'+flagSVG(sel.nat==='EN'?'EN':world.leagues[o.lg].country,16)+' '+esc(o.n)+
+        ' <span class="divtag'+(world.leagues[o.lg].level===1?' elite':'')+'">'+esc(o.div)+'</span></span>'+
+        '<span class="bd">'+esc(o.desc)+'</span>';
       b.addEventListener('click',function(){
         sel.startClub={n:o.n,lg:o.lg};
         var p=makePlayer(sel,world,rng);
@@ -2532,8 +2563,8 @@ async function introScreen(st){
   var card=h('<div class="card kick"><div class="kicker">'+st.year+' · '+esc(st.world.era.name)+'</div>'+
     '<h2>Bienvenue dans le grand bain</h2>'+
     '<p>'+esc(st.world.era.desc)+'</p>'+
-    '<p style="margin-top:8px">'+esc(p.name)+', '+p.age+' ans, rejoint les jeunes de <b>'+esc(p.club)+'</b> ('+
-    esc(leagueOf(st).name)+' — '+esc(leagueOf(st).divLabel)+'). '+
+    '<p style="margin-top:8px">'+esc(p.name)+', '+p.age+' ans, rejoint les jeunes de '+clubBadge(st,16)+
+    ' <span class="small">('+esc(leagueOf(st).name)+')</span>. '+
     'Quelque part dans le monde, un certain <b>'+esc(p.rival)+'</b>, du même âge, fait déjà parler de lui. '+
     'La presse locale vous comparera longtemps…</p></div>');
   app.appendChild(card);
