@@ -172,8 +172,9 @@ var NATIONS=[
  {id:'DE',name:'Allemagne',flag:'🇩🇪',pool:'de',str:4,lg:'DE1'},
  {id:'PT',name:'Portugal',flag:'🇵🇹',pool:'pt',str:4,lg:'PT1'},
  {id:'NL',name:'Pays-Bas',flag:'🇳🇱',pool:'nl',str:3,lg:'NL1'},
- {id:'MA',name:'Maroc',flag:'🇲🇦',pool:'ar',str:3,lg:'FR1'},
- {id:'SN',name:'Sénégal',flag:'🇸🇳',pool:'sn',str:3,lg:'FR1'},
+ {id:'MA',name:'Maroc',flag:'🇲🇦',pool:'ar',str:3,lg:'MA1'},
+ {id:'SN',name:'Sénégal',flag:'🇸🇳',pool:'sn',str:3,lg:'SN1'},
+ {id:'CH',name:'Suisse',flag:'🇨🇭',pool:'fr',str:2,lg:'CH1'},
  {id:'JP',name:'Japon',flag:'🇯🇵',pool:'jp',str:3,lg:'JP1'},
  {id:'US',name:'États-Unis',flag:'🇺🇸',pool:'en',str:2,lg:'US1'},
  {id:'SA',name:'Arabie saoudite',flag:'🇸🇦',pool:'ar',str:2,lg:'SA1'},
@@ -205,38 +206,98 @@ var POOLS={
  tr:{f:['Emre','Burak','Kerem','Arda','Mert','Can','Ozan','Yusuf','Berat','Furkan'],
      l:['Yılmaz','Demir','Şahin','Çelik','Aydın','Öztürk','Kaya','Arslan','Doğan','Polat']}
 };
-var LEAGUES=[
- {id:'EN1',name:"Championnat d'Angleterre",country:'Angleterre',tier:5,money:5,vis:5,dev:5,agg:1.15,
-  cities:['Manchester','Londres','Liverpool','Newcastle','Birmingham','Leeds','Bristol','Sheffield','Brighton','Nottingham'],suf:['United','City','FC','Athletic','Rovers']},
- {id:'ES1',name:'Liga espagnole',country:'Espagne',tier:5,money:4,vis:5,dev:5,agg:0.95,
-  cities:['Madrid','Barcelone','Séville','Valence','Bilbao','La Corogne','Saragosse','Malaga','Grenade','Vigo'],suf:['CF','Real','Atlético','Deportivo','CD']},
- {id:'IT1',name:'Serie A italienne',country:'Italie',tier:4,money:3,vis:4,dev:4,agg:1.05,
-  cities:['Milan','Turin','Rome','Naples','Florence','Gênes','Bologne','Vérone','Palerme','Bari'],suf:['Calcio','AC','AS','US','Sporting']},
- {id:'DE1',name:'Championnat d’Allemagne',country:'Allemagne',tier:4,money:4,vis:4,dev:5,agg:1.0,
-  cities:['Munich','Dortmund','Hambourg','Berlin','Cologne','Stuttgart','Brême','Leipzig','Francfort','Mönchengladbach'],suf:['SV','FC','Borussia','Union','SC']},
- {id:'FR1',name:'Championnat de France',country:'France',tier:4,money:3,vis:4,dev:5,agg:1.0,
-  cities:['Paris','Marseille','Lyon','Lille','Monaco','Nantes','Rennes','Bordeaux','Nice','Lens'],suf:['FC','Olympique','Racing','Stade','AS']},
- {id:'FR2',name:'Ligue 2 française',country:'France',tier:2,money:1,vis:2,dev:3,agg:1.05,
-  cities:['Metz','Caen','Grenoble','Amiens','Pau','Laval','Annecy','Bastia','Rodez','Dunkerque'],suf:['FC','Stade','US','AS','SC']},
- {id:'PT1',name:'Liga portugaise',country:'Portugal',tier:3,money:2,vis:3,dev:5,agg:0.95,
-  cities:['Lisbonne','Porto','Braga','Guimarães','Coimbra','Faro','Setúbal','Aveiro','Funchal','Évora'],suf:['Sporting','FC','Benfica?','SC','CD']},
- {id:'NL1',name:'Eredivisie néerlandaise',country:'Pays-Bas',tier:3,money:2,vis:3,dev:5,agg:0.9,
-  cities:['Amsterdam','Rotterdam','Eindhoven','Utrecht','La Haye','Groningue','Arnhem','Alkmaar','Enschede','Bréda'],suf:['FC','SC','Ajax?','SV','VV']},
- {id:'BR1',name:'Brasileirão',country:'Brésil',tier:3,money:2,vis:3,dev:4,agg:1.05,
-  cities:['São Paulo','Rio de Janeiro','Belo Horizonte','Porto Alegre','Salvador','Recife','Curitiba','Fortaleza','Santos','Goiânia'],suf:['FC','EC','Atlético','Internacional?','SC']},
- {id:'AR1',name:'Championnat argentin',country:'Argentine',tier:3,money:1,vis:3,dev:4,agg:1.15,
-  cities:['Buenos Aires','Rosario','Córdoba','La Plata','Mendoza','Santa Fe','Tucumán','Avellaneda','Lanús','Quilmes'],suf:['CA','Club','Atlético','Racing','Estudiantes?']},
- {id:'SA1',name:'Ligue saoudienne',country:'Arabie saoudite',tier:2,money:4,vis:2,dev:2,agg:0.85,
-  cities:['Riyad','Djeddah','La Mecque','Médine','Dammam','Abha','Taïf','Burayda','Khobar','Tabuk'],suf:['Al','SC','FC','Club','Étoile']},
- {id:'US1',name:'Ligue nord-américaine',country:'États-Unis',tier:2,money:3,vis:3,dev:3,agg:0.9,
-  cities:['Los Angeles','New York','Miami','Austin','Seattle','Atlanta','Chicago','Denver','Portland','Columbus'],suf:['FC','United','SC','City','Union']},
- {id:'JP1',name:'J-League japonaise',country:'Japon',tier:2,money:2,vis:2,dev:4,agg:0.8,
-  cities:['Tokyo','Yokohama','Osaka','Kobe','Nagoya','Kawasaki','Sapporo','Fukuoka','Hiroshima','Sendai'],suf:['FC','Antlers?','SC','United','Marinos?']},
- {id:'TR1',name:'Süper Lig turque',country:'Turquie',tier:3,money:2,vis:3,dev:3,agg:1.2,
-  cities:['Istanbul','Ankara','Izmir','Trabzon','Bursa','Antalya','Konya','Adana','Kayseri','Gaziantep'],suf:['SK','Spor','FK','Gençlik','1907']}
-];
-// nettoie les suffixes taquins
-LEAGUES.forEach(function(L){L.suf=L.suf.map(function(s){return s.replace('?','');});});
+/* Pyramides nationales : chaque pays a 1 à 3 divisions avec montées/descentes.
+   Niveau 1 = Élite, niveau 2 = D1, niveau 3 = D2. */
+var LVL_LABEL={1:'Élite',2:'D1',3:'D2'};
+var COUNTRIES={
+ EN:{name:'Angleterre',agg:1.15,
+  cities:['Manchester','Londres','Liverpool','Newcastle','Birmingham','Leeds','Bristol','Sheffield','Brighton','Nottingham'],
+  suf:['United','City','FC','Athletic','Rovers','Wanderers'],
+  divs:[{name:'Championnat d’Angleterre',tier:5,money:5,vis:5,dev:5},
+        {name:'D1 anglaise',tier:3,money:2,vis:3,dev:3},
+        {name:'D2 anglaise',tier:2,money:1,vis:2,dev:2}]},
+ ES:{name:'Espagne',agg:0.95,
+  cities:['Madrid','Barcelone','Séville','Valence','Bilbao','La Corogne','Saragosse','Malaga','Grenade','Vigo'],
+  suf:['CF','Real','Atlético','Deportivo','CD','UD'],
+  divs:[{name:'Liga espagnole',tier:5,money:4,vis:5,dev:5},
+        {name:'D1 espagnole',tier:2,money:1,vis:2,dev:3},
+        {name:'D2 espagnole',tier:1,money:1,vis:1,dev:2}]},
+ IT:{name:'Italie',agg:1.05,
+  cities:['Milan','Turin','Rome','Naples','Florence','Gênes','Bologne','Vérone','Palerme','Bari'],
+  suf:['Calcio','AC','AS','US','Sporting','Virtus'],
+  divs:[{name:'Serie A italienne',tier:4,money:3,vis:4,dev:4},
+        {name:'D1 italienne',tier:2,money:1,vis:2,dev:2}]},
+ DE:{name:'Allemagne',agg:1.0,
+  cities:['Munich','Dortmund','Hambourg','Berlin','Cologne','Stuttgart','Brême','Leipzig','Francfort','Bochum'],
+  suf:['SV','FC','Borussia','Union','SC','Eintracht'],
+  divs:[{name:'Championnat d’Allemagne',tier:4,money:4,vis:4,dev:5},
+        {name:'D1 allemande',tier:2,money:2,vis:2,dev:3}]},
+ FR:{name:'France',agg:1.0,
+  cities:['Paris','Marseille','Lyon','Lille','Monaco','Nantes','Rennes','Bordeaux','Nice','Lens'],
+  suf:['FC','Olympique','Racing','Stade','AS','US'],
+  divs:[{name:'Championnat de France',tier:4,money:3,vis:4,dev:5},
+        {name:'D1 française',tier:2,money:1,vis:2,dev:3},
+        {name:'D2 française',tier:1,money:1,vis:1,dev:2}]},
+ PT:{name:'Portugal',agg:0.95,
+  cities:['Lisbonne','Porto','Braga','Guimarães','Coimbra','Faro','Setúbal','Aveiro','Funchal','Évora'],
+  suf:['Sporting','FC','SC','CD','União'],
+  divs:[{name:'Liga portugaise',tier:3,money:2,vis:3,dev:5},
+        {name:'D1 portugaise',tier:1,money:1,vis:1,dev:2}]},
+ NL:{name:'Pays-Bas',agg:0.9,
+  cities:['Amsterdam','Rotterdam','Eindhoven','Utrecht','La Haye','Groningue','Arnhem','Alkmaar','Enschede','Bréda'],
+  suf:['FC','SC','SV','VV','Sparta'],
+  divs:[{name:'Eredivisie néerlandaise',tier:3,money:2,vis:3,dev:5},
+        {name:'D1 néerlandaise',tier:1,money:1,vis:1,dev:3}]},
+ BR:{name:'Brésil',agg:1.05,
+  cities:['São Paulo','Rio de Janeiro','Belo Horizonte','Porto Alegre','Salvador','Recife','Curitiba','Fortaleza','Santos','Goiânia'],
+  suf:['FC','EC','Atlético','SC','Esporte','Nacional'],
+  divs:[{name:'Brasileirão',tier:3,money:2,vis:3,dev:4},
+        {name:'Série B brésilienne',tier:2,money:1,vis:1,dev:3}]},
+ AR:{name:'Argentine',agg:1.15,
+  cities:['Buenos Aires','Rosario','Córdoba','La Plata','Mendoza','Santa Fe','Tucumán','Avellaneda','Lanús','Quilmes'],
+  suf:['CA','Club','Atlético','Racing','Defensores'],
+  divs:[{name:'Championnat argentin',tier:3,money:1,vis:3,dev:4},
+        {name:'D1 argentine',tier:1,money:1,vis:1,dev:3}]},
+ TR:{name:'Turquie',agg:1.2,
+  cities:['Istanbul','Ankara','Izmir','Trabzon','Bursa','Antalya','Konya','Adana','Kayseri','Gaziantep'],
+  suf:['SK','Spor','FK','Gençlik','Gücü'],
+  divs:[{name:'Süper Lig turque',tier:3,money:2,vis:3,dev:3},
+        {name:'D1 turque',tier:1,money:1,vis:1,dev:2}]},
+ SA:{name:'Arabie saoudite',agg:0.85,
+  cities:['Riyad','Djeddah','La Mecque','Médine','Dammam','Abha','Taïf','Burayda','Khobar','Tabuk'],
+  suf:['Al','SC','FC','Club','Étoile'],
+  divs:[{name:'Ligue saoudienne',tier:2,money:4,vis:2,dev:2}]},
+ US:{name:'États-Unis',agg:0.9,
+  cities:['Los Angeles','New York','Miami','Austin','Seattle','Atlanta','Chicago','Denver','Portland','Columbus'],
+  suf:['FC','United','SC','City','Union'],
+  divs:[{name:'Ligue nord-américaine',tier:2,money:3,vis:3,dev:3}]},
+ JP:{name:'Japon',agg:0.8,
+  cities:['Tokyo','Yokohama','Osaka','Kobe','Nagoya','Kawasaki','Sapporo','Fukuoka','Hiroshima','Sendai'],
+  suf:['FC','SC','United','Vissel','Frontale'],
+  divs:[{name:'J-League japonaise',tier:2,money:2,vis:2,dev:4},
+        {name:'J2 japonaise',tier:1,money:1,vis:1,dev:3}]},
+ CH:{name:'Suisse',agg:0.9,
+  cities:['Genève','Zurich','Bâle','Berne','Lausanne','Lucerne','Saint-Gall','Sion','Lugano','Winterthour'],
+  suf:['FC','SC','Servette','Young','BSC'],
+  divs:[{name:'Première division suisse',tier:2,money:2,vis:2,dev:3},
+        {name:'D1 suisse',tier:1,money:1,vis:1,dev:2}]},
+ MA:{name:'Maroc',agg:1.0,
+  cities:['Casablanca','Rabat','Marrakech','Fès','Tanger','Agadir','Oujda','Kénitra','Tétouan','Meknès'],
+  suf:['AS','Olympique','Union','Chabab','FUS'],
+  divs:[{name:'Botola marocaine',tier:2,money:1,vis:1,dev:2}]},
+ SN:{name:'Sénégal',agg:1.0,
+  cities:['Dakar','Thiès','Saint-Louis','Kaolack','Ziguinchor','Rufisque','Mbour','Louga','Diourbel','Guédiawaye'],
+  suf:['ASC','US','Étoile','AS','Casa'],
+  divs:[{name:'Championnat sénégalais',tier:1,money:1,vis:1,dev:2}]}
+};
+var LEAGUES=[];
+Object.keys(COUNTRIES).forEach(function(cid){
+  COUNTRIES[cid].divs.forEach(function(d,i){
+    LEAGUES.push({id:cid+(i+1),country:cid,countryName:COUNTRIES[cid].name,level:i+1,
+      divLabel:LVL_LABEL[i+1],name:d.name,tier:d.tier,money:d.money,vis:d.vis,dev:d.dev,
+      agg:COUNTRIES[cid].agg,cities:COUNTRIES[cid].cities,suf:COUNTRIES[cid].suf});
+  });
+});
 
 var ATTRS={fin:'Finition',fra:'Frappe de loin',pas:'Passe',vis:'Vision',dri:'Dribble',
            def:'Défense',vit:'Vitesse',phy:'Physique',men:'Mental'};
@@ -558,25 +619,71 @@ function makeWorld(seed){
   var rng=new RNG(seed);
   var era=ERAS[Math.floor(rng.next()*ERAS.length)];
   var leagues={};
+  var usedByCountry={};
   LEAGUES.forEach(function(L){
     var mult=(era.mult[L.id]||1);
-    var lg={id:L.id,name:L.name,country:L.country,tier:L.tier,agg:L.agg,
+    var lg={id:L.id,name:L.name,country:L.country,countryName:L.countryName,
+            level:L.level,divLabel:L.divLabel,tier:L.tier,agg:L.agg,
             money:Math.min(6,L.money*mult),vis:L.vis+(mult>1?1:0),dev:L.dev,clubs:[]};
-    var used={};
+    var used=usedByCountry[L.country]=usedByCountry[L.country]||{};
     for(var i=0;i<10;i++){
-      var city;do{city=rng.pick(L.cities);}while(used[city]);used[city]=1;
-      var suf=rng.pick(L.suf);
-      var name=(suf==='Al')?('Al-'+city):(suf+' '+city);
-      // hiérarchie retirée par seed : 1-2 géants, un ventre mou, des petits
-      var base=52+L.tier*6;
-      var str=base+(i===0?10:i===1?7:i<4?3:0)+Math.round(rng.gauss()*3);
-      lg.clubs.push({n:name,str:Math.max(45,Math.min(94,str)),lg:L.id});
+      var name,guard=0;
+      do{
+        var city=rng.pick(L.cities),suf=rng.pick(L.suf);
+        name=(suf==='Al')?('Al-'+city):(suf+' '+city);
+      }while(used[name]&&guard++<60);
+      used[name]=1;
+      // hiérarchie retirée par seed : 1-2 cadors, un ventre mou, des petits
+      var base=46+L.tier*7;
+      var str=base+(i===0?9:i===1?6:i<4?3:0)+Math.round(rng.gauss()*3);
+      lg.clubs.push({n:name,str:Math.max(40,Math.min(94,str)),lg:L.id});
     }
     lg.clubs.sort(function(a,b){return b.str-a.str;});
     leagues[L.id]=lg;
   });
-  return {seed:seed,era:{id:era.id,name:era.name,desc:era.desc},leagues:leagues,
+  return {v:2,seed:seed,era:{id:era.id,name:era.name,desc:era.desc},leagues:leagues,
           rngState:rng.s,year:2026,bdoRivalBase:88+Math.round(rng.next()*4)};
+}
+/* Divisions d'un pays, du sommet vers le bas */
+function countryDivisions(world,cid){
+  var out=[];
+  for(var l=1;l<=3;l++){var lid=cid+l;if(world.leagues[lid])out.push(world.leagues[lid]);}
+  return out;
+}
+/* Tables de toute la planète + montées/descentes. influence = poids du joueur sur son club. */
+function simWorldSeason(st,influence){
+  var world=st.world,rng=st.rng,p=st.p;
+  var tables={};
+  for(var id in world.leagues){
+    var L=world.leagues[id];
+    tables[id]=L.clubs.map(function(c){
+      var b=(id===p.lg&&c.n===p.club)?influence:0;
+      return {c:c,sc:c.str+b+rng.gauss()*2.6};
+    }).sort(function(a,b2){return b2.sc-a.sc;});
+  }
+  var moves={promoted:[],relegated:[]};
+  Object.keys(COUNTRIES).forEach(function(cid){
+    var divs=countryDivisions(world,cid);
+    for(var i=0;i<divs.length-1;i++){
+      var upper=divs[i],lower=divs[i+1];
+      var down=tables[upper.id].slice(-2).map(function(x){return x.c;});
+      var up=tables[lower.id].slice(0,2).map(function(x){return x.c;});
+      upper.clubs=upper.clubs.filter(function(c){return down.indexOf(c)<0;});
+      lower.clubs=lower.clubs.filter(function(c){return up.indexOf(c)<0;});
+      up.forEach(function(c){c.lg=upper.id;c.str=Math.min(94,c.str+2);upper.clubs.push(c);
+        moves.promoted.push({n:c.n,to:upper});});
+      down.forEach(function(c){c.lg=lower.id;c.str=Math.max(40,c.str-2);lower.clubs.push(c);
+        moves.relegated.push({n:c.n,to:lower});});
+    }
+  });
+  // dérive douce : le monde vit
+  for(var id2 in world.leagues){
+    world.leagues[id2].clubs.forEach(function(c){
+      c.str=Math.max(40,Math.min(94,c.str+rng.gauss()*.7));
+    });
+    world.leagues[id2].clubs.sort(function(a,b3){return b3.str-a.str;});
+  }
+  return {tables:tables,moves:moves};
 }
 
 /* ================= JOUEUR ================= */
@@ -602,8 +709,15 @@ function makePlayer(o,world,rng){
   };
   hid.pot=Math.max(64,Math.min(99,hid.pot+(ent.hid.potVar||0)));
   var nat=NATIONS.find(function(n){return n.id===o.nat;});
-  var lg=world.leagues[nat.lg];
-  var club=lg.clubs[lg.clubs.length-1-rng.int(0,3)]; // petit club de départ
+  var lg,club;
+  if(o.startClub){
+    lg=world.leagues[o.startClub.lg];
+    club=lg.clubs.find(function(c){return c.n===o.startClub.n;})||lg.clubs[lg.clubs.length-1];
+  } else {
+    var divs=countryDivisions(world,nat.id);
+    lg=divs[divs.length-1]; // division la plus basse du pays par défaut
+    club=lg.clubs[lg.clubs.length-1-rng.int(0,3)];
+  }
   var pool=POOLS[nat.pool];
   var name=o.name&&o.name.trim()?o.name.trim():(rng.pick(pool.f)+' '+rng.pick(pool.l));
   var rivalNat=rng.pick(NATIONS);
@@ -611,7 +725,8 @@ function makePlayer(o,world,rng){
   return {
     name:name,nat:o.nat,natName:nat.name,natStr:nat.str,pos:pos,macro:o.macro,style:null,
     origin:o.origin,ent:o.ent,age:15,attrs:attrs,hid:hid,
-    form:50,mor:60,trust:40,rep:(org.hid.rep||0)+(ent.hid.rep||0)+2,natRep:0,
+    form:50,mor:60,trust:Math.max(22,Math.min(60,60-Math.round((club.str-55)*.8))),
+    rep:(org.hid.rep||0)+(ent.hid.rep||0)+2,natRep:0,
     money:0,salary:0.02,club:club.n,clubStr:club.str,lg:lg.id,
     caps:0,natGoals:0,seenEv:[],flags:{},rival:rival,rivalLevel:70+rng.int(0,15),
     hist:[],palmares:[],moments:[],bdo:0,wcWon:0,continental:0,titles:0,cups:0,
@@ -668,18 +783,28 @@ function simulateSeason(st){
   var note=6.05+diff/26+goals/(apps||1)*.9+assists/(apps||1)*.6+defBonus+noise*.35;
   note=Math.max(5.2,Math.min(8.8,note));
   if(apps<8)note=Math.min(note,6.6);
-  // classement du club
-  var clubs=lg.clubs.map(function(c){
-    var boost=(c.n===p.club)?(diff>0?Math.min(4,diff*.35)*share:0):0;
-    return {n:c.n,sc:c.str+boost+rng.gauss()*2.6};
-  }).sort(function(a,b){return b.sc-a.sc;});
-  var rank=clubs.findIndex(function(c){return c.n===p.club;})+1;
+  // Influence réelle du joueur sur son club — une fois titulaire (temps de jeu),
+  // ses performances portent (ou plombent) l'équipe au classement.
+  var influence=0;
+  if(share>=.45)influence=Math.max(-4,Math.min(10,diff*.55*share*1.3));
+  var worldRes=simWorldSeason(st,influence);
+  var oldLgId=p.lg,oldLevel=lg.level;
+  var rank=worldRes.tables[oldLgId].findIndex(function(x){return x.c.n===p.club;})+1;
   var champion=rank===1;
-  var cup=rng.chance(Math.max(.03,(p.clubStr-52)/220));
+  var hasLower=!!st.world.leagues[lg.country+(lg.level+1)];
+  var promoted=lg.level>1&&rank<=2;
+  var relegated=hasLower&&rank>=9;
+  // le club du joueur a peut-être changé de division : on le retrouve
+  countryDivisions(st.world,lg.country).forEach(function(L2){
+    L2.clubs.forEach(function(c){if(c.n===p.club){p.lg=L2.id;p.clubStr=c.str;}});
+  });
+  var newLg=leagueOf(st);
+  var cup=rng.chance(Math.max(.02,(p.clubStr-52)/220)*(lg.level===1?1:.3));
   var continental=false;
-  var isEuro=['EN1','ES1','IT1','DE1','FR1','PT1','NL1'].indexOf(p.lg)>=0;
-  var contName=isEuro?'Ligue des champions':'Copa Libertadores';
-  if((isEuro||['BR1','AR1'].indexOf(p.lg)>=0)&&st.prevRank&&st.prevRank<=3){
+  var euroC=['EN','ES','IT','DE','FR','PT','NL','CH'].indexOf(lg.country)>=0;
+  var samC=['BR','AR'].indexOf(lg.country)>=0;
+  var contName=euroC?'Ligue des champions':'Copa Libertadores';
+  if((euroC||samC)&&lg.level===1&&st.prevRank&&st.prevRank<=3){
     continental=rng.chance(Math.max(.02,(p.clubStr-80)/60)*(share>.5?1:.6));
   }
   // XP & progression : matchs + entraînement (les jeunes progressent surtout au centre)
@@ -696,13 +821,13 @@ function simulateSeason(st){
   p.mor=Math.round(Math.max(15,Math.min(95,p.mor+(apps>25?4:apps>12?0:-7)+(champion?6:0)+(rank>7?-3:0))));
   p.trust=Math.round(Math.max(10,Math.min(95,p.trust+(note>7?10:note>6.6?4:-6)+(apps<10?-5:0))));
   // réputation
-  var repGain=(note-6.3)*6*(lg.vis/5)+(goals+assists)*.16+(champion?4:0)+(continental?8:0)+(cup?2:0);
+  var repGain=(note-6.3)*6*(lg.vis/5)+(goals+assists)*.16+(champion?4:0)+(promoted?3:0)+(continental?8:0)+(cup?2:0);
   p.rep=Math.max(0,Math.min(100,p.rep+Math.round(Math.max(-4,repGain))));
   // sélection nationale
   var natRes=simNation(st,note,apps);
   // salaire & argent
   var o=ovr(p);
-  p.salary=Math.max(.02,Math.pow(Math.max(0,(o-52))/10,2)*(lg.money/2.4)*.55);
+  p.salary=Math.max(.02,Math.pow(Math.max(0,(o-52))/10,2)*(newLg.money/2.4)*.55);
   p.money+=p.salary;
   // Ballon d'Or
   var bdoWon=false;
@@ -713,7 +838,10 @@ function simulateSeason(st){
     if(myScore>rivalScore&&o>=88){bdoWon=true;p.bdo++;}
   }
   // trophées & historique
-  if(champion){p.titles++;p.palmares.push(st.year+' — Champion ('+lg.name+')');}
+  if(champion&&lg.level===1){p.titles++;p.palmares.push(st.year+' — Champion ('+lg.name+')');}
+  else if(promoted){p.palmares.push(st.year+' — Montée en '+newLg.divLabel+' avec '+p.club);
+    p.moments.push(st.year+' — '+p.club+' monte en '+newLg.divLabel+(influence>3?', porté par tes performances':'')+'.');}
+  if(relegated)p.moments.push(st.year+' — Relégation de '+p.club+' en '+newLg.divLabel+'. Saison noire.');
   if(cup){p.cups++;p.palmares.push(st.year+' — Coupe nationale');}
   if(continental){p.continental++;p.palmares.push(st.year+' — '+contName);}
   if(bdoWon)p.palmares.push(st.year+' — BALLON D’OR');
@@ -723,7 +851,8 @@ function simulateSeason(st){
   if(o>=85)p.seasonsTop++;
   var res={apps:apps,goals:goals,assists:assists,note:note,rank:rank,champion:champion,
     cup:cup,continental:continental,contName:contName,inj:inj,bdo:bdoWon,nat:natRes,
-    ovrDelta:o-st.ovrBefore};
+    ovrDelta:o-st.ovrBefore,promoted:promoted,relegated:relegated,
+    oldDiv:LVL_LABEL[oldLevel],newDiv:newLg.divLabel,lgName:lg.name,influence:influence};
   st.prevRank=rank;
   p.hist.push({y:st.year,club:p.club,apps:apps,g:goals,a:assists,note:note});
   return res;
@@ -802,8 +931,8 @@ function genOffers(st){
     var pick=cands.splice(rng.int(0,cands.length-1),1)[0];
     var role=pick.c.str-lvl>4?'rotation':pick.c.str-lvl>-4?'titulaire en devenir':'star attendue';
     var sal=Math.max(.05,Math.pow(Math.max(0,(ovr(p)-52))/10,2)*(pick.L.money/2.4)*.7*(1+rng.next()*.4));
-    offers.push({club:pick.c.n,lg:pick.L.id,lgName:pick.L.name,str:pick.c.str,role:role,
-      salary:sal,abroad:pick.L.id!==NATIONS.find(function(nn){return nn.id===p.nat;}).lg});
+    offers.push({club:pick.c.n,lg:pick.L.id,lgName:pick.L.name,div:pick.L.divLabel,str:pick.c.str,role:role,
+      salary:sal,abroad:pick.L.country!==NATIONS.find(function(nn){return nn.id===p.nat;}).lg.slice(0,2)});
   }
   return offers;
 }
@@ -812,7 +941,7 @@ function transferQuestion(st,offers){
   var ch=offers.map(function(o){
     var risk=o.str-ovr(p)>3;
     return {l:'Signer : '+o.club,
-      d:o.lgName+' · niveau '+o.str+' · '+o.role+' · '+o.salary.toFixed(1)+' M€/an'+(o.abroad?' · étranger':''),
+      d:o.lgName+' ('+o.div+') · niveau '+o.str+' · '+o.role+' · '+o.salary.toFixed(1)+' M€/an'+(o.abroad?' · étranger':''),
       transfer:o,
       eff:{mor:6}};
   });
@@ -1087,7 +1216,7 @@ function openProfile(st){
     stateRow('Réputation',p.rep,repLabel(p.rep));
   var info='<table class="stats">'+
     statRow('Club',esc(p.club))+
-    statRow('Championnat',esc(leagueOf(st).name))+
+    statRow('Championnat',esc(leagueOf(st).name)+' <span class="small">('+esc(leagueOf(st).divLabel)+')</span>')+
     statRow('Poste',esc(POSITIONS[p.pos].label))+
     statRow('Identité de jeu',sty?esc(sty.name):'<span class="small">à définir au centre de formation</span>')+
     statRow('Salaire',p.salary.toFixed(1)+' M€/an')+
@@ -1171,9 +1300,13 @@ async function seasonReport(st,res){
   mountTopbar(st);
   var p=st.p,lg=leagueOf(st);
   var head='<div class="season-head"><span class="yr">Saison '+st.year+'</span>'+
-    '<span class="ag">'+p.age+' ans · '+esc(lg.name)+'</span></div>';
+    '<span class="ag">'+p.age+' ans · '+esc(res.lgName||lg.name)+'</span></div>';
   var trophies='';
-  if(res.champion)trophies+='<div class="press trophy">🏆 CHAMPION — '+esc(p.club)+' !</div>';
+  if(res.champion&&res.oldDiv==='Élite')trophies+='<div class="press trophy">🏆 CHAMPION — '+esc(p.club)+' !</div>';
+  else if(res.champion)trophies+='<div class="press trophy">🏆 Champion de '+esc(res.oldDiv)+' !</div>';
+  if(res.promoted)trophies+='<div class="press trophy">📈 MONTÉE ! '+esc(p.club)+' jouera en '+esc(res.newDiv)+
+    (res.influence>3?' — et c’est en grande partie grâce à toi.':' la saison prochaine !')+'</div>';
+  if(res.relegated)trophies+='<div class="press" style="color:var(--bad)">📉 Relégation… '+esc(p.club)+' descend en '+esc(res.newDiv)+'.</div>';
   if(res.cup)trophies+='<div class="press trophy">🏆 Vainqueur de la coupe nationale</div>';
   if(res.continental)trophies+='<div class="press trophy">🌟 VAINQUEUR — '+esc(res.contName)+' !</div>';
   if(res.bdo)trophies+='<div class="press trophy">👑 BALLON D’OR — le monde s’incline.</div>';
@@ -1184,7 +1317,7 @@ async function seasonReport(st,res){
     statRow('Matchs joués',res.apps)+
     statRow('Buts / Passes déc.',res.goals+' / '+res.assists)+
     statRow('Note moyenne',res.note.toFixed(2))+
-    statRow('Classement du club',res.rank+'ᵉ / 10')+
+    statRow('Classement du club',res.rank+'ᵉ / 10 <span class="small">('+esc(res.oldDiv||'')+')</span>')+
     statRow('Évolution générale',(d>=0?'+':'')+d+' → <b style="color:var(--gold)">'+ovr(p)+'</b>')+
     statRow('Salaire',p.salary.toFixed(1)+' M€/an')+
     '</table>';
@@ -1310,6 +1443,7 @@ function startScreen(){
   clearApp();
   var profile=loadProfile();
   var save=loadGame();
+  if(save&&(!save.world||save.world.v!==2))save=null; // sauvegarde d'une version incompatible
   var el=h('<div style="padding-top:48px">'+
     '<h1 class="logo">My<em>Career</em></h1>'+
     '<p class="tagline">Écris ta légende. Personne ne connaît son destin à l’avance.</p>'+
@@ -1354,10 +1488,44 @@ function pantheonScreen(){
   var b=document.createElement('button');b.className='ghost';b.textContent='← Retour';
   b.addEventListener('click',startScreen);back.appendChild(b);
 }
+/* Offres de contrat jeune : clubs du pays, très rarement un cador */
+function genStartOffers(world,natId,rng){
+  var nat=NATIONS.find(function(n){return n.id===natId;});
+  var cid=nat.lg.slice(0,2);
+  var divs=countryDivisions(world,cid);
+  var low=divs[divs.length-1],offers=[],used={};
+  function pushClub(c,L){
+    if(used[c.n])return false;
+    used[c.n]=1;
+    var idx=L.clubs.indexOf(c);
+    var standing=idx<3?'cador':idx<7?'ventre mou':'modeste';
+    var d;
+    if(L.level===1&&idx<3)d='⚠️ Grand club : formation d’élite, mais concurrence féroce pour percer.';
+    else if(L.level===1)d=L.name+' — le grand bain tout de suite, temps de jeu à conquérir.';
+    else if(standing==='cador')d=L.name+' ('+L.divLabel+') — un club ambitieux qui vise la montée.';
+    else d=L.name+' ('+L.divLabel+') — club '+standing+', temps de jeu quasi garanti pour un jeune.';
+    offers.push({n:c.n,lg:L.id,desc:d,div:L.divLabel});
+    return true;
+  }
+  var guard=0;
+  while(offers.length<3&&guard++<50){
+    var r=rng.next();
+    if(r<.04&&divs[0].level===1){ // le rêve : un cador de l'Élite (très rare)
+      pushClub(rng.pick(divs[0].clubs.slice(0,3)),divs[0]);
+    } else if(r<.18&&divs.length>1){ // milieu/bas d'Élite
+      pushClub(rng.pick(divs[0].clubs.slice(4)),divs[0]);
+    } else if(divs.length>2&&r<.5){ // division intermédiaire
+      pushClub(rng.pick(divs[1].clubs.slice(3)),divs[1]);
+    } else { // bas de la pyramide (le départ normal)
+      pushClub(rng.pick(low.clubs.slice(3)),low);
+    }
+  }
+  return offers;
+}
 function creationScreen(){
   clearSave();
   var sel={nat:null,macro:null,origin:null,ent:null,name:''};
-  var STEPS=5;
+  var STEPS=6;
   function progress(step){
     var s='<div class="wiz-progress">';
     for(var i=0;i<STEPS;i++)s+='<span class="'+(i<step?'done':'')+'"></span>';
@@ -1447,18 +1615,37 @@ function creationScreen(){
       '<div class="choices" id="go" style="margin-top:14px"></div></div>');
     app.appendChild(el);
     var go=el.querySelector('#go');
-    var b=document.createElement('button');b.className='primary';b.textContent='Commencer la carrière';
+    var b=document.createElement('button');b.className='primary';b.textContent='Voir les clubs intéressés';
     b.addEventListener('click',function(){
       sel.name=el.querySelector('#f-name').value;
       var seed=(Date.now()^(Math.random()*0xFFFFFFF))>>>0;
       var world=makeWorld(seed);
       var rng=new RNG(seed^0x9E3779B9);
-      var p=makePlayer(sel,world,rng);
-      var st={world:world,p:p,year:world.year,season:1,prevRank:null,ovrBefore:ovr(p),rng:rng};
-      introScreen(st);
+      stepClub(world,rng);
     });
     go.appendChild(b);
     el.appendChild(backBtn(stepEnt));
+  }
+  function stepClub(world,rng){
+    clearApp();
+    var offers=genStartOffers(world,sel.nat,rng);
+    var el=h('<div style="padding-top:16px">'+head(6,'Premier contrat','Trois clubs te veulent',
+      'Des contrats jeunes sont sur la table. Le choix du départ pèse lourd : temps de jeu ou prestige ?')+
+      '<div class="choices" id="grid"></div></div>');
+    app.appendChild(el);
+    var grid=el.querySelector('#grid');
+    offers.forEach(function(o){
+      var b=document.createElement('button');
+      b.innerHTML='<span class="bl">'+esc(o.n)+'</span><span class="bd">'+esc(o.desc)+'</span>';
+      b.addEventListener('click',function(){
+        sel.startClub={n:o.n,lg:o.lg};
+        var p=makePlayer(sel,world,rng);
+        var st={world:world,p:p,year:world.year,season:1,prevRank:null,ovrBefore:ovr(p),rng:rng};
+        introScreen(st);
+      });
+      grid.appendChild(b);
+    });
+    el.appendChild(backBtn(stepName));
   }
   stepNation();
 }
@@ -1469,7 +1656,8 @@ async function introScreen(st){
   var card=h('<div class="card kick"><div class="kicker">'+st.year+' · '+esc(st.world.era.name)+'</div>'+
     '<h2>Bienvenue dans le grand bain</h2>'+
     '<p>'+esc(st.world.era.desc)+'</p>'+
-    '<p style="margin-top:8px">'+esc(p.name)+', '+p.age+' ans, rejoint les jeunes de <b>'+esc(p.club)+'</b>. '+
+    '<p style="margin-top:8px">'+esc(p.name)+', '+p.age+' ans, rejoint les jeunes de <b>'+esc(p.club)+'</b> ('+
+    esc(leagueOf(st).name)+' — '+esc(leagueOf(st).divLabel)+'). '+
     'Quelque part dans le monde, un certain <b>'+esc(p.rival)+'</b>, du même âge, fait déjà parler de lui. '+
     'La presse locale vous comparera longtemps…</p></div>');
   app.appendChild(card);
