@@ -257,7 +257,7 @@ impossible, et la réussite paie à hauteur du risque.
 
 | Action | P(réussite)* | Si réussie | Si ratée |
 |---|---|---|---|
-| Passe sécurisée | ~90 % | note +0.2 | note −0.2 |
+| Passe sécurisée | ~75 % | note +0.2 | note −0.2 |
 | Passe décisive tentée | ~45-65 % | note +0.7, passe D, vision révélée | note −0.2 |
 | Dribbler dans la surface | ~30-50 % | +0.8, penalty possible | −0.3, contre encaissé |
 | Frappe de 25 m | ~15-25 % | but +1.0, réputation + | −0.3 |
@@ -268,6 +268,11 @@ impossible, et la réussite paie à hauteur du risque.
 vision…), de la forme et du contexte — les fourchettes ci-dessus supposent des stats
 moyennes. Un joueur bâti pour ça (frappe de loin 90) transforme l'improbable en arme :
 **les profils spécialisés rendent le spectaculaire répétable**.
+
+**Il n'existe pas d'option sans tension** : même l'action la plus sûre plafonne autour
+de 75-80 %, quelles que soient les stats. Jouer "petit bras" reste un pari (raté environ
+une fois sur quatre) — aucun choix ne permet de regarder l'écran sans un petit pincement,
+et le jeu ultra-sécurisé n'est jamais une stratégie sans risque.
 
 Règle d'équilibrage (l'anti-frustration) : à stats égales, **l'espérance de gain des
 options est proche**. La passe décisive fiable et la tentative de but d'anthologie sont
