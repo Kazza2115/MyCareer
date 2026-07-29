@@ -112,6 +112,20 @@
   .pantheon-item .sc{font-family:var(--cond);color:var(--gold);font-variant-numeric:tabular-nums;
     font-weight:700}
   .footer-note{margin-top:26px;text-align:center;font-size:12px;color:var(--dim)}
+  .wiz-progress{display:flex;gap:6px;margin:18px 0 6px}
+  .wiz-progress span{height:3px;flex:1;background:var(--line);border-radius:2px}
+  .wiz-progress span.done{background:var(--gold)}
+  .flag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .flag-btn{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;
+    padding:12px 4px;font-size:13px}
+  .flag-btn .fl{font-size:34px;line-height:1}
+  .big-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .big-btn{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
+    padding:22px 8px}
+  .big-btn .ic{font-size:38px;line-height:1}
+  .big-btn .bl{font-family:var(--cond);text-transform:uppercase;letter-spacing:1px;font-size:17px;
+    font-weight:700}
+  .wiz-back{margin-top:16px}
   @media (prefers-reduced-motion:no-preference){
     .card{animation:rise .25s ease-out}
     @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -135,21 +149,21 @@ RNG.prototype.gauss=function(){return (this.next()+this.next()+this.next())*2-3;
 
 /* ================= DONNÉES ================= */
 var NATIONS=[
- {id:'FR',name:'France',pool:'fr',str:5,lg:'FR1'},
- {id:'BR',name:'Brésil',pool:'br',str:5,lg:'BR1'},
- {id:'AR',name:'Argentine',pool:'es',str:5,lg:'AR1'},
- {id:'EN',name:'Angleterre',pool:'en',str:4,lg:'EN1'},
- {id:'ES',name:'Espagne',pool:'es',str:4,lg:'ES1'},
- {id:'IT',name:'Italie',pool:'it',str:4,lg:'IT1'},
- {id:'DE',name:'Allemagne',pool:'de',str:4,lg:'DE1'},
- {id:'PT',name:'Portugal',pool:'pt',str:4,lg:'PT1'},
- {id:'NL',name:'Pays-Bas',pool:'nl',str:3,lg:'NL1'},
- {id:'MA',name:'Maroc',pool:'ar',str:3,lg:'FR1'},
- {id:'SN',name:'Sénégal',pool:'sn',str:3,lg:'FR1'},
- {id:'JP',name:'Japon',pool:'jp',str:3,lg:'JP1'},
- {id:'US',name:'États-Unis',pool:'en',str:2,lg:'US1'},
- {id:'SA',name:'Arabie saoudite',pool:'ar',str:2,lg:'SA1'},
- {id:'TR',name:'Turquie',pool:'tr',str:3,lg:'TR1'}
+ {id:'FR',name:'France',flag:'🇫🇷',pool:'fr',str:5,lg:'FR1'},
+ {id:'BR',name:'Brésil',flag:'🇧🇷',pool:'br',str:5,lg:'BR1'},
+ {id:'AR',name:'Argentine',flag:'🇦🇷',pool:'es',str:5,lg:'AR1'},
+ {id:'EN',name:'Angleterre',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',pool:'en',str:4,lg:'EN1'},
+ {id:'ES',name:'Espagne',flag:'🇪🇸',pool:'es',str:4,lg:'ES1'},
+ {id:'IT',name:'Italie',flag:'🇮🇹',pool:'it',str:4,lg:'IT1'},
+ {id:'DE',name:'Allemagne',flag:'🇩🇪',pool:'de',str:4,lg:'DE1'},
+ {id:'PT',name:'Portugal',flag:'🇵🇹',pool:'pt',str:4,lg:'PT1'},
+ {id:'NL',name:'Pays-Bas',flag:'🇳🇱',pool:'nl',str:3,lg:'NL1'},
+ {id:'MA',name:'Maroc',flag:'🇲🇦',pool:'ar',str:3,lg:'FR1'},
+ {id:'SN',name:'Sénégal',flag:'🇸🇳',pool:'sn',str:3,lg:'FR1'},
+ {id:'JP',name:'Japon',flag:'🇯🇵',pool:'jp',str:3,lg:'JP1'},
+ {id:'US',name:'États-Unis',flag:'🇺🇸',pool:'en',str:2,lg:'US1'},
+ {id:'SA',name:'Arabie saoudite',flag:'🇸🇦',pool:'ar',str:2,lg:'SA1'},
+ {id:'TR',name:'Turquie',flag:'🇹🇷',pool:'tr',str:3,lg:'TR1'}
 ];
 var POOLS={
  fr:{f:['Lucas','Théo','Karim','Mathis','Enzo','Rayan','Nolan','Malik','Adam','Ilan'],
@@ -212,6 +226,9 @@ LEAGUES.forEach(function(L){L.suf=L.suf.map(function(s){return s.replace('?','')
 
 var ATTRS={fin:'Finition',fra:'Frappe de loin',pas:'Passe',vis:'Vision',dri:'Dribble',
            def:'Défense',vit:'Vitesse',phy:'Physique',men:'Mental'};
+var ATTRS_GB={fin:'Réflexes',fra:'Dégagements',pas:'Jeu au pied',vis:'Placement',dri:'Un-contre-un',
+           def:'Arrêts',vit:'Détente',phy:'Physique',men:'Sang-froid'};
+function attrLabel(p,k){return (POSITIONS[p.pos].g==='GB'?ATTRS_GB:ATTRS)[k];}
 var POSITIONS={
  BU:{label:'Buteur',w:{fin:.28,fra:.08,pas:.05,vis:.07,dri:.12,def:.0,vit:.15,phy:.12,men:.13},g:'ATT'},
  AIL:{label:'Ailier',w:{fin:.15,fra:.07,pas:.10,vis:.10,dri:.22,def:.02,vit:.20,phy:.05,men:.09},g:'ATT'},
@@ -219,7 +236,15 @@ var POSITIONS={
  MC:{label:'Milieu central',w:{fin:.05,fra:.06,pas:.24,vis:.18,dri:.08,def:.12,vit:.05,phy:.10,men:.12},g:'MIL'},
  MDC:{label:'Milieu défensif',w:{fin:.02,fra:.03,pas:.16,vis:.12,dri:.04,def:.28,vit:.05,phy:.16,men:.14},g:'MIL'},
  DC:{label:'Défenseur central',w:{fin:.01,fra:.01,pas:.08,vis:.06,dri:.02,def:.36,vit:.10,phy:.22,men:.14},g:'DEF'},
- LAT:{label:'Latéral',w:{fin:.03,fra:.03,pas:.14,vis:.08,dri:.12,def:.22,vit:.18,phy:.10,men:.10},g:'DEF'}
+ LAT:{label:'Latéral',w:{fin:.03,fra:.03,pas:.14,vis:.08,dri:.12,def:.22,vit:.18,phy:.10,men:.10},g:'DEF'},
+ GB:{label:'Gardien',w:{fin:.20,fra:.02,pas:.08,vis:.12,dri:.06,def:.26,vit:.10,phy:.08,men:.08},g:'GB'}
+};
+/* Postes à la création : 4 grandes familles ; le rôle précis se fixe avec le style, plus tard */
+var MACROS={
+ ATT:{label:'Buteur',icon:'⚽',desc:'Vivre pour le but.',pos:'BU'},
+ MIL:{label:'Milieu',icon:'🎯',desc:'Le cerveau du jeu.',pos:'MC'},
+ DEF:{label:'Défenseur',icon:'🛡️',desc:'On ne passe pas.',pos:'DC'},
+ GB:{label:'Gardien',icon:'🧤',desc:'Le dernier rempart.',pos:'GB'}
 };
 var ERAS=[
  {id:'classique',name:'Ère classique',desc:'L’Europe concentre tout l’argent et la gloire.',mult:{}},
@@ -227,12 +252,21 @@ var ERAS=[
  {id:'usboom',name:'Boom américain',desc:'La ligue nord-américaine attire les regards du monde.',mult:{US1:2.4}},
  {id:'asie',name:'Fièvre asiatique',desc:'Le Japon investit massivement dans son championnat.',mult:{JP1:2.2}}
 ];
+/* Styles de jeu par famille de poste — choisis EN COURS de carrière (vers 16-17 ans).
+   Chaque style fixe aussi le rôle précis sur le terrain. */
 var STYLES=[
- {id:'renard',name:'Renard des surfaces',fx:{fin:1.5,men:1.2},desc:'Toujours là où le ballon tombe.'},
- {id:'poison',name:'Poison des défenses',fx:{vit:1.5,dri:1.3},desc:'Vitesse et percussion.'},
- {id:'chef',name:'Chef d’orchestre',fx:{pas:1.5,vis:1.4},desc:'Le jeu passe par toi.'},
- {id:'guerrier',name:'Guerrier',fx:{def:1.4,phy:1.4},desc:'On ne passe pas.'},
- {id:'artiste',name:'Artiste',fx:{dri:1.5,fra:1.3},desc:'Le geste avant tout.'}
+ {id:'renard',macro:'ATT',pos:'BU',name:'Renard des surfaces',fx:{fin:1.6,men:1.2},desc:'Toujours là où le ballon tombe. Le but comme obsession.'},
+ {id:'pivot',macro:'ATT',pos:'BU',name:'Tour de contrôle',fx:{phy:1.5,fin:1.3},desc:'Dos au but, tout passe par ton corps.'},
+ {id:'poison',macro:'ATT',pos:'AIL',name:'Poison des ailes',fx:{vit:1.5,dri:1.4},desc:'Percuter, déborder, faire mal. Tu deviens ailier.'},
+ {id:'chef',macro:'MIL',pos:'MO',name:'Chef d’orchestre',fx:{pas:1.5,vis:1.5},desc:'Le jeu passe par toi. Tu deviens meneur.'},
+ {id:'boxtobox',macro:'MIL',pos:'MC',name:'Box-to-box',fx:{phy:1.4,pas:1.3},desc:'Une surface à l’autre, sans jamais t’arrêter.'},
+ {id:'sentinelle',macro:'MIL',pos:'MDC',name:'Sentinelle',fx:{def:1.5,men:1.3},desc:'Détruire le jeu adverse. L’ombre qui protège tout.'},
+ {id:'roc',macro:'DEF',pos:'DC',name:'Roc',fx:{def:1.5,phy:1.4},desc:'Duels, têtes, tacles. La muraille.'},
+ {id:'relanceur',macro:'DEF',pos:'DC',name:'Relanceur',fx:{pas:1.5,vis:1.3},desc:'La première passe qui casse les lignes.'},
+ {id:'piston',macro:'DEF',pos:'LAT',name:'Piston',fx:{vit:1.5,dri:1.3},desc:'Ton couloir, sur 100 mètres. Tu deviens latéral.'},
+ {id:'mur',macro:'GB',pos:'GB',name:'Le Mur',fx:{fin:1.5,def:1.4},desc:'Réflexes surnaturels sur ta ligne.'},
+ {id:'moderne',macro:'GB',pos:'GB',name:'Gardien moderne',fx:{pas:1.5,vis:1.4},desc:'Premier relanceur de l’équipe, loin de ta ligne.'},
+ {id:'patron',macro:'GB',pos:'GB',name:'Patron de surface',fx:{men:1.5,phy:1.3},desc:'La voix qui commande la défense entière.'}
 ];
 var ORIGINS=[
  {id:'quartier',name:'Quartier populaire',desc:'La rue t’a tout appris. Variance haute.',
@@ -278,7 +312,11 @@ var REFS=[
  {n:'Ravel Morrison',g:'MIL',blurb:'« Le plus grand talent que j’aie vu » — et une carrière en pointillés.',leg:[0,38],bdo:[0,0],flop:1},
  {n:'Hatem Ben Arfa',g:'MIL',blurb:'Des éclairs de génie, jamais la constance.',leg:[30,58],bdo:[0,0],waste:1},
  {n:'Micah Richards',g:'DEF',blurb:'Fulgurant à 18 ans, arrêté par le corps.',leg:[20,55],bdo:[0,0],earlyPeak:1,inj:1},
- {n:'Sergio Ramos',g:'DEF',blurb:'Guerrier des grands soirs, palmarès de géant, cartons compris.',leg:[80,94],bdo:[0,0],wc:1,big:1,long:1}
+ {n:'Sergio Ramos',g:'DEF',blurb:'Guerrier des grands soirs, palmarès de géant, cartons compris.',leg:[80,94],bdo:[0,0],wc:1,big:1,long:1},
+ {n:'Gianluigi Buffon',g:'GB',blurb:'Un quart de siècle dans les cages, la classe et le sacre mondial.',leg:[80,95],bdo:[0,0],long:1,wc:1,loyal:1},
+ {n:'Iker Casillas',g:'GB',blurb:'Le saint des grands soirs, capitaine des sacres.',leg:[78,93],bdo:[0,0],wc:1,big:1,loyal:1},
+ {n:'David de Gea',g:'GB',blurb:'Des saisons de sauveur solitaire, un déclin discret.',leg:[50,72],bdo:[0,0],earlyPeak:1},
+ {n:'Un honnête portier de métier',g:'GB',blurb:'Vingt ans de loyaux services, des gants usés et le respect du vestiaire.',leg:[0,50],bdo:[0,0]}
 ];
 
 /* ============ Événements de vie ============ */
@@ -520,13 +558,13 @@ function makeWorld(seed){
 
 /* ================= JOUEUR ================= */
 function makePlayer(o,world,rng){
+  var pos=MACROS[o.macro].pos;
   var attrs={};
   for(var k in ATTRS)attrs[k]=38+rng.int(0,8);
-  var pw=POSITIONS[o.pos].w;
+  var pw=POSITIONS[pos].w;
   for(var k2 in pw)attrs[k2]+=Math.round(pw[k2]*30);
   var org=ORIGINS.find(function(x){return x.id===o.origin;});
   var ent=ENTOURAGES.find(function(x){return x.id===o.ent;});
-  var sty=STYLES.find(function(x){return x.id===o.style;});
   for(var k3 in (org.fx||{}))attrs[k3]+=org.fx[k3];
   var potVar=(org.hid.potVar||0);
   var hid={
@@ -548,7 +586,7 @@ function makePlayer(o,world,rng){
   var rivalNat=rng.pick(NATIONS);
   var rival=rng.pick(POOLS[rivalNat.pool].f)+' '+rng.pick(POOLS[rivalNat.pool].l);
   return {
-    name:name,nat:o.nat,natName:nat.name,natStr:nat.str,pos:o.pos,style:o.style,
+    name:name,nat:o.nat,natName:nat.name,natStr:nat.str,pos:pos,macro:o.macro,style:null,
     origin:o.origin,ent:o.ent,age:15,attrs:attrs,hid:hid,
     form:50,mor:60,trust:40,rep:(org.hid.rep||0)+(ent.hid.rep||0)+2,natRep:0,
     money:0,salary:0.02,club:club.n,clubStr:club.str,lg:lg.id,
@@ -592,7 +630,7 @@ function simulateSeason(st){
   }
   var apps=Math.round(46*share);
   // production
-  var w={BU:[1,.45],AIL:[.62,.75],MO:[.5,.85],MC:[.2,.5],MDC:[.08,.22],DC:[.07,.08],LAT:[.08,.35]};
+  var w={BU:[1,.45],AIL:[.62,.75],MO:[.5,.85],MC:[.2,.5],MDC:[.08,.22],DC:[.07,.08],LAT:[.08,.35],GB:[.004,.015]};
   var atk=(p.attrs.fin*.5+p.attrs.vit*.2+p.attrs.dri*.15+p.attrs.fra*.15);
   var crea=(p.attrs.pas*.55+p.attrs.vis*.45);
   var gpm=Math.max(.01,(atk-opposition+16)/42)*w[p.pos][0];
@@ -602,7 +640,9 @@ function simulateSeason(st){
     if(rng.chance(Math.min(.85,apm)))assists++;}
   // note moyenne
   var noise=rng.gauss()*(1.1-p.hid.cons/120);
-  var note=6.05+diff/26+goals/(apps||1)*.9+assists/(apps||1)*.6+noise*.35;
+  var gDef=POSITIONS[p.pos].g;
+  var defBonus=(gDef==='DEF'||gDef==='GB')?Math.max(0,(p.clubStr-opposition))*.035+.12:0;
+  var note=6.05+diff/26+goals/(apps||1)*.9+assists/(apps||1)*.6+defBonus+noise*.35;
   note=Math.max(5.2,Math.min(8.8,note));
   if(apps<8)note=Math.min(note,6.6);
   // classement du club
@@ -643,7 +683,8 @@ function simulateSeason(st){
   p.money+=p.salary;
   // Ballon d'Or
   var bdoWon=false;
-  if(POSITIONS[p.pos].g!=='DEF'||note>7.4){
+  var grp=POSITIONS[p.pos].g;
+  if((grp!=='DEF'&&grp!=='GB')||note>7.4){
     var myScore=lvl+goals*.32+assists*.18+(champion?3:0)+(continental?7:0)+(natRes.wcWon?8:0)+(lg.vis-3)*2;
     var rivalScore=st.world.bdoRivalBase+rng.gauss()*2.4+(st.season%4===1?2:0);
     if(myScore>rivalScore&&o>=88){bdoWon=true;p.bdo++;}
@@ -673,10 +714,10 @@ function applyGrowth(st,xp){
   if(head<=0)ovrGain*=.08;
   else if(head<10)ovrGain*=Math.max(.15,head/10);
   if(ovrGain<=0)return;
-  var sty=STYLES.find(function(x){return x.id===p.style;});
+  var sty=p.style?STYLES.find(function(x){return x.id===p.style;}):null;
   var wPos=POSITIONS[p.pos].w;
   var w={};for(var k in wPos)w[k]=wPos[k]||.02;
-  for(var kf in (sty.fx||{}))w[kf]=(w[kf]||.02)*sty.fx[kf];
+  if(sty)for(var kf in (sty.fx||{}))w[kf]=(w[kf]||.02)*sty.fx[kf];
   var tot=0;for(var k2 in w)tot+=w[k2];
   // conversion points d'attributs -> delta d'OVR réel (somme pondérée)
   var conv=0;for(var k4 in w)conv+=(wPos[k4]||0)*(w[k4]/tot);
@@ -690,7 +731,7 @@ function applyGrowth(st,xp){
 }
 function applyDecline(st){
   var p=st.p;
-  var peak={ATT:29,MIL:30,DEF:30}[POSITIONS[p.pos].g];
+  var peak={ATT:29,MIL:30,DEF:30,GB:32}[POSITIONS[p.pos].g];
   if(p.age<=peak)return;
   var over=p.age-peak;
   var mult=(1.35-p.hid.pro/120)*(1+p.graveInjuries*.18);
@@ -776,6 +817,24 @@ function applyTransfer(st,o){
 function keyMatchQuestion(st){
   var p=st.p;
   var what=st.rng.chance(.5)?'La finale de la coupe':'Le match du titre';
+  if(POSITIONS[p.pos].g==='GB'){
+    return {kind:'key',kicker:'Le grand soir',title:what,
+      text:'90e+3. Penalty contre ton équipe. Tout le stade te regarde, toi et le tireur. Que fais-tu ?',
+      ch:[
+        {l:'Rester grand, réagir au tir',d:'~75 % de faire ton travail proprement.',
+         risk:{p:.55,stats:['fin','vis'],
+          win:{eff:{trust:5,rep:3},res:'Détente parfaite ! Le ballon frôle le poteau — tu avais choisi le bon côté.',key:.6,moment:'penalty arrêté dans le money-time'},
+          lose:{eff:{mor:-3},res:'Le tireur croise sa frappe. Imparable. Tu n’y es pour rien, mais ça fait mal.',key:-.2}}},
+        {l:'Jouer la guerre des nerfs',d:'~55 % — retarder, parler, faire douter.',
+         risk:{p:.55,stats:['men'],
+          win:{eff:{rep:4,mor:5},res:'Le tireur craque et tire au-dessus ! Ta provocation a payé — le stade hurle ton nom.',key:.7,moment:'guerre des nerfs gagnée sur penalty décisif'},
+          lose:{eff:{mor:-3,rep:-2},res:'Carton jaune pour gain de temps, et but. La presse parle de cirque inutile.',key:-.2}}},
+        {l:'MONTER SUR LE CORNER SUIVANT',d:'~8 % — le but du gardien, l’Histoire absolue.',
+         risk:{p:.08,stats:['phy'],
+          win:{eff:{rep:12,mor:10,hid:{ego:3}},res:'TU MARQUES DE LA TÊTE ! UN GARDIEN BUTEUR DANS LE MONEY-TIME ! Une image pour l’éternité.',key:.9,moment:'but de la tête en tant que gardien monté sur corner',gold:1},
+          lose:{eff:{mor:-4,rep:-2},res:'Le ballon te passe au-dessus — et le contre finit au fond de ton but vide. Aïe.',key:-.35}}}
+      ]};
+  }
   return {kind:'key',kicker:'Le grand soir',title:what,
     text:'87e minute, tout est encore possible. Le ballon arrive. Le stade retient son souffle. Que fais-tu ?',
     ch:[
@@ -792,6 +851,28 @@ function keyMatchQuestion(st){
         win:{eff:{rep:10,mor:10,hid:{ego:3}},res:'LE BALLON FLOTTE… ET RETOMBE SOUS LA BARRE ! But de légende. Le stade explose, le monde entier repasse la vidéo.',key:.9,moment:'but de 40 mètres dans un grand soir',gold:1},
         lose:{eff:{mor:-4,rep:-2},res:'La frappe s’envole dans les tribunes. Le banc se prend la tête à deux mains.',key:-.3}}}
     ]};
+}
+
+/* ================= IDENTITÉ DE JEU (style, choisi en carrière) ================= */
+function identityQuestion(st){
+  var p=st.p;
+  var styles=STYLES.filter(function(s){return s.macro===p.macro;});
+  return {kind:'identity',kicker:'Ton identité',title:'Quel joueur veux-tu devenir ?',
+    text:'Le directeur du centre de formation te convoque : « On voit ton profil se dessiner. Il est temps de choisir ton identité de jeu — elle guidera toute ta progression. »',
+    ch:styles.map(function(s){
+      return {l:s.name,d:s.desc,identity:s.id,eff:{mor:4}};
+    })};
+}
+function applyIdentity(st,styleId){
+  var p=st.p,s=STYLES.find(function(x){return x.id===styleId;});
+  p.style=s.id;
+  var oldPos=p.pos;
+  p.pos=s.pos;
+  var txt='Te voilà officiellement « '+s.name+' »';
+  if(oldPos!==s.pos)txt+=' — tu évolueras désormais comme '+POSITIONS[s.pos].label.toLowerCase();
+  txt+='. Tes entraînements sont maintenant taillés pour ce profil.';
+  p.moments.push(st.year+' — Identité de jeu choisie : '+s.name+'.');
+  return txt;
 }
 
 /* ================= SÉLECTION DES QUESTIONS ================= */
@@ -823,7 +904,7 @@ function applyEffects(st,eff){
   if(!eff)return[];
   var p=st.p,chips=[];
   if(eff.attrs)for(var k in eff.attrs){p.attrs[k]=Math.max(25,Math.min(97,p.attrs[k]+eff.attrs[k]));
-    chips.push({t:ATTRS[k]+(eff.attrs[k]>0?' +':' ')+eff.attrs[k],c:eff.attrs[k]>0?'up':'down'});}
+    chips.push({t:attrLabel(p,k)+(eff.attrs[k]>0?' +':' ')+eff.attrs[k],c:eff.attrs[k]>0?'up':'down'});}
   if(eff.hid)for(var k2 in eff.hid){
     if(k2==='pot')p.hid.pot=Math.max(60,Math.min(99,p.hid.pot+eff.hid[k2]));
     else p.hid[k2]=Math.max(0,Math.min(100,(p.hid[k2]||50)+eff.hid[k2]));}
@@ -981,6 +1062,9 @@ async function askQuestion(st,q,idx,total){
   if(choice.transfer){
     var txt=applyTransfer(st,choice.transfer);
     out={text:txt,chips:applyEffects(st,choice.eff),good:true,key:0};
+  } else if(choice.identity){
+    var txt2=applyIdentity(st,choice.identity);
+    out={text:txt2,chips:applyEffects(st,choice.eff),good:true,key:0};
   } else out=resolveChoice(st,choice);
   var cls=out.gold?'gold':out.good===true?'good':out.good===false?'bad':'';
   card.appendChild(h('<div class="result '+cls+'">'+esc(out.text||'Noté.')+chipsHtml(out.chips)+'</div>'));
@@ -1015,7 +1099,7 @@ async function seasonReport(st,res){
   app.appendChild(card);
   // attributs
   var ag='<div class="attr-grid">';
-  for(var k in ATTRS)ag+='<div class="attr"><span>'+ATTRS[k]+'</span><b>'+Math.round(p.attrs[k])+'</b></div>';
+  for(var k in ATTRS)ag+='<div class="attr"><span>'+attrLabel(p,k)+'</span><b>'+Math.round(p.attrs[k])+'</b></div>';
   ag+='</div>';
   app.appendChild(h('<div class="card"><div class="kicker grey">Attributs</div>'+ag+'</div>'));
   var cont=h('<div></div>');app.appendChild(cont);
@@ -1038,6 +1122,8 @@ async function runYear(st,profile){
   st.ovrBefore=ovr(p);
   saveGame(st);
   var questions=[];
+  // Identité de jeu : à 16-17 ans, question garantie
+  if(!p.style&&p.age>=16)questions.push(identityQuestion(st));
   // Q1 trajectoire
   var offers=(p.age>=17)?genOffers(st):[];
   if(offers.length&&(st.rng.chance(.75)||p.trust<35))questions.push(transferQuestion(st,offers));
@@ -1175,51 +1261,112 @@ function pantheonScreen(){
   b.addEventListener('click',startScreen);back.appendChild(b);
 }
 function creationScreen(){
-  clearApp();
   clearSave();
-  var sel={nat:'FR',pos:'BU',origin:'quartier',ent:'famille',style:'renard',name:''};
-  var el=h('<div style="padding-top:26px"><h1 class="logo" style="font-size:28px">Ton histoire commence</h1>'+
-    '<p class="tagline">Tu as 15 ans. Un recruteur t’a repéré. La suite t’appartient.</p>'+
-    '<label>Ton nom (optionnel)</label><input type="text" id="f-name" maxlength="24" placeholder="Laisser vide pour un nom généré">'+
-    '<label>Nationalité</label><select id="f-nat">'+NATIONS.map(function(n){
-      return '<option value="'+n.id+'">'+esc(n.name)+'</option>';}).join('')+'</select>'+
-    '<label>Poste</label><div class="optrow" id="f-pos"></div>'+
-    '<label>Style de jeu</label><select id="f-style">'+STYLES.map(function(s){
-      return '<option value="'+s.id+'">'+esc(s.name)+' — '+esc(s.desc)+'</option>';}).join('')+'</select>'+
-    '<label>Origine</label><select id="f-origin">'+ORIGINS.map(function(o){
-      return '<option value="'+o.id+'">'+esc(o.name)+' — '+esc(o.desc)+'</option>';}).join('')+'</select>'+
-    '<label>Entourage</label><select id="f-ent">'+ENTOURAGES.map(function(e){
-      return '<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.desc)+'</option>';}).join('')+'</select>'+
-    '<div class="choices" style="margin-top:22px" id="go"></div></div>');
-  app.appendChild(el);
-  var posBox=el.querySelector('#f-pos');
-  Object.keys(POSITIONS).forEach(function(pid,i){
-    var b=document.createElement('button');
-    b.textContent=POSITIONS[pid].label;
-    if(pid===sel.pos)b.classList.add('sel');
-    b.addEventListener('click',function(){
-      sel.pos=pid;
-      posBox.querySelectorAll('button').forEach(function(x){x.classList.remove('sel');});
-      b.classList.add('sel');
+  var sel={nat:null,macro:null,origin:null,ent:null,name:''};
+  var STEPS=5;
+  function progress(step){
+    var s='<div class="wiz-progress">';
+    for(var i=0;i<STEPS;i++)s+='<span class="'+(i<step?'done':'')+'"></span>';
+    return s+'</div>';
+  }
+  function head(step,kicker,title,sub){
+    return progress(step)+'<div class="kicker">'+esc(kicker)+' · étape '+step+'/'+STEPS+'</div>'+
+      '<h1 class="logo" style="font-size:26px">'+esc(title)+'</h1>'+
+      (sub?'<p class="tagline" style="margin-bottom:10px">'+esc(sub)+'</p>':'');
+  }
+  function backBtn(fn){
+    var b=document.createElement('button');b.className='ghost wiz-back';b.textContent='← Retour';
+    b.addEventListener('click',fn);return b;
+  }
+  function stepNation(){
+    clearApp();
+    var el=h('<div style="padding-top:16px">'+head(1,'Tes racines','D’où viens-tu ?',
+      'Ta nationalité décide de ton championnat de départ et de ta sélection.')+
+      '<div class="flag-grid" id="grid"></div></div>');
+    app.appendChild(el);
+    var grid=el.querySelector('#grid');
+    NATIONS.forEach(function(n){
+      var b=document.createElement('button');b.className='flag-btn';
+      b.innerHTML='<span class="fl">'+n.flag+'</span><span>'+esc(n.name)+'</span>';
+      b.addEventListener('click',function(){sel.nat=n.id;stepPoste();});
+      grid.appendChild(b);
     });
-    posBox.appendChild(b);
-  });
-  var go=el.querySelector('#go');
-  var b=document.createElement('button');b.className='primary';b.textContent='Commencer la carrière';
-  b.addEventListener('click',function(){
-    sel.nat=el.querySelector('#f-nat').value;
-    sel.style=el.querySelector('#f-style').value;
-    sel.origin=el.querySelector('#f-origin').value;
-    sel.ent=el.querySelector('#f-ent').value;
-    sel.name=el.querySelector('#f-name').value;
-    var seed=(Date.now()^(Math.random()*0xFFFFFFF))>>>0;
-    var world=makeWorld(seed);
-    var rng=new RNG(seed^0x9E3779B9);
-    var p=makePlayer(sel,world,rng);
-    var st={world:world,p:p,year:world.year,season:1,prevRank:null,ovrBefore:ovr(p),rng:rng};
-    introScreen(st);
-  });
-  go.appendChild(b);
+    el.appendChild(backBtn(startScreen));
+  }
+  function stepPoste(){
+    clearApp();
+    var el=h('<div style="padding-top:16px">'+head(2,'Sur le terrain','Ton poste',
+      'La grande famille d’abord — ton rôle précis se dessinera avec les années.')+
+      '<div class="big-grid" id="grid"></div></div>');
+    app.appendChild(el);
+    var grid=el.querySelector('#grid');
+    Object.keys(MACROS).forEach(function(mid){
+      var m=MACROS[mid];
+      var b=document.createElement('button');b.className='big-btn';
+      b.innerHTML='<span class="ic">'+m.icon+'</span><span class="bl">'+esc(m.label)+'</span>'+
+        '<span class="bd">'+esc(m.desc)+'</span>';
+      b.addEventListener('click',function(){sel.macro=mid;stepOrigin();});
+      grid.appendChild(b);
+    });
+    el.appendChild(backBtn(stepNation));
+  }
+  function stepOrigin(){
+    clearApp();
+    var el=h('<div style="padding-top:16px">'+head(3,'Ton histoire','D’où pars-tu ?',
+      'Ton origine façonne tes premières forces… et ce qu’on ne sait pas encore de toi.')+
+      '<div class="choices" id="grid"></div></div>');
+    app.appendChild(el);
+    var grid=el.querySelector('#grid');
+    ORIGINS.forEach(function(o){
+      var b=document.createElement('button');
+      b.innerHTML='<span class="bl">'+esc(o.name)+'</span><span class="bd">'+esc(o.desc)+'</span>';
+      b.addEventListener('click',function(){sel.origin=o.id;stepEnt();});
+      grid.appendChild(b);
+    });
+    el.appendChild(backBtn(stepPoste));
+  }
+  function stepEnt(){
+    clearApp();
+    var el=h('<div style="padding-top:16px">'+head(4,'Autour de toi','Qui t’accompagne ?',
+      'Ceux qui t’entourent à 15 ans pèseront sur toute ta carrière.')+
+      '<div class="choices" id="grid"></div></div>');
+    app.appendChild(el);
+    var grid=el.querySelector('#grid');
+    ENTOURAGES.forEach(function(e){
+      var b=document.createElement('button');
+      b.innerHTML='<span class="bl">'+esc(e.name)+'</span><span class="bd">'+esc(e.desc)+'</span>';
+      b.addEventListener('click',function(){sel.ent=e.id;stepName();});
+      grid.appendChild(b);
+    });
+    el.appendChild(backBtn(stepOrigin));
+  }
+  function stepName(){
+    clearApp();
+    var n=NATIONS.find(function(x){return x.id===sel.nat;});
+    var el=h('<div style="padding-top:16px">'+head(5,'Dernier détail','Ton nom',
+      'Celui que les stades scanderont — ou laisse le destin le choisir.')+
+      '<input type="text" id="f-name" maxlength="24" placeholder="Laisser vide pour un nom généré">'+
+      '<div class="card" style="margin-top:18px"><div class="kicker grey">Récapitulatif</div>'+
+      '<p>'+n.flag+' '+esc(n.name)+' · '+esc(MACROS[sel.macro].label)+' · '+
+      esc(ORIGINS.find(function(x){return x.id===sel.origin;}).name)+' · '+
+      esc(ENTOURAGES.find(function(x){return x.id===sel.ent;}).name)+'</p></div>'+
+      '<div class="choices" id="go" style="margin-top:14px"></div></div>');
+    app.appendChild(el);
+    var go=el.querySelector('#go');
+    var b=document.createElement('button');b.className='primary';b.textContent='Commencer la carrière';
+    b.addEventListener('click',function(){
+      sel.name=el.querySelector('#f-name').value;
+      var seed=(Date.now()^(Math.random()*0xFFFFFFF))>>>0;
+      var world=makeWorld(seed);
+      var rng=new RNG(seed^0x9E3779B9);
+      var p=makePlayer(sel,world,rng);
+      var st={world:world,p:p,year:world.year,season:1,prevRank:null,ovrBefore:ovr(p),rng:rng};
+      introScreen(st);
+    });
+    go.appendChild(b);
+    el.appendChild(backBtn(stepEnt));
+  }
+  stepNation();
 }
 async function introScreen(st){
   clearApp();
@@ -1246,14 +1393,19 @@ window.__sim=function(n){
       var world=makeWorld(seed);
       var rng=new RNG(seed^0x9E3779B9);
       var natIds=NATIONS.map(function(x){return x.id;});
-      var o={nat:natIds[i%natIds.length],pos:Object.keys(POSITIONS)[i%7],
-        origin:ORIGINS[i%4].id,ent:ENTOURAGES[i%4].id,style:STYLES[i%5].id,name:''};
+      var macros=Object.keys(MACROS);
+      var o={nat:natIds[i%natIds.length],macro:macros[i%4],
+        origin:ORIGINS[i%4].id,ent:ENTOURAGES[i%4].id,name:''};
       var p=makePlayer(o,world,rng);
       var st={world:world,p:p,year:world.year,season:1,prevRank:null,ovrBefore:ovr(p),rng:rng};
       var profile={seen:[],pantheon:[]};
       var guard=0;
       while(!shouldRetire(st)&&guard++<40){
         st.ovrBefore=ovr(p);
+        if(!p.style&&p.age>=16){
+          var sts=STYLES.filter(function(s){return s.macro===p.macro;});
+          applyIdentity(st,sts[st.rng.int(0,sts.length-1)].id);
+        }
         var offers=(p.age>=17)?genOffers(st):[];
         if(offers.length&&st.rng.chance(.6)){
           var q=transferQuestion(st,offers);
