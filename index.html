@@ -91,8 +91,21 @@
   .up2{color:var(--ok)} .down2{color:var(--bad)}
   .trophy{color:var(--gold);font-weight:700}
   .divider{border:none;border-top:1px dashed var(--line);margin:18px 0}
-  .big-legend{font-family:var(--cond);font-size:64px;font-weight:700;color:var(--gold);
-    text-align:center;line-height:1;font-variant-numeric:tabular-nums}
+  .big-legend{font-family:var(--cond);font-size:56px;font-weight:700;color:var(--gold);
+    text-align:center;line-height:1;font-variant-numeric:tabular-nums;margin-top:14px}
+  .ovr-final{margin:16px auto 0;width:112px;padding:12px 0;border-radius:16px;
+    border:2px solid var(--gold-soft);background:linear-gradient(160deg,var(--gold-tint),#fff)}
+  .ovr-final .v{display:block;font-family:var(--cond);font-size:44px;font-weight:700;
+    line-height:1;color:var(--gold);font-variant-numeric:tabular-nums}
+  .ovr-final .l{display:block;font-size:9px;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--dim);font-weight:700;margin-top:4px}
+  .ovr-strip{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;
+    border-radius:12px;background:var(--gold-tint);border:1px solid var(--gold-soft)}
+  .ovr-strip .big{font-family:var(--cond);font-size:32px;font-weight:700;color:var(--gold);
+    line-height:1;font-variant-numeric:tabular-nums}
+  .ovr-strip .txt{flex:1;font-size:12px;color:var(--dim);font-weight:700;
+    letter-spacing:1px;text-transform:uppercase}
+  .ovr-strip .delta{font-family:var(--cond);font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
   .legend-title{text-transform:uppercase;letter-spacing:2px;font-weight:800;
     text-align:center;font-size:14px;margin-top:6px}
   .compare{margin-top:10px}
@@ -1548,16 +1561,18 @@ function resolveChoice(st,choice){
 }
 
 /* ================= SCORE DE LÉGENDE & COMPARAISON ================= */
+/* Le score de légende part du GÉNÉRAL atteint : le niveau du joueur est le socle,
+   le palmarès et l'aura viennent le compléter. */
 function legendScore(p){
-  var s=0;
-  s+=Math.max(0,(p.peakOvr-60))*1.35;
-  s+=(p.aura||0)*.12; // l'aura fait la légende autant que les chiffres
-  s+=Math.min(18,p.seasonsTop*2.2);
-  s+=p.titles*2.2+p.cups*1+p.continental*4.5;
-  s+=p.bdo*7+p.wcWon*8;
-  s+=Math.min(10,p.goals/60);
-  s+=Math.min(5,p.caps/25);
-  return Math.max(1,Math.min(100,Math.round(s)));
+  var base=Math.max(0,(p.peakOvr-52))*1.55;      // socle : le général au sommet
+  base+=Math.min(14,p.seasonsTop*1.8);            // durée passée au très haut niveau
+  var extra=0;
+  extra+=(p.aura||0)*.12;
+  extra+=p.titles*2+p.cups*.9+p.continental*4;
+  extra+=p.bdo*6.5+p.wcWon*7;
+  extra+=Math.min(9,p.goals/60);
+  extra+=Math.min(4,p.caps/25);
+  return Math.max(1,Math.min(100,Math.round(base+extra)));
 }
 function legendTitle(sc){
   if(sc>=96)return 'LE GOAT';
@@ -1794,12 +1809,15 @@ async function seasonReport(st,res){
     '<span class="divchip">'+esc(res.oldDiv||lg.divLabel)+' · '+res.rank+'ᵉ / 10</span></div>'+
     '<div class="notebadge '+noteCls+'"><span class="v">'+res.note.toFixed(1)+'</span><span class="l">Note</span></div>'+
     '</div>'+
-    '<div class="tiles" style="margin-top:14px">'+
+    '<div class="tiles" style="margin-top:14px;grid-template-columns:repeat(3,1fr)">'+
     '<div class="tile"><div class="v">'+res.apps+'</div><div class="l">Matchs</div></div>'+
     '<div class="tile"><div class="v">'+res.goals+'</div><div class="l">'+(isGB&&res.goals>0?'Buts 🤯':'Buts')+'</div></div>'+
     '<div class="tile"><div class="v">'+res.assists+'</div><div class="l">Passes déc.</div></div>'+
-    '<div class="tile"><div class="v" style="color:var(--gold)">'+(d>=0?'+':'')+d+'</div><div class="l">Général → '+ovr(p)+'</div></div>'+
     '</div>'+
+    '<div class="ovr-strip"><span class="big">'+ovr(p)+'</span>'+
+    '<span class="txt">Note générale</span>'+
+    '<span class="delta" style="color:'+(d>0?'var(--ok)':d<0?'var(--bad)':'var(--dim)')+'">'+
+    (d>0?'▲ +'+d:d<0?'▼ '+d:'—')+'</span></div>'+
     '<div class="newsline">'+esc(pressLine(st,res))+'</div>'+extras+'</div>'));
   /* ---- Trophées & coups durs, bien visibles ---- */
   var tr=[];
@@ -1859,54 +1877,98 @@ function pressLine(st,res){
 /* Objectifs du club : calibrés sur ce que le joueur peut RAISONNABLEMENT faire
    cette saison-là (son niveau, sa place dans la hiérarchie, son âge, sa division).
    Un objectif est fixé légèrement en dessous de l'attente : atteignable, jamais acquis. */
+/* 3 objectifs par saison, tirÃ©s dans un large Ã©ventail : 1 collectif + 2 personnels
+   variÃ©s (temps de jeu, production, rÃ©gularitÃ©, progression du gÃ©nÃ©ral, sÃ©lection,
+   statut, aura, santÃ©...). Toujours calibrÃ©s sur la saison en cours. */
 function genObjectives(st){
-  var p=st.p,lg=leagueOf(st);
+  var p=st.p,rng=st.rng,lg=leagueOf(st);
   var idx=lg.clubs.findIndex(function(c){return c.n===p.club;});
   var exp=expectedStats(st);
-  var obj=[];
-  // 1. Objectif collectif, selon le standing réel du club dans sa division
-  if(lg.level===1&&idx<=1)obj.push({label:'Jouer le titre jusqu’au bout',check:function(r){return r.champion||r.rank<=2;}});
-  else if(lg.level===1&&idx<=3)obj.push({label:'Accrocher le podium',check:function(r){return r.rank<=3;}});
-  else if(lg.level>1&&idx<=2)obj.push({label:'Jouer la montée en '+LVL_LABEL[lg.level-1],check:function(r){return r.promoted||r.rank<=3;}});
-  else if(lg.level>1&&idx<=5)obj.push({label:'Viser le haut de tableau',check:function(r){return r.rank<=5;}});
-  else if(idx>=7)obj.push({label:'Assurer le maintien',check:function(r){return !r.relegated;}});
-  else obj.push({label:'Finir dans la première moitié',check:function(r){return r.rank<=5;}});
-  // 2. Temps de jeu : dérivé de l'attente de la saison, arrondi à 2 près
-  var appsT=Math.max(3,Math.round(exp.apps*.8/2)*2);
-  var appsLabel=appsT<=8?'Grappiller '+appsT+' apparitions':
-                appsT<=18?'S’installer dans la rotation : '+appsT+' matchs':
-                'Être un cadre : '+appsT+' matchs joués';
-  obj.push({label:appsLabel,check:function(r){return r.apps>=appsT;}});
-  // 3. Objectif de poste, dérivé lui aussi de l'attente
   var g=POSITIONS[p.pos].g;
-  if(g==='ATT'||(g==='MIL'&&exp.goals>=exp.assists)){
-    var gT=Math.max(1,Math.round(exp.goals*.8));
-    obj.push({label:'Marquer '+gT+' but'+(gT>1?'s':''),check:function(r){return r.goals>=gT;}});
-  } else if(g==='MIL'){
-    var aT=Math.max(1,Math.round(exp.assists*.8));
-    obj.push({label:'Délivrer '+aT+' passe'+(aT>1?'s':'')+' décisive'+(aT>1?'s':''),check:function(r){return r.assists>=aT;}});
+  var o=ovr(p);
+  st.auraBefore=p.aura||0;st.repBefore=p.rep;st.trustBefore=p.trust;
+  /* --- Pool collectif --- */
+  var team=[];
+  if(lg.level===1&&idx<=1){
+    team.push({label:'Jouer le titre jusqu’au bout',check:function(r){return r.champion||r.rank<=2;}});
+    team.push({label:'Être champion',check:function(r){return r.champion;}});
+    team.push({label:'Aller chercher un trophée',check:function(r){return r.champion||r.cup||r.continental;}});
+  } else if(lg.level===1&&idx<=3){
+    team.push({label:'Accrocher le podium',check:function(r){return r.rank<=3;}});
+    team.push({label:'Se qualifier pour la coupe continentale',check:function(r){return r.rank<=4;}});
+    team.push({label:'Faire un vrai parcours en coupe',check:function(r){return r.cup||r.cupLost;}});
+  } else if(lg.level>1&&idx<=3){
+    team.push({label:'Jouer la montée en '+LVL_LABEL[lg.level-1],check:function(r){return r.promoted||r.rank<=3;}});
+    team.push({label:'Monter en '+LVL_LABEL[lg.level-1],check:function(r){return r.promoted;}});
+    team.push({label:'Finir sur le podium de la division',check:function(r){return r.rank<=3;}});
+  } else if(idx>=7){
+    team.push({label:'Assurer le maintien',check:function(r){return !r.relegated;}});
+    team.push({label:'Sortir de la zone rouge',check:function(r){return r.rank<=7;}});
+    team.push({label:'Créer la surprise : finir dans le top 5',check:function(r){return r.rank<=5;}});
   } else {
-    var nT=p.age<=17?6.2:(6.4+Math.min(.5,Math.max(0,(ovr(p)-(50+lg.tier*7.5))/25)));
-    nT=Math.round(nT*10)/10;
-    obj.push({label:'Tenir une note moyenne de '+nT.toFixed(1).replace('.',','),
-      check:function(r){return r.note>=nT;}});
+    team.push({label:'Finir dans la première moitié',check:function(r){return r.rank<=5;}});
+    team.push({label:'Viser le haut de tableau',check:function(r){return r.rank<=4;}});
+    team.push({label:'Éliminer un cador en coupe',check:function(r){return r.cup||r.cupLost;}});
   }
-  // 4. Objectif de régularité / progression
-  var nT2=p.age<=17?5.9:p.age<=20?6.3:6.55;
-  obj.push({label:'Tenir une note moyenne de '+nT2.toFixed(2).replace('.',','),
-    check:function(r){return r.note>=nT2;}});
-  // 5. Objectif contextuel : le défi de l'année
-  if(p.age<=18)
-    obj.push({label:'Gagner la confiance du staff',check:function(){return p.trust>=55;}});
-  else if(p.caps===0&&ovr(p)+p.rep*.25>50+p.natStr*6-10)
-    obj.push({label:'Décrocher une première sélection avec '+p.natName,check:function(r){return r.nat.called;}});
-  else if(p.caps>0)
-    obj.push({label:'Rester dans le groupe national',check:function(r){return r.nat.called;}});
-  else if(p.rep<45)
-    obj.push({label:'Faire parler de toi au-delà du club',check:function(){return p.rep>=45;}});
-  else
-    obj.push({label:'Rester un cadre du vestiaire',check:function(){return p.trust>=60;}});
-  return obj;
+  /* --- Pool personnel (pondéré) --- */
+  var pool=[];
+  var appsT=Math.max(3,Math.round(exp.apps*.8/2)*2);
+  pool.push({w:3,label:appsT<=8?'Grappiller '+appsT+' apparitions':appsT<=18?'S’installer dans la rotation : '+appsT+' matchs':'Être un cadre : '+appsT+' matchs joués',
+    check:function(r){return r.apps>=appsT;}});
+  if(exp.goals>=1){
+    var gT=Math.max(1,Math.round(exp.goals*.8));
+    pool.push({w:g==='ATT'?4:2,label:'Marquer '+gT+' but'+(gT>1?'s':''),check:function(r){return r.goals>=gT;}});
+    if(exp.goals>=6)pool.push({w:2,label:'Marquer sur un match sur trois',
+      check:function(r){return r.apps>0&&r.goals/r.apps>=.33;}});
+  }
+  if(exp.assists>=1){
+    var aT=Math.max(1,Math.round(exp.assists*.8));
+    pool.push({w:g==='MIL'?4:2,label:'Délivrer '+aT+' passe'+(aT>1?'s':'')+' décisive'+(aT>1?'s':''),
+      check:function(r){return r.assists>=aT;}});
+  }
+  if(exp.goals>=2&&exp.assists>=2){
+    var cT=Math.max(3,Math.round((exp.goals+exp.assists)*.75));
+    pool.push({w:2,label:'Peser sur '+cT+' buts (buts + passes)',check:function(r){return r.goals+r.assists>=cT;}});
+  }
+  var nT=p.age<=17?5.9:p.age<=20?6.3:6.55;
+  pool.push({w:3,label:'Tenir une note moyenne de '+nT.toFixed(2).replace('.',','),check:function(r){return r.note>=nT;}});
+  pool.push({w:2,label:'Réaliser une saison de très haut niveau (note 7,00)',check:function(r){return r.note>=7;}});
+  if(g==='DEF'||g==='GB')pool.push({w:3,label:'Être irréprochable derrière (note 6,80)',check:function(r){return r.note>=6.8;}});
+  /* progression du général : le cœur de la carrière */
+  var pg=p.age<=20?3:p.age<=26?2:1;
+  pool.push({w:p.age<=28?5:2,label:'Gagner '+pg+' point'+(pg>1?'s':'')+' de général',
+    check:function(r){return r.ovrDelta>=pg;}});
+  if(p.age<=25){var nextTier=Math.floor(o/5)*5+5;
+    pool.push({w:3,label:'Franchir la barre des '+nextTier+' de général',
+      check:function(){return ovr(p)>=nextTier;}});}
+  if(p.trust<70)pool.push({w:3,label:'Gagner la confiance du staff',
+    check:function(){return p.trust>=Math.min(78,(st.trustBefore||0)+15);}});
+  else pool.push({w:2,label:'Rester un cadre du vestiaire',check:function(){return p.trust>=60;}});
+  if(p.age>=17){
+    if(p.caps===0)pool.push({w:(o+p.rep*.25>50+p.natStr*6-12)?4:1,
+      label:'Décrocher une première sélection avec '+p.natName,check:function(r){return r.nat.called;}});
+    else{
+      pool.push({w:3,label:'Rester dans le groupe national',check:function(r){return r.nat.called;}});
+      if(g==='ATT')pool.push({w:2,label:'Marquer en sélection',check:function(){return p.natGoals>0;}});
+    }
+  }
+  if(p.rep<60){var repT=Math.min(100,Math.floor(p.rep/10)*10+15);
+    pool.push({w:2,label:'Faire parler de toi : '+repT+' de réputation',check:function(){return p.rep>=repT;}});}
+  pool.push({w:2,label:'Marquer les esprits : gagner de l’aura',
+    check:function(){return (p.aura||0)>=(st.auraBefore||0)+4;}});
+  pool.push({w:2,label:'Traverser la saison sans blessure',check:function(r){return !r.inj;}});
+  if(exp.apps>=18)pool.push({w:2,label:'Disputer un grand rendez-vous',
+    check:function(r){return (r.pending||[]).length>0||r.cup||r.champion||r.continental;}});
+  if(p.age>=30)pool.push({w:3,label:'Prouver que tu es toujours là (note 6,60)',check:function(r){return r.note>=6.6;}});
+  /* --- Tirage pondéré : 2 objectifs personnels distincts --- */
+  var bag=[];
+  pool.forEach(function(x){for(var i=0;i<(x.w||1);i++)bag.push(x);});
+  var chosen=[],guard=0;
+  while(chosen.length<2&&guard++<100){
+    var pick=bag[rng.int(0,bag.length-1)];
+    if(chosen.indexOf(pick)<0)chosen.push(pick);
+  }
+  return [team[rng.int(0,team.length-1)]].concat(chosen);
 }
 /* ===== Proposition surprise : la récompense d'une saison parfaite ===== */
 function surpriseOffer(st){
@@ -2065,15 +2127,16 @@ async function retireScreen(st,profile){
   app.appendChild(h('<div class="card kick" style="text-align:center;padding-top:24px">'+
     '<div class="kicker">Fin de carrière · '+st.year+'</div>'+
     '<h2 style="font-size:26px">'+esc(p.name)+' raccroche les crampons</h2>'+
+    '<div class="ovr-final"><span class="v">'+p.peakOvr+'</span><span class="l">Général au sommet</span></div>'+
     '<div class="big-legend">'+sc+'</div>'+
     '<div class="legend-title" style="color:var(--gold)">'+esc(legendTitle(sc))+'</div>'+
-    '<p class="small" style="margin-top:8px">Score de légende</p></div>'));
+    '<p class="small" style="margin-top:6px">Score de légende</p></div>'));
   var t='<table class="stats">'+
     statRow('Carrière',(p.hist[0]?p.hist[0].y:st.year)+' – '+st.year+' · '+p.hist.length+' saisons')+
     statRow('Matchs / Buts / Passes',p.apps+' / '+p.goals+' / '+p.assists)+
     statRow('Clubs',p.clubsList.map(esc).join(' → '))+
     statRow('Sélections ('+esc(p.natName)+')',p.caps+' capes')+
-    statRow('Sommet atteint','<b style="color:var(--gold)">'+p.peakOvr+'</b> général')+
+    statRow('Saisons au très haut niveau',p.seasonsTop)+
     statRow('Fortune',Math.max(0,p.money).toFixed(1)+' M€')+
     '</table>';
   app.appendChild(h('<div class="card"><div class="kicker grey">Le bilan</div>'+t+'</div>'));
