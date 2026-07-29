@@ -116,7 +116,31 @@ Des mécanismes explicites, inspirés des roguelikes, pour que le 50e essai surp
 5. **Records du monde vivants** : tes propres légendes précédentes existent dans les
    univers suivants comme joueurs historiques à dépasser — le jeu se peuple de tes fantômes.
 
-## 7. Ce qu'on s'interdit
+## 7. Imprévisible, mais jamais injuste : la grande carrière reste accessible
+
+L'imprévisibilité ne doit jamais se transformer en loterie. Le contrat de confiance :
+**on ne sait pas quelle carrière on va vivre, mais on sait qu'une grande carrière est
+toujours à portée.**
+
+- **Aucune graine morte** : chaque départ de carrière (n'importe quel univers, n'importe
+  quel tirage) permet d'atteindre une carrière légendaire. Les cygnes noirs et les tirages
+  difficiles changent le *chemin*, jamais la *possibilité*. Vérifié par simulation de masse
+  à l'équilibrage : un bot jouant correctement doit pouvoir atteindre un score de légende
+  élevé depuis tout départ.
+- **Le risque est gradué, pas binaire** (cf. doc 02 §5.2) : la frappe de 40 mètres est
+  bien plus dure que la passe décisive, mais les deux sont *faisables* — et la récompense
+  est proportionnelle au risque. Rien de désirable n'est verrouillé derrière la chance
+  pure : l'improbable est toujours atteignable, et les stats spécialisées le rendent
+  même répétable.
+- **Plusieurs archétypes de légende** : le métronome fiable, le showman spectaculaire, le
+  fidèle d'un seul club, le globe-trotter, le tard-venu… doivent tous pouvoir atteindre le
+  Panthéon. Si un seul style de jeu mène au sommet, le jeu est résolu ET injuste à la fois.
+- **La compétence paie sur la durée** : sur 50 essais, un joueur qui comprend les systèmes
+  aura de meilleures carrières qu'un joueur qui clique au hasard — c'est la définition d'un
+  jeu juste. La surprise porte sur *ce qui arrive*, pas sur *le fait que bien jouer serve
+  à quelque chose*.
+
+## 8. Ce qu'on s'interdit
 
 - **La surprise punitive pure** : un cygne noir peut briser une trajectoire, jamais rendre
   la carrière injouable ou ennuyeuse. Toute catastrophe ouvre un arc intéressant.

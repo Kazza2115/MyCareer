@@ -41,6 +41,9 @@ La méta-progression qui donne envie de relancer.
 - [ ] Cygnes noirs : premier lot de ~10 événements rarissimes à arcs longs
 - [ ] Garanties de nouveauté : anti-répétition mémorielle + ≥1 "première fois" par carrière
 - [ ] Télémétrie de variété : mesure de la distance entre carrières (objectif doc 05 §5)
+- [ ] Équilibrage par simulation de masse : des bots jouent des milliers de carrières pour
+  vérifier qu'aucun départ n'est une "graine morte" et que tous les archétypes de légende
+  sont viables (doc 05 §7)
 - [ ] Carte de carrière partageable (image générée)
 
 ## V0.3 — "Le rendez-vous quotidien"
