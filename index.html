@@ -253,20 +253,29 @@ var ERAS=[
  {id:'asie',name:'Fièvre asiatique',desc:'Le Japon investit massivement dans son championnat.',mult:{JP1:2.2}}
 ];
 /* Styles de jeu par famille de poste — choisis EN COURS de carrière (vers 16-17 ans).
+   4 identités par famille, aux noms propres à MyCareer.
    Chaque style fixe aussi le rôle précis sur le terrain. */
 var STYLES=[
- {id:'renard',macro:'ATT',pos:'BU',name:'Renard des surfaces',fx:{fin:1.6,men:1.2},desc:'Toujours là où le ballon tombe. Le but comme obsession.'},
- {id:'pivot',macro:'ATT',pos:'BU',name:'Tour de contrôle',fx:{phy:1.5,fin:1.3},desc:'Dos au but, tout passe par ton corps.'},
- {id:'poison',macro:'ATT',pos:'AIL',name:'Poison des ailes',fx:{vit:1.5,dri:1.4},desc:'Percuter, déborder, faire mal. Tu deviens ailier.'},
- {id:'chef',macro:'MIL',pos:'MO',name:'Chef d’orchestre',fx:{pas:1.5,vis:1.5},desc:'Le jeu passe par toi. Tu deviens meneur.'},
- {id:'boxtobox',macro:'MIL',pos:'MC',name:'Box-to-box',fx:{phy:1.4,pas:1.3},desc:'Une surface à l’autre, sans jamais t’arrêter.'},
- {id:'sentinelle',macro:'MIL',pos:'MDC',name:'Sentinelle',fx:{def:1.5,men:1.3},desc:'Détruire le jeu adverse. L’ombre qui protège tout.'},
- {id:'roc',macro:'DEF',pos:'DC',name:'Roc',fx:{def:1.5,phy:1.4},desc:'Duels, têtes, tacles. La muraille.'},
- {id:'relanceur',macro:'DEF',pos:'DC',name:'Relanceur',fx:{pas:1.5,vis:1.3},desc:'La première passe qui casse les lignes.'},
- {id:'piston',macro:'DEF',pos:'LAT',name:'Piston',fx:{vit:1.5,dri:1.3},desc:'Ton couloir, sur 100 mètres. Tu deviens latéral.'},
- {id:'mur',macro:'GB',pos:'GB',name:'Le Mur',fx:{fin:1.5,def:1.4},desc:'Réflexes surnaturels sur ta ligne.'},
- {id:'moderne',macro:'GB',pos:'GB',name:'Gardien moderne',fx:{pas:1.5,vis:1.4},desc:'Premier relanceur de l’équipe, loin de ta ligne.'},
- {id:'patron',macro:'GB',pos:'GB',name:'Patron de surface',fx:{men:1.5,phy:1.3},desc:'La voix qui commande la défense entière.'}
+ // Buteur
+ {id:'cobra',macro:'ATT',pos:'BU',name:'Le Cobra',fx:{fin:1.6,men:1.2},desc:'Immobile, puis mortel. Une seule touche dans la surface suffit.'},
+ {id:'bulldozer',macro:'ATT',pos:'BU',name:'Le Bulldozer',fx:{phy:1.5,fin:1.3},desc:'Dos au but, les défenseurs rebondissent sur toi.'},
+ {id:'sniper',macro:'ATT',pos:'BU',name:'Le Sniper',fx:{fra:1.6,fin:1.2},desc:'30 mètres, lucarne. Ta zone de tir commence au rond central.'},
+ {id:'eclair',macro:'ATT',pos:'AIL',name:'L’Éclair',fx:{vit:1.6,dri:1.4},desc:'Déborder, percuter, disparaître. Tu deviens ailier.'},
+ // Milieu
+ {id:'architecte',macro:'MIL',pos:'MO',name:'L’Architecte',fx:{vis:1.6,pas:1.4},desc:'Tu vois la passe trois secondes avant tout le monde. Tu deviens meneur.'},
+ {id:'metronome',macro:'MIL',pos:'MC',name:'Le Métronome',fx:{pas:1.5,men:1.3},desc:'Jamais un ballon perdu. Le tempo, c’est toi.'},
+ {id:'moteur',macro:'MIL',pos:'MC',name:'Le Moteur',fx:{phy:1.5,pas:1.2},desc:'D’une surface à l’autre, 90 minutes, sans jamais caler.'},
+ {id:'ombre',macro:'MIL',pos:'MDC',name:'L’Ombre',fx:{def:1.5,men:1.3},desc:'Personne ne te voit — mais rien ne passe. Tu deviens sentinelle défensive.'},
+ // Défenseur
+ {id:'colosse',macro:'DEF',pos:'DC',name:'Le Colosse',fx:{def:1.5,phy:1.4},desc:'Duels, têtes, tacles : la loi de la surface, c’est toi.'},
+ {id:'libero',macro:'DEF',pos:'DC',name:'Le Libéro',fx:{pas:1.5,vis:1.3},desc:'La première relance qui casse les lignes part de tes pieds.'},
+ {id:'fleche',macro:'DEF',pos:'LAT',name:'La Flèche',fx:{vit:1.6,dri:1.3},desc:'Ton couloir, sur 100 mètres, dans les deux sens. Tu deviens latéral.'},
+ {id:'verrou',macro:'DEF',pos:'LAT',name:'Le Verrou',fx:{def:1.5,vit:1.2},desc:'L’ailier adverse va passer un très mauvais match. Tu deviens latéral.'},
+ // Gardien
+ {id:'panthere',macro:'GB',pos:'GB',name:'La Panthère',fx:{fin:1.6,vit:1.3},desc:'Des réflexes impossibles, des arrêts qui font hurler le stade.'},
+ {id:'araignee',macro:'GB',pos:'GB',name:'L’Araignée',fx:{def:1.5,fin:1.3},desc:'Tout ce qui entre dans ta surface finit dans tes gants.'},
+ {id:'balayeur',macro:'GB',pos:'GB',name:'Le Balayeur',fx:{pas:1.5,vis:1.4},desc:'Premier relanceur de l’équipe, à vingt mètres de ta ligne.'},
+ {id:'general',macro:'GB',pos:'GB',name:'Le Général',fx:{men:1.6,phy:1.2},desc:'Ta voix commande la défense entière. Rien ne bouge sans ton ordre.'}
 ];
 var ORIGINS=[
  {id:'quartier',name:'Quartier populaire',desc:'La rue t’a tout appris. Variance haute.',
