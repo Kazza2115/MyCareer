@@ -1763,6 +1763,11 @@ async function askQuestion(st,q,idx,total){
     var txt2=applyIdentity(st,choice.identity);
     out={text:txt2,chips:applyEffects(st,choice.eff),good:true,key:0};
   } else out=resolveChoice(st,choice);
+  if(choice.aura){
+    st.p.aura=Math.min(100,(st.p.aura||0)+choice.aura);
+    (out.chips=out.chips||[]).push({t:'AURA +'+choice.aura,c:'gold'});
+    out.gold=true;
+  }
   var cls=out.gold?'gold':out.good===true?'good':out.good===false?'bad':'';
   card.appendChild(h('<div class="result '+cls+'">'+esc(out.text||'Noté.')+chipsHtml(out.chips)+'</div>'));
   await waitClick(card,'Continuer');
@@ -1822,10 +1827,12 @@ async function seasonReport(st,res){
   var oHtml='';
   if(res.objectives&&res.objectives.length){
     var okCount=res.objectives.filter(function(o){return o.ok;}).length;
-    oHtml='<div class="kicker grey">Objectifs du club · '+okCount+'/'+res.objectives.length+'</div>'+
+    oHtml='<div class="kicker'+(res.allObjectives?'':' grey')+'">Objectifs du club · '+okCount+'/'+res.objectives.length+
+      (res.allObjectives?' · SANS-FAUTE':'')+'</div>'+
       res.objectives.map(function(o){
-        return '<div class="obj '+(o.ok?'ok':'ko')+'"><span>'+esc(o.label)+'</span><span class="st">'+(o.ok?'✓ Atteint':'✗ Manqué')+'</span></div>';
-      }).join('');
+        return '<div class="obj '+(o.ok?'ok':'ko')+'"><span>'+esc(o.label)+'</span><span class="st">'+(o.ok?'✓':'✗')+'</span></div>';
+      }).join('')+
+      (res.allObjectives?'<div class="result gold" style="margin-top:12px">Saison parfaite : tous les objectifs remplis. Quelque chose se prépare…</div>':'');
   }
   var exHtml='';
   if(res.exploits&&res.exploits.length){
@@ -1884,7 +1891,89 @@ function genObjectives(st){
     obj.push({label:'Tenir une note moyenne de '+nT.toFixed(1).replace('.',','),
       check:function(r){return r.note>=nT;}});
   }
+  // 4. Objectif de régularité / progression
+  var nT2=p.age<=17?5.9:p.age<=20?6.3:6.55;
+  obj.push({label:'Tenir une note moyenne de '+nT2.toFixed(2).replace('.',','),
+    check:function(r){return r.note>=nT2;}});
+  // 5. Objectif contextuel : le défi de l'année
+  if(p.age<=18)
+    obj.push({label:'Gagner la confiance du staff',check:function(){return p.trust>=55;}});
+  else if(p.caps===0&&ovr(p)+p.rep*.25>50+p.natStr*6-10)
+    obj.push({label:'Décrocher une première sélection avec '+p.natName,check:function(r){return r.nat.called;}});
+  else if(p.caps>0)
+    obj.push({label:'Rester dans le groupe national',check:function(r){return r.nat.called;}});
+  else if(p.rep<45)
+    obj.push({label:'Faire parler de toi au-delà du club',check:function(){return p.rep>=45;}});
+  else
+    obj.push({label:'Rester un cadre du vestiaire',check:function(){return p.trust>=60;}});
   return obj;
+}
+/* ===== Proposition surprise : la récompense d'une saison parfaite ===== */
+function surpriseOffer(st){
+  var p=st.p,rng=st.rng,lg=leagueOf(st),pool=[];
+  // Un géant étranger vient te chercher
+  var giants=[];
+  Object.keys(COUNTRIES).forEach(function(cid){
+    if(cid===lg.country)return;
+    var L1=st.world.leagues[cid+'1'];
+    if(L1&&L1.tier>=3&&L1.clubs[0].str>p.clubStr+3)giants.push({c:L1.clubs[0],L:L1});
+  });
+  if(giants.length&&p.rep>25){
+    var g=giants[rng.int(0,Math.min(4,giants.length-1))];
+    pool.push({kicker:'La proposition surprise',title:'Un géant frappe à ta porte',
+      text:'Saison parfaite, tous les objectifs atteints — et le téléphone de ton agent n’arrête plus de sonner. '+
+        esc(g.c.n)+' ('+esc(g.L.name)+') envoie une offre hors délai, en dehors de tout mercato prévu.',
+      ch:[
+        {l:'Signer chez '+g.c.n,d:'Le grand saut, tout de suite.',
+         transfer:{club:g.c.n,lg:g.L.id,lgName:g.L.name,div:g.L.divLabel,str:g.c.str,role:'titulaire en devenir',
+           salary:Math.max(.4,Math.pow(Math.max(0,(ovr(p)-52))/10,2)*(g.L.money/2.4)*.9),
+           abroad:true},eff:{mor:8,rep:5}},
+        {l:'Refuser et finir le travail ici',d:'La fidélité paie parfois plus cher.',
+         eff:{trust:12,mor:6,rep:2,hid:{pro:2}},res:'Le club publie un communiqué ému. Les supporters n’oublieront jamais ce refus.'}
+      ]});
+  }
+  // Le maillot numéro 10 / le brassard
+  if(p.trust>=55&&!p.flags.numTen){
+    pool.push({kicker:'La proposition surprise',title:'Le numéro 10 est libre',
+      text:'Le staff a été bluffé par ta saison. Le maillot le plus lourd du club t’est proposé — avec tout ce qu’il implique.',
+      ch:[
+        {l:'Prendre le numéro 10',d:'Le poids de l’histoire sur les épaules.',
+         eff:{rep:6,mor:5,hid:{ego:3},flags:{numTen:1}},
+         res:'Tu portes désormais le numéro le plus scruté du club. Chaque match sera jugé à cette aune. Aura et statut montent d’un cran.',aura:6},
+        {l:'Garder ton numéro',d:'Ne rien changer à ce qui marche.',
+         eff:{mor:3,hid:{pro:2}},res:'« Le maillot ne fait pas le joueur », réponds-tu. Le vestiaire apprécie ta tête froide.'}
+      ]});
+  }
+  // Sponsor mondial
+  if(p.rep>=35){
+    pool.push({kicker:'La proposition surprise',title:'Un équipementier mondial te veut',
+      text:'Une marque planétaire a suivi ta saison. Contrat d’image sur la table, chiffres à faire tourner la tête.',
+      ch:[
+        {l:'Signer le contrat d’image',d:'L’argent et la lumière.',
+         eff:{money:3,rep:7,hid:{ego:2}},res:'Ton visage s’affiche sur les panneaux publicitaires du pays. Le compte en banque suit.',aura:5},
+        {l:'Décliner, rester concentré',d:'Le terrain avant les caméras.',
+         eff:{hid:{pro:4},form:4},res:'Pas de shooting, pas de distraction : ton hiver sera consacré au terrain.'}
+      ]});
+  }
+  // Stage avec une légende
+  pool.push({kicker:'La proposition surprise',title:'Une légende t’invite',
+    text:'Une gloire retraitée de ton poste a vu ta saison et te propose deux semaines de travail en tête-à-tête, pendant tes vacances.',
+    ch:[
+      {l:'Accepter le stage',d:'Sacrifier ses vacances pour progresser.',
+       eff:{hid:{pot:3,pro:3},mor:-2},res:'Quinze jours d’enfer technique. Tu reviens avec des gestes que tu n’avais pas — et un plafond plus haut.'},
+      {l:'Prendre de vraies vacances',d:'Le repos aussi construit une carrière.',
+       eff:{mor:9,form:6},res:'Deux semaines à ne penser à rien. Tu reprends frais, léger, souriant.'}
+    ]});
+  // Prime du président
+  pool.push({kicker:'La proposition surprise',title:'Le président te reçoit',
+    text:'Objectifs tous remplis : le président t’invite dans son bureau. Sur la table, une enveloppe et une prolongation revalorisée.',
+    ch:[
+      {l:'Prolonger et empocher la prime',d:'La sécurité, maintenant.',
+       eff:{money:2,mor:6,trust:8},res:'Contrat prolongé, salaire revu à la hausse. Le club te bâtit une équipe autour.'},
+      {l:'Négocier une clause de départ',d:'Garder la porte ouverte vers plus grand.',
+       eff:{mor:3,hid:{amb:5},trust:-4},res:'Le président grince, mais accepte une clause raisonnable. Ton avenir reste ouvert.'}
+    ]});
+  return pool[rng.int(0,pool.length-1)];
 }
 async function roadmapScreen(st,objs){
   clearApp();mountTopbar(st);
@@ -1933,8 +2022,14 @@ async function runYear(st,profile){
   }
   finalizeSeason(st,res);
   res.objectives=objs.map(function(o){return {label:o.label,ok:!!o.check(res)};});
+  res.allObjectives=res.objectives.every(function(o){return o.ok;});
   res.exploits=p.moments.slice(st.momentsBefore);
   await seasonReport(st,res);
+  // Saison parfaite : une porte inattendue s'ouvre
+  if(res.allObjectives){
+    var q=surpriseOffer(st);
+    if(q)await askQuestion(st,q,1,1);
+  }
   p.age++;st.year++;st.season++;
 }
 function clubFinalCfg(st,m){
