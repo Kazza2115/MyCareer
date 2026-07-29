@@ -1,0 +1,1282 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MyCareer — Écris ta légende</title>
+<style>
+  :root{
+    --pitch:#0B120E; --card:#131C16; --card2:#18241C;
+    --line:#2C3D31; --chalk:#EDF2EA; --dim:#9BAA9E;
+    --gold:#E8B84B; --gold-soft:#B98F35;
+    --ok:#6FCF8E; --bad:#E06C5B; --info:#7FB6D9;
+    --cond:"Roboto Condensed","Archivo Narrow","Arial Narrow",system-ui,sans-serif;
+    --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--pitch)}
+  body{
+    font-family:var(--body);color:var(--chalk);background:var(--pitch);
+    min-height:100vh;line-height:1.5;
+  }
+  #app{max-width:460px;margin:0 auto;padding:0 14px 60px}
+  .topbar{
+    position:sticky;top:0;z-index:10;background:linear-gradient(var(--pitch) 82%,transparent);
+    padding:10px 0 14px;display:flex;align-items:center;gap:12px;
+  }
+  .topbar .who{flex:1;min-width:0}
+  .topbar .pname{font-family:var(--cond);font-weight:700;font-size:17px;letter-spacing:.4px;
+    text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar .pmeta{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ovrbox{text-align:center;flex:none}
+  .ovrbox .num{font-family:var(--cond);font-weight:700;font-size:30px;color:var(--gold);
+    line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(232,184,75,.35)}
+  .ovrbox .lbl{font-size:9px;letter-spacing:2px;color:var(--dim)}
+  h1.logo{font-family:var(--cond);font-weight:700;text-transform:uppercase;letter-spacing:1px;
+    font-size:42px;line-height:1.05;text-wrap:balance}
+  h1.logo em{font-style:normal;color:var(--gold)}
+  .tagline{color:var(--dim);margin:10px 0 26px;font-size:15px}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:16px;margin:12px 0;position:relative;
+  }
+  .card.kick{border-color:var(--gold-soft)}
+  .kicker{font-family:var(--cond);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
+    color:var(--gold);margin-bottom:6px}
+  .kicker.grey{color:var(--dim)}
+  .card h2{font-family:var(--cond);text-transform:uppercase;letter-spacing:.5px;font-size:21px;
+    line-height:1.15;margin-bottom:8px;text-wrap:balance}
+  .card p{font-size:14.5px;color:#CBD6CC}
+  .choices{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  button{
+    font-family:var(--body);font-size:14.5px;color:var(--chalk);
+    background:var(--card2);border:1px solid var(--line);border-radius:8px;
+    padding:11px 13px;text-align:left;cursor:pointer;width:100%;
+  }
+  button:hover{border-color:var(--gold-soft)}
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  button .bl{font-weight:600;display:block}
+  button .bd{display:block;font-size:12.5px;color:var(--dim);margin-top:2px}
+  button.primary{background:var(--gold);color:#161206;border-color:var(--gold);
+    font-family:var(--cond);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;
+    text-align:center;font-size:16px}
+  button.ghost{text-align:center;color:var(--dim)}
+  .result{border-left:3px solid var(--line);padding:10px 12px;margin-top:12px;font-size:14px;
+    background:rgba(255,255,255,.02);border-radius:0 8px 8px 0}
+  .result.good{border-left-color:var(--ok)}
+  .result.bad{border-left-color:var(--bad)}
+  .result.gold{border-left-color:var(--gold)}
+  .fx{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-family:var(--cond);font-size:12px;letter-spacing:.5px;padding:2px 8px;
+    border-radius:20px;border:1px solid var(--line);color:var(--dim);
+    font-variant-numeric:tabular-nums}
+  .chip.up{color:var(--ok);border-color:rgba(111,207,142,.4)}
+  .chip.down{color:var(--bad);border-color:rgba(224,108,91,.4)}
+  .chip.gold{color:var(--gold);border-color:rgba(232,184,75,.5)}
+  .season-head{display:flex;justify-content:space-between;align-items:baseline;margin:22px 0 4px}
+  .season-head .yr{font-family:var(--cond);font-size:26px;font-weight:700;color:var(--gold);
+    font-variant-numeric:tabular-nums}
+  .season-head .ag{font-size:13px;color:var(--dim)}
+  table.stats{width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
+  table.stats td{padding:5px 2px;font-size:14px;border-bottom:1px solid rgba(44,61,49,.5)}
+  table.stats td:last-child{text-align:right;font-family:var(--cond);font-size:15px}
+  table.stats tr:last-child td{border-bottom:none}
+  .attr-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;margin-top:8px}
+  .attr{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;
+    border-bottom:1px solid rgba(44,61,49,.45)}
+  .attr b{font-family:var(--cond);font-variant-numeric:tabular-nums;font-weight:700}
+  .attr .d{font-size:11px;margin-left:4px}
+  .up2{color:var(--ok)} .down2{color:var(--bad)}
+  .trophy{color:var(--gold);font-weight:600}
+  .divider{border:none;border-top:1px dashed var(--line);margin:18px 0}
+  .big-legend{font-family:var(--cond);font-size:64px;font-weight:700;color:var(--gold);
+    text-align:center;line-height:1;font-variant-numeric:tabular-nums;
+    text-shadow:0 0 30px rgba(232,184,75,.3)}
+  .legend-title{font-family:var(--cond);text-transform:uppercase;letter-spacing:2px;
+    text-align:center;font-size:15px;margin-top:6px}
+  .compare{margin-top:10px}
+  .compare .cname{font-family:var(--cond);font-size:22px;font-weight:700;text-transform:uppercase}
+  .compare .cpct{color:var(--gold);font-variant-numeric:tabular-nums}
+  label{display:block;font-family:var(--cond);font-size:11px;letter-spacing:2px;
+    text-transform:uppercase;color:var(--dim);margin:14px 0 5px}
+  select,input[type=text]{
+    width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);
+    background:var(--card2);color:var(--chalk);font-size:15px;font-family:var(--body)}
+  .optrow{display:flex;flex-wrap:wrap;gap:6px}
+  .optrow button{width:auto;flex:1 1 28%;text-align:center;font-size:13.5px;padding:9px 6px}
+  .optrow button.sel{border-color:var(--gold);color:var(--gold)}
+  .small{font-size:12.5px;color:var(--dim)}
+  .newsline{font-size:13px;color:var(--dim);font-style:italic;margin-top:8px}
+  .press{font-family:var(--cond);text-transform:uppercase;font-size:17px;letter-spacing:.5px;
+    border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin-top:10px;
+    background:var(--card2)}
+  .pantheon-item{display:flex;justify-content:space-between;gap:10px;padding:9px 0;
+    border-bottom:1px solid rgba(44,61,49,.5);font-size:14px}
+  .pantheon-item .sc{font-family:var(--cond);color:var(--gold);font-variant-numeric:tabular-nums;
+    font-weight:700}
+  .footer-note{margin-top:26px;text-align:center;font-size:12px;color:var(--dim)}
+  @media (prefers-reduced-motion:no-preference){
+    .card{animation:rise .25s ease-out}
+    @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  }
+</style>
+<div id="app"></div>
+<script>
+'use strict';
+/* ================= RNG (seedable, sérialisable) ================= */
+function RNG(seed){ this.s = (seed>>>0)||1; }
+RNG.prototype.next = function(){
+  var t = this.s += 0x6D2B79F5;
+  t = Math.imul(t ^ t>>>15, t|1);
+  t ^= t + Math.imul(t ^ t>>>7, t|61);
+  return ((t ^ t>>>14)>>>0)/4294967296;
+};
+RNG.prototype.int=function(a,b){return a+Math.floor(this.next()*(b-a+1));};
+RNG.prototype.pick=function(arr){return arr[Math.floor(this.next()*arr.length)];};
+RNG.prototype.chance=function(p){return this.next()<p;};
+RNG.prototype.gauss=function(){return (this.next()+this.next()+this.next())*2-3;};
+
+/* ================= DONNÉES ================= */
+var NATIONS=[
+ {id:'FR',name:'France',pool:'fr',str:5,lg:'FR1'},
+ {id:'BR',name:'Brésil',pool:'br',str:5,lg:'BR1'},
+ {id:'AR',name:'Argentine',pool:'es',str:5,lg:'AR1'},
+ {id:'EN',name:'Angleterre',pool:'en',str:4,lg:'EN1'},
+ {id:'ES',name:'Espagne',pool:'es',str:4,lg:'ES1'},
+ {id:'IT',name:'Italie',pool:'it',str:4,lg:'IT1'},
+ {id:'DE',name:'Allemagne',pool:'de',str:4,lg:'DE1'},
+ {id:'PT',name:'Portugal',pool:'pt',str:4,lg:'PT1'},
+ {id:'NL',name:'Pays-Bas',pool:'nl',str:3,lg:'NL1'},
+ {id:'MA',name:'Maroc',pool:'ar',str:3,lg:'FR1'},
+ {id:'SN',name:'Sénégal',pool:'sn',str:3,lg:'FR1'},
+ {id:'JP',name:'Japon',pool:'jp',str:3,lg:'JP1'},
+ {id:'US',name:'États-Unis',pool:'en',str:2,lg:'US1'},
+ {id:'SA',name:'Arabie saoudite',pool:'ar',str:2,lg:'SA1'},
+ {id:'TR',name:'Turquie',pool:'tr',str:3,lg:'TR1'}
+];
+var POOLS={
+ fr:{f:['Lucas','Théo','Karim','Mathis','Enzo','Rayan','Nolan','Malik','Adam','Ilan'],
+     l:['Moreau','Dubois','Nkounkou','Lefèvre','Bernardin','Traoré','Marchal','Guyot','Delcourt','Roussel']},
+ br:{f:['Gabriel','Matheus','Vinícius','João','Pedro','Luan','Caio','Thiago','Rafael','Éder'],
+     l:['Silva','Santos','Oliveira','Costa','Ferreira','Moraes','Batista','Cardoso','do Prado','Furtado']},
+ es:{f:['Santiago','Mateo','Nicolás','Thiago','Facundo','Julián','Bruno','Iker','Pablo','Marco'],
+     l:['González','Fernández','Aguirre','Herrera','Navarro','Cabrera','Ríos','Molina','Vidal','Suárez']},
+ en:{f:['Harry','Jack','Mason','Tyler','Callum','Reece','Jordan','Lewis','Kai','Owen'],
+     l:['Walker','Turner','Bright','Hughes','Barnes','Ashford','Colly','Draper','Whitmore','Sutton']},
+ it:{f:['Lorenzo','Matteo','Federico','Alessio','Nicolò','Davide','Simone','Marco','Luca','Tommaso'],
+     l:['Rossi','Bianchi','Greco','Marino','Ferrara','Conti','De Luca','Villa','Barone','Serra']},
+ de:{f:['Leon','Finn','Jonas','Luca','Niklas','Timo','Jannik','Felix','Emil','Moritz'],
+     l:['Müller','Schneider','Weber','Hoffmann','Krüger','Brandt','Vogel','Seidel','Lorenz','Franke']},
+ pt:{f:['Diogo','Tiago','Gonçalo','Rúben','Afonso','Duarte','Martim','Rodrigo','Vasco','Nuno'],
+     l:['Silva','Pereira','Carvalho','Fonseca','Machado','Moutinho','Neves','Baptista','Leitão','Pires']},
+ nl:{f:['Daan','Sem','Luuk','Jesse','Thijs','Ruben','Milan','Sven','Niels','Joris'],
+     l:['de Vries','Jansen','Bakker','Visser','Smit','van Dijk','Mulder','Bos','Peters','Kuipers']},
+ ar:{f:['Youssef','Amine','Hamza','Reda','Sofiane','Ayoub','Salem','Fahd','Nasser','Karim'],
+     l:['El Amrani','Benali','Al-Harbi','Bouzid','Al-Qahtani','Cherkaoui','Al-Dossari','Haddadi','Meziane','Al-Otaibi']},
+ sn:{f:['Moussa','Ibrahima','Cheikh','Ousmane','Abdou','Mamadou','Pape','Sadio','Idrissa','Aliou'],
+     l:['Diallo','Ndiaye','Sarr','Gueye','Cissé','Diouf','Faye','Mbaye','Sy','Kane']},
+ jp:{f:['Haruto','Ren','Sota','Yuto','Kaito','Riku','Daiki','Takumi','Shota','Kenta'],
+     l:['Sato','Tanaka','Yamamoto','Kobayashi','Nakamura','Ito','Watanabe','Hayashi','Mori','Okada']},
+ tr:{f:['Emre','Burak','Kerem','Arda','Mert','Can','Ozan','Yusuf','Berat','Furkan'],
+     l:['Yılmaz','Demir','Şahin','Çelik','Aydın','Öztürk','Kaya','Arslan','Doğan','Polat']}
+};
+var LEAGUES=[
+ {id:'EN1',name:"Championnat d'Angleterre",country:'Angleterre',tier:5,money:5,vis:5,dev:5,agg:1.15,
+  cities:['Manchester','Londres','Liverpool','Newcastle','Birmingham','Leeds','Bristol','Sheffield','Brighton','Nottingham'],suf:['United','City','FC','Athletic','Rovers']},
+ {id:'ES1',name:'Liga espagnole',country:'Espagne',tier:5,money:4,vis:5,dev:5,agg:0.95,
+  cities:['Madrid','Barcelone','Séville','Valence','Bilbao','La Corogne','Saragosse','Malaga','Grenade','Vigo'],suf:['CF','Real','Atlético','Deportivo','CD']},
+ {id:'IT1',name:'Serie A italienne',country:'Italie',tier:4,money:3,vis:4,dev:4,agg:1.05,
+  cities:['Milan','Turin','Rome','Naples','Florence','Gênes','Bologne','Vérone','Palerme','Bari'],suf:['Calcio','AC','AS','US','Sporting']},
+ {id:'DE1',name:'Championnat d’Allemagne',country:'Allemagne',tier:4,money:4,vis:4,dev:5,agg:1.0,
+  cities:['Munich','Dortmund','Hambourg','Berlin','Cologne','Stuttgart','Brême','Leipzig','Francfort','Mönchengladbach'],suf:['SV','FC','Borussia','Union','SC']},
+ {id:'FR1',name:'Championnat de France',country:'France',tier:4,money:3,vis:4,dev:5,agg:1.0,
+  cities:['Paris','Marseille','Lyon','Lille','Monaco','Nantes','Rennes','Bordeaux','Nice','Lens'],suf:['FC','Olympique','Racing','Stade','AS']},
+ {id:'FR2',name:'Ligue 2 française',country:'France',tier:2,money:1,vis:2,dev:3,agg:1.05,
+  cities:['Metz','Caen','Grenoble','Amiens','Pau','Laval','Annecy','Bastia','Rodez','Dunkerque'],suf:['FC','Stade','US','AS','SC']},
+ {id:'PT1',name:'Liga portugaise',country:'Portugal',tier:3,money:2,vis:3,dev:5,agg:0.95,
+  cities:['Lisbonne','Porto','Braga','Guimarães','Coimbra','Faro','Setúbal','Aveiro','Funchal','Évora'],suf:['Sporting','FC','Benfica?','SC','CD']},
+ {id:'NL1',name:'Eredivisie néerlandaise',country:'Pays-Bas',tier:3,money:2,vis:3,dev:5,agg:0.9,
+  cities:['Amsterdam','Rotterdam','Eindhoven','Utrecht','La Haye','Groningue','Arnhem','Alkmaar','Enschede','Bréda'],suf:['FC','SC','Ajax?','SV','VV']},
+ {id:'BR1',name:'Brasileirão',country:'Brésil',tier:3,money:2,vis:3,dev:4,agg:1.05,
+  cities:['São Paulo','Rio de Janeiro','Belo Horizonte','Porto Alegre','Salvador','Recife','Curitiba','Fortaleza','Santos','Goiânia'],suf:['FC','EC','Atlético','Internacional?','SC']},
+ {id:'AR1',name:'Championnat argentin',country:'Argentine',tier:3,money:1,vis:3,dev:4,agg:1.15,
+  cities:['Buenos Aires','Rosario','Córdoba','La Plata','Mendoza','Santa Fe','Tucumán','Avellaneda','Lanús','Quilmes'],suf:['CA','Club','Atlético','Racing','Estudiantes?']},
+ {id:'SA1',name:'Ligue saoudienne',country:'Arabie saoudite',tier:2,money:4,vis:2,dev:2,agg:0.85,
+  cities:['Riyad','Djeddah','La Mecque','Médine','Dammam','Abha','Taïf','Burayda','Khobar','Tabuk'],suf:['Al','SC','FC','Club','Étoile']},
+ {id:'US1',name:'Ligue nord-américaine',country:'États-Unis',tier:2,money:3,vis:3,dev:3,agg:0.9,
+  cities:['Los Angeles','New York','Miami','Austin','Seattle','Atlanta','Chicago','Denver','Portland','Columbus'],suf:['FC','United','SC','City','Union']},
+ {id:'JP1',name:'J-League japonaise',country:'Japon',tier:2,money:2,vis:2,dev:4,agg:0.8,
+  cities:['Tokyo','Yokohama','Osaka','Kobe','Nagoya','Kawasaki','Sapporo','Fukuoka','Hiroshima','Sendai'],suf:['FC','Antlers?','SC','United','Marinos?']},
+ {id:'TR1',name:'Süper Lig turque',country:'Turquie',tier:3,money:2,vis:3,dev:3,agg:1.2,
+  cities:['Istanbul','Ankara','Izmir','Trabzon','Bursa','Antalya','Konya','Adana','Kayseri','Gaziantep'],suf:['SK','Spor','FK','Gençlik','1907']}
+];
+// nettoie les suffixes taquins
+LEAGUES.forEach(function(L){L.suf=L.suf.map(function(s){return s.replace('?','');});});
+
+var ATTRS={fin:'Finition',fra:'Frappe de loin',pas:'Passe',vis:'Vision',dri:'Dribble',
+           def:'Défense',vit:'Vitesse',phy:'Physique',men:'Mental'};
+var POSITIONS={
+ BU:{label:'Buteur',w:{fin:.28,fra:.08,pas:.05,vis:.07,dri:.12,def:.0,vit:.15,phy:.12,men:.13},g:'ATT'},
+ AIL:{label:'Ailier',w:{fin:.15,fra:.07,pas:.10,vis:.10,dri:.22,def:.02,vit:.20,phy:.05,men:.09},g:'ATT'},
+ MO:{label:'Milieu offensif',w:{fin:.12,fra:.09,pas:.20,vis:.22,dri:.15,def:.02,vit:.06,phy:.05,men:.09},g:'MIL'},
+ MC:{label:'Milieu central',w:{fin:.05,fra:.06,pas:.24,vis:.18,dri:.08,def:.12,vit:.05,phy:.10,men:.12},g:'MIL'},
+ MDC:{label:'Milieu défensif',w:{fin:.02,fra:.03,pas:.16,vis:.12,dri:.04,def:.28,vit:.05,phy:.16,men:.14},g:'MIL'},
+ DC:{label:'Défenseur central',w:{fin:.01,fra:.01,pas:.08,vis:.06,dri:.02,def:.36,vit:.10,phy:.22,men:.14},g:'DEF'},
+ LAT:{label:'Latéral',w:{fin:.03,fra:.03,pas:.14,vis:.08,dri:.12,def:.22,vit:.18,phy:.10,men:.10},g:'DEF'}
+};
+var ERAS=[
+ {id:'classique',name:'Ère classique',desc:'L’Europe concentre tout l’argent et la gloire.',mult:{}},
+ {id:'petro',name:'Ère des pétrodollars',desc:'Le Golfe achète les stars à prix d’or.',mult:{SA1:3.2}},
+ {id:'usboom',name:'Boom américain',desc:'La ligue nord-américaine attire les regards du monde.',mult:{US1:2.4}},
+ {id:'asie',name:'Fièvre asiatique',desc:'Le Japon investit massivement dans son championnat.',mult:{JP1:2.2}}
+];
+var STYLES=[
+ {id:'renard',name:'Renard des surfaces',fx:{fin:1.5,men:1.2},desc:'Toujours là où le ballon tombe.'},
+ {id:'poison',name:'Poison des défenses',fx:{vit:1.5,dri:1.3},desc:'Vitesse et percussion.'},
+ {id:'chef',name:'Chef d’orchestre',fx:{pas:1.5,vis:1.4},desc:'Le jeu passe par toi.'},
+ {id:'guerrier',name:'Guerrier',fx:{def:1.4,phy:1.4},desc:'On ne passe pas.'},
+ {id:'artiste',name:'Artiste',fx:{dri:1.5,fra:1.3},desc:'Le geste avant tout.'}
+];
+var ORIGINS=[
+ {id:'quartier',name:'Quartier populaire',desc:'La rue t’a tout appris. Variance haute.',
+  fx:{dri:3,phy:2},hid:{potVar:8,pro:-5}},
+ {id:'academie',name:'Académie huppée',desc:'Formé proprement. Variance basse.',
+  fx:{pas:3,vis:2},hid:{potVar:-4,pro:8}},
+ {id:'campagne',name:'Village',desc:'Repéré tard, affamé.',fx:{phy:3,men:2},hid:{potVar:4,pro:3}},
+ {id:'filspro',name:'Enfant de footballeur',desc:'Le nom ouvre des portes… et pèse.',
+  fx:{men:2,pas:2},hid:{rep:8,ego:6}}
+];
+var ENTOURAGES=[
+ {id:'famille',name:'Famille soudée',desc:'Un cadre sain.',hid:{pro:6,ego:-4}},
+ {id:'agent',name:'Agent ambitieux',desc:'Il te vendra cher, à tout prix.',hid:{amb:8,rep:4}},
+ {id:'bande',name:'La bande du quartier',desc:'Fidèles, mais pas toujours de bon conseil.',hid:{pro:-6,mor:6}},
+ {id:'mentor',name:'Vieux coach mentor',desc:'Il croit en toi depuis toujours.',hid:{pro:4,potVar:3}}
+];
+
+/* ============ Bibliothèque des carrières type ============ */
+var REFS=[
+ {n:'Lionel Messi',g:'ATT',blurb:'La carrière parfaite : Ballons d’Or en série, stats d’un autre monde, un club de cœur, le sacre mondial.',leg:[96,100],bdo:[6,99],loyal:1,wc:1,goals:2},
+ {n:'Cristiano Ronaldo',g:'ATT',blurb:'Machine à records, conquérant de tous les championnats, longévité hors norme.',leg:[94,100],bdo:[4,99],loyal:0,exile:1,goals:2,long:1},
+ {n:'Zinédine Zidane',g:'MIL',blurb:'L’élégance faite joueur, décisif dans les plus grandes finales.',leg:[88,96],bdo:[1,3],wc:1,big:1},
+ {n:'Ronaldinho',g:'ATT',blurb:'Un génie joyeux au sommet éblouissant mais bref.',leg:[82,92],bdo:[1,2],shortPeak:1},
+ {n:'Ronaldo R9',g:'ATT',blurb:'Un phénomène freiné par les blessures — et légendaire quand même.',leg:[85,95],bdo:[1,3],inj:1,wc:1,goals:2},
+ {n:'Marco van Basten',g:'ATT',blurb:'Une carrière fauchée en plein vol par les blessures.',leg:[70,86],bdo:[1,3],inj:2,shortPeak:1},
+ {n:'Kaká',g:'MIL',blurb:'Le sommet du monde, puis le corps qui lâche.',leg:[78,90],bdo:[1,1],inj:1,shortPeak:1},
+ {n:'Michael Owen',g:'ATT',blurb:'Prodige au pic à 21 ans, longue descente ensuite.',leg:[62,78],bdo:[1,1],earlyPeak:1,inj:1},
+ {n:'Freddy Adu',g:'ATT',blurb:'La hype mondiale qui ne s’est jamais réalisée.',leg:[0,35],bdo:[0,0],flop:1},
+ {n:'Mario Balotelli',g:'ATT',blurb:'Un talent immense, dispersé en route.',leg:[35,60],bdo:[0,0],waste:1},
+ {n:'Jamie Vardy',g:'ATT',blurb:'L’éclosion à 27 ans — le conte de fées tardif.',leg:[55,78],bdo:[0,0],late:1},
+ {n:'Miroslav Klose',g:'ATT',blurb:'Discret en club, tueur des grands tournois internationaux.',leg:[68,85],bdo:[0,0],wc:1,tourn:1},
+ {n:'Diego Forlán',g:'ATT',blurb:'Incompris quelque part, roi ailleurs.',leg:[60,80],bdo:[0,0],exile:1},
+ {n:'Zlatan Ibrahimović',g:'ATT',blurb:'Globe-trotter à l’ego assumé, buveur de championnats.',leg:[82,93],bdo:[0,0],exile:2,long:1,ego:1},
+ {n:'Francesco Totti',g:'ATT',blurb:'Idole absolue d’un seul club, adoré sans Ballon d’Or.',leg:[78,92],bdo:[0,0],loyal:2,wc:1},
+ {n:'Andrés Iniesta',g:'MIL',blurb:'Maître discret d’un très grand club, fidèle, titré.',leg:[85,94],bdo:[0,0],loyal:2,wc:1,big:1},
+ {n:'Andrea Pirlo',g:'MIL',blurb:'Réinventé sur le tard — le poste change, la légende naît.',leg:[80,92],bdo:[0,0],reconv:1,wc:1},
+ {n:'Claude Makélélé',g:'MIL',blurb:'Le travailleur de l’ombre devenu indispensable.',leg:[68,84],bdo:[0,0],humble:1},
+ {n:'N’Golo Kanté',g:'MIL',blurb:'Humilité totale, moteur infatigable des sacres.',leg:[70,86],bdo:[0,0],humble:1,wc:1},
+ {n:'Fabio Cannavaro',g:'DEF',blurb:'Le défenseur au Ballon d’Or — l’année parfaite.',leg:[80,92],bdo:[1,1],wc:1},
+ {n:'Paolo Maldini',g:'DEF',blurb:'Un seul club, une élégance défensive éternelle.',leg:[85,95],bdo:[0,0],loyal:2,long:1},
+ {n:'James Milner',g:'MIL',blurb:'Le professionnel absolu : respecté partout, deux décennies au haut niveau.',leg:[50,70],bdo:[0,0],long:1,humble:1},
+ {n:'Didier Drogba',g:'ATT',blurb:'Arrivé tard au sommet, immense dans les grands soirs.',leg:[74,88],bdo:[0,0],late:1,big:1},
+ {n:'Ravel Morrison',g:'MIL',blurb:'« Le plus grand talent que j’aie vu » — et une carrière en pointillés.',leg:[0,38],bdo:[0,0],flop:1},
+ {n:'Hatem Ben Arfa',g:'MIL',blurb:'Des éclairs de génie, jamais la constance.',leg:[30,58],bdo:[0,0],waste:1},
+ {n:'Micah Richards',g:'DEF',blurb:'Fulgurant à 18 ans, arrêté par le corps.',leg:[20,55],bdo:[0,0],earlyPeak:1,inj:1},
+ {n:'Sergio Ramos',g:'DEF',blurb:'Guerrier des grands soirs, palmarès de géant, cartons compris.',leg:[80,94],bdo:[0,0],wc:1,big:1,long:1}
+];
+
+/* ============ Événements de vie ============ */
+/* eff: {attrs:{}, hid:{}, form, mor, rep, money, trust} — valeurs additives */
+var EVENTS=[
+ {id:'etudes',min:15,max:17,tag:'vie',title:'Le bac ou le ballon',
+  text:'Tes notes chutent. Le lycée convoque tes parents : il faut choisir tes priorités.',
+  ch:[
+   {l:'Tout miser sur le foot',d:'Brûler les ponts — le foot ou rien.',
+    eff:{hid:{amb:5,pro:2},mor:4},res:'Ta famille grince des dents, mais ton engagement impressionne les éducateurs.'},
+   {l:'Continuer les études en parallèle',d:'Moins d’entraînement, un filet de sécurité.',
+    eff:{hid:{pro:4},attrs:{men:1},mor:-2},res:'Des semaines épuisantes, mais tu grandis dans ta tête.'}
+  ]},
+ {id:'soiree16',min:16,max:19,tag:'vie',title:'La soirée du siècle',
+  text:'Toute ta bande y sera. Le centre de formation impose un couvre-feu strict.',
+  ch:[
+   {l:'Y aller en douce',d:'Risqué : si le club l’apprend…',
+    risk:{p:.55,stats:['men'],win:{eff:{mor:8,hid:{ego:2}},res:'Personne n’a rien su. Une soirée mémorable, la tête légère.'},
+      lose:{eff:{mor:2,trust:-15,hid:{pro:-3}},res:'Un éducateur t’a croisé à 2h du matin. Convocation, sanction, réputation écornée au centre.'}}},
+   {l:'Rester au centre',d:'Sérieux, mais ta bande te chambre.',
+    eff:{hid:{pro:3},mor:-3,trust:6},res:'Le staff a noté ton sérieux. Ta bande, elle, t’appelle « le moine ».'}
+  ]},
+ {id:'tournoi_quartier',min:15,max:17,tag:'vie',title:'Le tournoi du quartier',
+  text:'Le tournoi annuel du quartier. Aucun enjeu officiel — mais tout le monde regarde, et ça joue dur.',
+  ch:[
+   {l:'Jouer et tout donner',d:'Briller devant les tiens… en risquant une blessure bête.',
+    risk:{p:.6,stats:['dri'],win:{eff:{attrs:{dri:2},rep:3,mor:6},res:'Tu as marché sur le tournoi. Le quartier parle encore de TON geste.'},
+      lose:{eff:{mor:-4,hid:{frag:2}},res:'Un tacle assassin sur le bitume. Cheville en vrac, plusieurs semaines de repos forcé.'}}},
+   {l:'Regarder depuis la touche',d:'Protéger ta carrière naissante.',
+    eff:{hid:{pro:2},mor:-2},res:'Sage. Mais un petit pincement en voyant les autres jouer.'}
+  ]},
+ {id:'agent_choix',min:17,max:20,tag:'vie',once:1,title:'Deux cartes de visite',
+  text:'Deux agents te courtisent : un requin aux dents longues qui promet la lune, un ancien joueur posé qui parle de « construire ».',
+  ch:[
+   {l:'Le requin',d:'Des promesses énormes, des méthodes agressives.',
+    eff:{hid:{amb:6,ego:3},rep:4},res:'Il t’obtient déjà des rendez-vous que personne d’autre ne décroche.'},
+   {l:'L’ancien joueur',d:'La carrière pensée sur quinze ans.',
+    eff:{hid:{pro:5},trust:5},res:'Pas de bruit, mais chaque conseil vaut de l’or.'}
+  ]},
+ {id:'reseaux',min:17,max:24,tag:'vie',title:'Buzz sur les réseaux',
+  text:'Une de tes vidéos d’entraînement explose en ligne. Un community manager te propose de « construire ta marque ».',
+  ch:[
+   {l:'Foncer sur les réseaux',d:'Notoriété rapide, distraction possible.',
+    eff:{rep:6,hid:{pro:-3,ego:3},money:1},res:'Tes abonnés doublent chaque mois. Ton coach, lui, lève un sourcil.'},
+   {l:'Rester discret',d:'Le terrain parlera.',
+    eff:{hid:{pro:3}},res:'« Il ne parle pas beaucoup, mais qu’est-ce qu’il joue », écrit un supporter.'}
+  ]},
+ {id:'mentor_vet',min:17,max:21,tag:'vie',once:1,title:'Le vétéran du vestiaire',
+  text:'Le capitaine, 35 ans, te propose de rester après l’entraînement pour bosser ensemble, tous les soirs.',
+  ch:[
+   {l:'Accepter, tous les soirs',d:'Moins de temps libre, un savoir immense.',
+    eff:{attrs:{men:2,pas:1},hid:{pro:4,pot:2}},res:'Six mois plus tard, tu lis le jeu comme jamais. Certains soirs, il te parle aussi de la vie.'},
+   {l:'Décliner poliment',d:'Tu préfères ta propre routine.',
+    eff:{mor:2,hid:{ego:2}},res:'Il hoche la tête sans insister. Le rendez-vous ne sera plus jamais proposé.'}
+  ]},
+ {id:'voiture',min:19,max:26,tag:'vie',title:'Le garage des stars',
+  text:'Ton premier gros salaire est tombé. Un coéquipier t’emmène chez un concessionnaire de voitures de sport.',
+  ch:[
+   {l:'La voiture de tes rêves',d:'Un gouffre, mais quel plaisir.',
+    eff:{money:-2,mor:7,hid:{pro:-2},rep:2},res:'Le parking du centre d’entraînement se retourne sur ton bolide. La presse people aussi.'},
+   {l:'Une voiture raisonnable',d:'Ton banquier approuve.',
+    eff:{money:0,hid:{pro:3}},res:'« Le petit est resté simple », apprécie le staff.'}
+  ]},
+ {id:'famille_argent',min:18,max:30,tag:'vie',title:'La famille demande',
+  text:'Un oncle te sollicite pour financer « un projet en or ». Ta mère te regarde sans rien dire.',
+  ch:[
+   {l:'Financer le projet',d:'La famille avant tout — même sans garanties.',
+    risk:{p:.4,stats:['men'],win:{eff:{money:2,mor:6},res:'Contre toute attente, le projet décolle. Le clan est fier de toi.'},
+      lose:{eff:{money:-2,mor:-5},res:'L’argent s’est évaporé. Personne n’ose en reparler aux repas de famille.'}},},
+   {l:'Refuser avec tact',d:'Protéger ton patrimoine, froisser le clan.',
+    eff:{money:0,mor:-3,hid:{pro:2}},res:'Un froid s’installe quelques mois. Ton conseiller financier, lui, respire.'}
+  ]},
+ {id:'nutrition',min:20,max:31,tag:'vie',title:'Le corps est un capital',
+  text:'Un préparateur privé de renom propose de reprendre en main ton hygiène de vie. Cher, exigeant, réputé.',
+  ch:[
+   {l:'Engager le préparateur',d:'Coûteux, mais le corps te dira merci.',
+    eff:{money:-1,attrs:{phy:2},hid:{frag:-4,pro:3}},res:'Sommeil, assiette, récupération : tout est millimétré. Tu te sens dix-huit ans à nouveau.'},
+   {l:'Continuer comme avant',d:'Ça marche très bien comme ça, non ?',
+    eff:{mor:2},res:'Rien ne change. Pour l’instant, tout va bien.'}
+  ]},
+ {id:'jeuxvideo',min:18,max:26,tag:'vie',title:'Manette en main à minuit',
+  text:'Tu enchaînes les parties en ligne jusqu’à pas d’heure avec deux coéquipiers. Demain : entraînement à 9h.',
+  ch:[
+   {l:'« Une dernière et j’arrête »',d:'La cohésion d’équipe compte aussi…',
+    eff:{mor:4,hid:{pro:-2},form:-3},res:'Vous avez ri jusqu’à 3h. Le lendemain, tes jambes pesaient une tonne.'},
+   {l:'Éteindre à 22h30',d:'Le sommeil, arme secrète des pros.',
+    eff:{hid:{pro:2},form:2},res:'Frais comme un gardon au réveil. Les autres bâillent.'}
+  ]},
+ {id:'presse_encense',min:19,max:24,tag:'vie',title:'« Le nouveau phénomène »',
+  text:'Un grand quotidien sportif te consacre sa une. Ton téléphone explose.',
+  ch:[
+   {l:'Savourer et en jouer',d:'La lumière, c’est maintenant.',
+    eff:{rep:5,mor:5,hid:{ego:4}},res:'Interviews, plateaux, photos. Grisant. Ton coach te rappelle qu’un match arrive samedi.'},
+   {l:'Couper le téléphone',d:'Le prochain match est la seule réponse.',
+    eff:{hid:{pro:3},trust:4},res:'« La une ? Je ne l’ai pas lue. » Le vestiaire apprécie.'}
+  ]},
+ {id:'rival_interview',min:19,max:29,tag:'vie',title:'Ton rival te provoque',
+  text:function(s){return (s.rival?s.rival:'Ton rival de génération')+' te tacle en interview : « Lui ? Il joue bien… contre les petits. »';},
+  ch:[
+   {l:'Répondre piquant',d:'La guerre médiatique est déclarée.',
+    eff:{rep:3,mor:3,hid:{ego:3}},res:'Ta punchline fait le tour des réseaux. La rivalité passionne le pays.'},
+   {l:'Répondre sur le terrain',d:'Classe et silence.',
+    eff:{hid:{pro:2,men:0},attrs:{men:1}},res:'« On verra au prochain match direct », dis-tu simplement. Tout le monde a noté la date.'}
+  ]},
+ {id:'clash_coach',min:20,max:31,tag:'vie',title:'Choix tactique contesté',
+  text:'Le coach t’utilise dans un rôle qui bride ton jeu. En privé, tu bous.',
+  ch:[
+   {l:'Aller le voir franchement',d:'Il déteste qu’on discute ses choix…',
+    risk:{p:.5,stats:['men'],win:{eff:{trust:8,mor:5},res:'Discussion d’homme à homme. Il ajuste ton rôle — et te respecte davantage.'},
+      lose:{eff:{trust:-12,mor:-4},res:'« C’est moi qui décide. » Ambiance glaciale pendant des semaines.'}}},
+   {l:'Serrer les dents',d:'Faire le boulot, attendre ton heure.',
+    eff:{hid:{pro:2},mor:-4},res:'Tu joues, sans éclat ni vague. L’hiver est long.'}
+  ]},
+ {id:'capitanat',min:24,max:31,tag:'vie',once:1,cond:function(s){return s.trust>60&&s.rep>40;},title:'Le brassard',
+  text:'Le capitaine part. Le vestiaire est partagé entre toi et un cadre plus âgé. Le coach te demande si tu le veux.',
+  ch:[
+   {l:'Prendre le brassard',d:'L’honneur, et la pression qui va avec.',
+    eff:{attrs:{men:2},rep:4,hid:{ego:2},trust:5},res:'Premier match avec le brassard : la voix qui porte, les épaules qui s’élargissent.'},
+   {l:'Le laisser au cadre',d:'Chaque chose en son temps.',
+    eff:{mor:2,hid:{pro:2}},res:'Le vestiaire salue ton humilité. Ton tour viendra.'}
+  ]},
+ {id:'mariage',min:24,max:31,tag:'vie',once:1,title:'La grande question',
+  text:'Ta compagne parle d’avenir, de racines, d’une vie plus posée.',
+  ch:[
+   {l:'Fonder une famille',d:'Un ancrage — et de nouvelles priorités.',
+    eff:{mor:8,hid:{pro:3,amb:-2}},res:'Le mariage de l’année dans ta ville. Tu rentres plus tôt, tu dors mieux, tu vis mieux.'},
+   {l:'« Pas maintenant »',d:'La carrière d’abord.',
+    eff:{hid:{amb:3},mor:-4},res:'Elle comprend. Enfin, elle dit qu’elle comprend.'}
+  ]},
+ {id:'investissement',min:23,max:33,tag:'vie',title:'« Une opportunité unique »',
+  text:'Un « ami d’ami » propose un investissement à rendement mirobolant. Ton agent fronce les sourcils.',
+  ch:[
+   {l:'Investir gros',d:'Qui ne tente rien…',
+    risk:{p:.35,stats:['men'],win:{eff:{money:4},res:'Contre l’avis de tous, ça paie. Ton banquier n’en revient pas.'},
+      lose:{eff:{money:-3,mor:-5},res:'C’était un montage pourri. Une partie de tes économies s’est envolée.'}}},
+   {l:'Écouter ton agent',d:'L’ennui, c’est rentable.',
+    eff:{money:1,hid:{pro:2}},res:'Placements sages, sommeil paisible.'}
+  ]},
+ {id:'charite',min:22,max:34,tag:'vie',title:'Retour aux sources',
+  text:'Ton quartier d’enfance manque de tout. Tu peux financer un city-stade et une école de foot.',
+  ch:[
+   {l:'Financer en grand',d:'Cher, mais inoubliable.',
+    eff:{money:-2,rep:6,mor:8},res:'Le jour de l’inauguration, des gamins portent ton maillot. Certains pleurent. Toi aussi.'},
+   {l:'Un don discret',d:'Aider sans caméras.',
+    eff:{money:-1,mor:4,hid:{pro:1}},res:'Personne ne le saura jamais. C’est très bien comme ça.'}
+  ]},
+ {id:'derby_provoc',min:20,max:32,tag:'vie',title:'Feu au derby',
+  text:'Veille de derby. En conférence de presse, on te tend un micro : « Un message pour leurs supporters ? »',
+  ch:[
+   {l:'Mettre de l’huile sur le feu',d:'Le stade sera une cocotte-minute.',
+    risk:{p:.5,stats:['men'],win:{eff:{rep:5,mor:6},res:'Tu as chauffé tout un peuple — et répondu présent sur le terrain. Idole instantanée.'},
+      lose:{eff:{rep:-4,mor:-5,trust:-6},res:'Ta punchline s’est retournée contre toi après la défaite. Les mèmes sont impitoyables.'}}},
+   {l:'Rester lisse',d:'« Un match comme un autre. »',
+    eff:{hid:{pro:1}},res:'Zéro polémique. Le coach apprécie, les journalistes bâillent.'}
+  ]},
+ {id:'polemique_itw',min:22,max:33,tag:'vie',title:'La phrase de trop ?',
+  text:'Un journaliste te pousse à commenter la gestion du club, en plein doute sportif.',
+  ch:[
+   {l:'Dire tout haut ce que tout le monde pense',d:'Le vestiaire t’admirera. La direction, moins.',
+    eff:{rep:3,mor:4,trust:-8,hid:{ego:3}},res:'Ta sortie fait la une. Les supporters t’acclament, la direction convoque ton agent.'},
+   {l:'Langue de bois maîtrisée',d:'Zéro risque, zéro relief.',
+    eff:{trust:3},res:'« Nous sommes concentrés sur le prochain match. » Circulez.'}
+  ]},
+ {id:'jeune_pousse',min:29,max:36,tag:'vie',title:'Le gamin va plus vite',
+  text:'Un jeune de 18 ans marche sur l’eau à l’entraînement. À ton poste. La presse en fait déjà « ton successeur ».',
+  ch:[
+   {l:'Le prendre sous ton aile',d:'Transmettre, c’est aussi ça, la grandeur.',
+    eff:{attrs:{men:1},rep:4,mor:4,hid:{pro:3}},res:'Tu lui apprends tes secrets. Il te le rendra en te poussant à ton meilleur niveau.'},
+   {l:'Le remettre à sa place',d:'Le trône ne se donne pas.',
+    eff:{mor:2,hid:{ego:4},form:2},res:'À l’entraînement, tu joues chaque duel comme une finale. Message reçu.'}
+  ]},
+ {id:'tele_offre',min:31,max:38,tag:'vie',title:'Le fauteuil du consultant',
+  text:'Une grande chaîne te propose d’être consultant vedette « dès que tu raccroches ». Flatteur — et un peu vertigineux.',
+  ch:[
+   {l:'Signer pour plus tard',d:'L’après-carrière s’éclaircit.',
+    eff:{money:1,mor:5,hid:{amb:-2}},res:'Savoir l’avenir assuré t’enlève un poids. Certains y verront un début de retraite mentale.'},
+   {l:'« Je suis encore joueur »',d:'Pas de plan B pour rester affamé.',
+    eff:{hid:{amb:3},form:2},res:'Ta réponse claque. Le terrain reste ton seul horizon.'}
+  ]},
+ {id:'preparation_retraite',min:32,max:38,tag:'vie',title:'Et après ?',
+  text:'Ton agent t’invite à préparer la suite : diplômes d’entraîneur, business, ou rien du tout.',
+  ch:[
+   {l:'Passer les diplômes de coach',d:'Une deuxième vie se dessine.',
+    eff:{attrs:{men:1},hid:{pro:2}},res:'Les cours du soir te passionnent. Tu regardes déjà les matchs autrement.'},
+   {l:'Profiter, on verra bien',d:'Chaque chose en son temps.',
+    eff:{mor:4},res:'L’insouciance a du bon. L’avenir attendra encore un peu.'}
+  ]},
+ {id:'tatouage_fan',min:21,max:30,tag:'vie',title:'Ton visage sur un mollet',
+  text:'Un supporter s’est fait tatouer ton visage. Il t’attend à la sortie de l’entraînement pour te le montrer.',
+  ch:[
+   {l:'Photo, câlin, maillot offert',d:'Ces gens font le football.',
+    eff:{rep:3,mor:5},res:'La photo fait le tour du pays. « Le plus humain des cracks », titre un site.'},
+   {l:'Un sourire gêné et filer',d:'C’est… beaucoup.',
+    eff:{mor:1},res:'Tu y penses encore en t’endormant. Étrange métier.'}
+  ]},
+ {id:'coupe_monde_pression',min:22,max:33,tag:'vie',cond:function(s){return s.caps>10;},title:'Tout un pays sur les épaules',
+  text:'À l’approche du grand tournoi, ton visage est sur tous les panneaux publicitaires du pays.',
+  ch:[
+   {l:'Embrasser le rôle de héros',d:'La pression comme carburant.',
+    eff:{rep:4,hid:{ego:3},mor:3},res:'« Je suis prêt à porter ce pays », déclares-tu. Frissons garantis — obligation de résultat aussi.'},
+   {l:'Refroidir tout le monde',d:'« Nous sommes un groupe. »',
+    eff:{hid:{pro:2},mor:1},res:'Ton discours d’équipe apaise le vestiaire national. Les sponsors sont un peu déçus.'}
+  ]},
+ {id:'blessure_mental',min:18,max:34,tag:'vie',cond:function(s){return s.flags.badInjury&&!s.flags.rehabDone;},once:1,title:'Reconstruire le corps… et la tête',
+  text:'Les mois de rééducation t’usent. Certains soirs, tu doutes de revenir un jour à ton niveau.',
+  ch:[
+   {l:'Rééducation obsessionnelle',d:'Double séances, zéro écart.',
+    eff:{attrs:{phy:1},hid:{pro:4,frag:-3},mor:-2,flags:{rehabDone:1}},res:'Le staff médical n’a jamais vu ça. Tu reviens affûté, et plus dur au mal.'},
+   {l:'Accepter l’aide d’un psy du sport',d:'La tête d’abord.',
+    eff:{attrs:{men:2},hid:{pot:1},mor:5,flags:{rehabDone:1}},res:'Mettre des mots sur la peur change tout. Tu reviens plus lucide sur ton jeu — et sur toi.'}
+  ]}
+];
+
+/* ================= MONDE ================= */
+function makeWorld(seed){
+  var rng=new RNG(seed);
+  var era=ERAS[Math.floor(rng.next()*ERAS.length)];
+  var leagues={};
+  LEAGUES.forEach(function(L){
+    var mult=(era.mult[L.id]||1);
+    var lg={id:L.id,name:L.name,country:L.country,tier:L.tier,agg:L.agg,
+            money:Math.min(6,L.money*mult),vis:L.vis+(mult>1?1:0),dev:L.dev,clubs:[]};
+    var used={};
+    for(var i=0;i<10;i++){
+      var city;do{city=rng.pick(L.cities);}while(used[city]);used[city]=1;
+      var suf=rng.pick(L.suf);
+      var name=(suf==='Al')?('Al-'+city):(suf+' '+city);
+      // hiérarchie retirée par seed : 1-2 géants, un ventre mou, des petits
+      var base=52+L.tier*6;
+      var str=base+(i===0?10:i===1?7:i<4?3:0)+Math.round(rng.gauss()*3);
+      lg.clubs.push({n:name,str:Math.max(45,Math.min(94,str)),lg:L.id});
+    }
+    lg.clubs.sort(function(a,b){return b.str-a.str;});
+    leagues[L.id]=lg;
+  });
+  return {seed:seed,era:{id:era.id,name:era.name,desc:era.desc},leagues:leagues,
+          rngState:rng.s,year:2026,bdoRivalBase:88+Math.round(rng.next()*4)};
+}
+
+/* ================= JOUEUR ================= */
+function makePlayer(o,world,rng){
+  var attrs={};
+  for(var k in ATTRS)attrs[k]=38+rng.int(0,8);
+  var pw=POSITIONS[o.pos].w;
+  for(var k2 in pw)attrs[k2]+=Math.round(pw[k2]*30);
+  var org=ORIGINS.find(function(x){return x.id===o.origin;});
+  var ent=ENTOURAGES.find(function(x){return x.id===o.ent;});
+  var sty=STYLES.find(function(x){return x.id===o.style;});
+  for(var k3 in (org.fx||{}))attrs[k3]+=org.fx[k3];
+  var potVar=(org.hid.potVar||0);
+  var hid={
+    pot:74+rng.int(0,14)+(potVar>0?rng.int(0,potVar):potVar<0?rng.int(potVar,0):0),
+    pro:50+(org.hid.pro||0)+(ent.hid.pro||0)+rng.int(-8,8),
+    amb:50+(ent.hid.amb||0)+rng.int(-10,10),
+    ego:45+(org.hid.ego||0)+rng.int(-8,12),
+    frag:50+rng.int(-15,15),
+    cons:50+rng.int(-15,15),
+    big:50+rng.int(-15,15),
+    adapt:50+rng.int(-15,15)
+  };
+  hid.pot=Math.max(64,Math.min(99,hid.pot+(ent.hid.potVar||0)));
+  var nat=NATIONS.find(function(n){return n.id===o.nat;});
+  var lg=world.leagues[nat.lg];
+  var club=lg.clubs[lg.clubs.length-1-rng.int(0,3)]; // petit club de départ
+  var pool=POOLS[nat.pool];
+  var name=o.name&&o.name.trim()?o.name.trim():(rng.pick(pool.f)+' '+rng.pick(pool.l));
+  var rivalNat=rng.pick(NATIONS);
+  var rival=rng.pick(POOLS[rivalNat.pool].f)+' '+rng.pick(POOLS[rivalNat.pool].l);
+  return {
+    name:name,nat:o.nat,natName:nat.name,natStr:nat.str,pos:o.pos,style:o.style,
+    origin:o.origin,ent:o.ent,age:15,attrs:attrs,hid:hid,
+    form:50,mor:60,trust:40,rep:(org.hid.rep||0)+(ent.hid.rep||0)+2,natRep:0,
+    money:0,salary:0.02,club:club.n,clubStr:club.str,lg:lg.id,
+    caps:0,natGoals:0,seenEv:[],flags:{},rival:rival,rivalLevel:70+rng.int(0,15),
+    hist:[],palmares:[],moments:[],bdo:0,wcWon:0,continental:0,titles:0,cups:0,
+    goals:0,assists:0,apps:0,clubsCount:1,clubsList:[club.n],abroad:false,
+    injurySeasons:0,graveInjuries:0,peakOvr:0,seasonsTop:0,retired:false
+  };
+}
+function ovr(p){
+  var w=POSITIONS[p.pos].w,s=0;
+  for(var k in w)s+=p.attrs[k]*w[k];
+  return Math.round(s);
+}
+function effLevel(p){
+  return ovr(p)+(p.form-50)/12+(p.mor-50)/15;
+}
+
+/* ================= SAISON ================= */
+function leagueOf(st){return st.world.leagues[st.p.lg];}
+function simulateSeason(st){
+  var p=st.p,rng=st.rng,lg=leagueOf(st);
+  var opposition=50+lg.tier*7.5;
+  var lvl=effLevel(p);
+  var diff=lvl-opposition;
+  // temps de jeu
+  var share=Math.max(.05,Math.min(1,.15+(diff+16)/38))*(.45+.55*(p.trust/100));
+  if(p.age<=16)share*=.35; if(p.age===17)share*=.6;
+  // blessure ?
+  var inj=null;
+  var pInj=(.10+p.hid.frag*.0022)*lg.agg*(p.age>30?1.3:1);
+  if(rng.chance(pInj)){
+    var roll=rng.next();
+    if(roll<.68){inj={g:1,txt:'Blessure musculaire — quelques semaines d’absence.'};share*=.8;}
+    else if(roll<.93){inj={g:2,txt:'Blessure sérieuse — plusieurs mois loin des terrains.'};share*=.5;p.form-=10;}
+    else{inj={g:3,txt:'Blessure grave. Saison quasi blanche, rééducation interminable.'};share*=.18;
+      p.attrs.vit=Math.max(30,p.attrs.vit-2);p.attrs.phy=Math.max(30,p.attrs.phy-2);
+      p.graveInjuries++;p.flags.badInjury=1;p.flags.rehabDone=0;
+      if(p.age<=21)p.hid.pot=Math.max(60,p.hid.pot-3);}
+    p.injurySeasons++;
+  }
+  var apps=Math.round(46*share);
+  // production
+  var w={BU:[1,.45],AIL:[.62,.75],MO:[.5,.85],MC:[.2,.5],MDC:[.08,.22],DC:[.07,.08],LAT:[.08,.35]};
+  var atk=(p.attrs.fin*.5+p.attrs.vit*.2+p.attrs.dri*.15+p.attrs.fra*.15);
+  var crea=(p.attrs.pas*.55+p.attrs.vis*.45);
+  var gpm=Math.max(.01,(atk-opposition+16)/42)*w[p.pos][0];
+  var apm=Math.max(.01,(crea-opposition+14)/48)*w[p.pos][1];
+  var goals=0,assists=0;
+  for(var i=0;i<apps;i++){if(rng.chance(Math.min(.9,gpm)))goals++;if(rng.chance(gpm*.35))goals++;
+    if(rng.chance(Math.min(.85,apm)))assists++;}
+  // note moyenne
+  var noise=rng.gauss()*(1.1-p.hid.cons/120);
+  var note=6.05+diff/26+goals/(apps||1)*.9+assists/(apps||1)*.6+noise*.35;
+  note=Math.max(5.2,Math.min(8.8,note));
+  if(apps<8)note=Math.min(note,6.6);
+  // classement du club
+  var clubs=lg.clubs.map(function(c){
+    var boost=(c.n===p.club)?(diff>0?Math.min(4,diff*.35)*share:0):0;
+    return {n:c.n,sc:c.str+boost+rng.gauss()*2.6};
+  }).sort(function(a,b){return b.sc-a.sc;});
+  var rank=clubs.findIndex(function(c){return c.n===p.club;})+1;
+  var champion=rank===1;
+  var cup=rng.chance(Math.max(.03,(p.clubStr-52)/220));
+  var continental=false;
+  var isEuro=['EN1','ES1','IT1','DE1','FR1','PT1','NL1'].indexOf(p.lg)>=0;
+  var contName=isEuro?'Ligue des champions':'Copa Libertadores';
+  if((isEuro||['BR1','AR1'].indexOf(p.lg)>=0)&&st.prevRank&&st.prevRank<=3){
+    continental=rng.chance(Math.max(.02,(p.clubStr-80)/60)*(share>.5?1:.6));
+  }
+  // XP & progression : matchs + entraînement (les jeunes progressent surtout au centre)
+  var impMult=1+(continental?.25:0);
+  var ageMult=p.age<=18?1.5:p.age<=23?1.2:p.age<=28?1:.45;
+  var xpMatchs=apps*.18*(note/6.8)*impMult;
+  var xpTrain=(2.5+lg.dev*.9)*(0.6+p.hid.pro/125);
+  var xp=(xpMatchs+xpTrain)*ageMult;
+  applyGrowth(st,xp);
+  // déclin
+  applyDecline(st);
+  // états
+  p.form=Math.round(Math.max(20,Math.min(95,50+(note-6.4)*22+rng.gauss()*4)));
+  p.mor=Math.round(Math.max(15,Math.min(95,p.mor+(apps>25?4:apps>12?0:-7)+(champion?6:0)+(rank>7?-3:0))));
+  p.trust=Math.round(Math.max(10,Math.min(95,p.trust+(note>7?10:note>6.6?4:-6)+(apps<10?-5:0))));
+  // réputation
+  var repGain=(note-6.3)*6*(lg.vis/5)+(goals+assists)*.16+(champion?4:0)+(continental?8:0)+(cup?2:0);
+  p.rep=Math.max(0,Math.min(100,p.rep+Math.round(Math.max(-4,repGain))));
+  // sélection nationale
+  var natRes=simNation(st,note,apps);
+  // salaire & argent
+  var o=ovr(p);
+  p.salary=Math.max(.02,Math.pow(Math.max(0,(o-52))/10,2)*(lg.money/2.4)*.55);
+  p.money+=p.salary;
+  // Ballon d'Or
+  var bdoWon=false;
+  if(POSITIONS[p.pos].g!=='DEF'||note>7.4){
+    var myScore=lvl+goals*.32+assists*.18+(champion?3:0)+(continental?7:0)+(natRes.wcWon?8:0)+(lg.vis-3)*2;
+    var rivalScore=st.world.bdoRivalBase+rng.gauss()*2.4+(st.season%4===1?2:0);
+    if(myScore>rivalScore&&o>=88){bdoWon=true;p.bdo++;}
+  }
+  // trophées & historique
+  if(champion){p.titles++;p.palmares.push(st.year+' — Champion ('+lg.name+')');}
+  if(cup){p.cups++;p.palmares.push(st.year+' — Coupe nationale');}
+  if(continental){p.continental++;p.palmares.push(st.year+' — '+contName);}
+  if(bdoWon)p.palmares.push(st.year+' — BALLON D’OR');
+  if(natRes.wcWon)p.palmares.push(st.year+' — CHAMPION DU MONDE');
+  p.goals+=goals;p.assists+=assists;p.apps+=apps;
+  if(o>p.peakOvr)p.peakOvr=o;
+  if(o>=85)p.seasonsTop++;
+  var res={apps:apps,goals:goals,assists:assists,note:note,rank:rank,champion:champion,
+    cup:cup,continental:continental,contName:contName,inj:inj,bdo:bdoWon,nat:natRes,
+    ovrDelta:o-st.ovrBefore};
+  st.prevRank=rank;
+  p.hist.push({y:st.year,club:p.club,apps:apps,g:goals,a:assists,note:note});
+  return res;
+}
+function applyGrowth(st,xp){
+  var p=st.p,rng=st.rng;
+  // gain d'OVR visé pour la saison, freiné à l'approche du potentiel
+  var o=ovr(p);
+  var ovrGain=Math.min(6,xp*.35)*(1+rng.gauss()*.15);
+  var head=p.hid.pot-o;
+  if(head<=0)ovrGain*=.08;
+  else if(head<10)ovrGain*=Math.max(.15,head/10);
+  if(ovrGain<=0)return;
+  var sty=STYLES.find(function(x){return x.id===p.style;});
+  var wPos=POSITIONS[p.pos].w;
+  var w={};for(var k in wPos)w[k]=wPos[k]||.02;
+  for(var kf in (sty.fx||{}))w[kf]=(w[kf]||.02)*sty.fx[kf];
+  var tot=0;for(var k2 in w)tot+=w[k2];
+  // conversion points d'attributs -> delta d'OVR réel (somme pondérée)
+  var conv=0;for(var k4 in w)conv+=(wPos[k4]||0)*(w[k4]/tot);
+  var G=ovrGain/Math.max(.05,conv);
+  for(var k3 in w){
+    var gain=G*(w[k3]/tot)*(1+rng.gauss()*.2);
+    var cur=p.attrs[k3];
+    if(cur>88)gain*=.5;
+    p.attrs[k3]=Math.min(97,cur+gain);
+  }
+}
+function applyDecline(st){
+  var p=st.p;
+  var peak={ATT:29,MIL:30,DEF:30}[POSITIONS[p.pos].g];
+  if(p.age<=peak)return;
+  var over=p.age-peak;
+  var mult=(1.35-p.hid.pro/120)*(1+p.graveInjuries*.18);
+  p.attrs.vit=Math.max(28,p.attrs.vit-(0.8+over*.5)*mult);
+  p.attrs.phy=Math.max(28,p.attrs.phy-(0.6+over*.4)*mult);
+  p.attrs.dri=Math.max(28,p.attrs.dri-(0.3+over*.2)*mult);
+  if(p.age<33)p.attrs.men=Math.min(96,p.attrs.men+.5);
+  if(p.age<32){p.attrs.pas=Math.min(96,p.attrs.pas+.2);p.attrs.vis=Math.min(96,p.attrs.vis+.2);}
+}
+function simNation(st,note,apps){
+  var p=st.p,rng=st.rng;
+  var res={called:false,wc:false,wcWon:false,txt:null};
+  var natLevel=55+p.natStr*6;
+  if(ovr(p)+p.rep*.25>natLevel-4&&apps>12&&p.age>=18){
+    res.called=true;var c=rng.int(3,9);p.caps+=c;
+    if(POSITIONS[p.pos].g==='ATT')p.natGoals+=rng.int(0,Math.round(c*.7));
+    p.natRep=Math.min(100,p.natRep+6);
+  }
+  var wcYear=(st.year%4===2);
+  if(wcYear&&res.called){
+    res.wc=true;
+    var chance=Math.max(.02,(p.natStr*9+effLevel(p)*.35+(p.hid.big-50)*.15-62)/100);
+    if(rng.chance(Math.min(.4,chance))){res.wcWon=true;p.wcWon++;
+      p.rep=Math.min(100,p.rep+15);
+      p.moments.push(st.year+' — Champion du monde avec '+(p.natName==='France'?'la ':'')+p.natName+'.');
+      res.txt='CHAMPION DU MONDE. Le pays entier a chaviré.';}
+    else res.txt='Le grand tournoi s’est joué cette année — élimination en cours de route, la bête immonde du regret.';
+  }
+  return res;
+}
+
+/* ================= OFFRES & QUESTIONS DYNAMIQUES ================= */
+function genOffers(st){
+  var p=st.p,rng=st.rng,offers=[];
+  if(p.rep<8&&ovr(p)<62)return offers;
+  var lvl=ovr(p)+p.rep*.1;
+  var all=[];
+  for(var id in st.world.leagues){
+    var L=st.world.leagues[id];
+    L.clubs.forEach(function(c){if(c.n!==p.club)all.push({c:c,L:L});});
+  }
+  var cands=all.filter(function(x){return Math.abs(x.c.str-lvl)<11&&(x.c.str>p.clubStr-6||x.L.money>3);});
+  var n=Math.min(rng.chance(.65)?2:1,cands.length);
+  for(var i=0;i<n&&cands.length;i++){
+    var pick=cands.splice(rng.int(0,cands.length-1),1)[0];
+    var role=pick.c.str-lvl>4?'rotation':pick.c.str-lvl>-4?'titulaire en devenir':'star attendue';
+    var sal=Math.max(.05,Math.pow(Math.max(0,(ovr(p)-52))/10,2)*(pick.L.money/2.4)*.7*(1+rng.next()*.4));
+    offers.push({club:pick.c.n,lg:pick.L.id,lgName:pick.L.name,str:pick.c.str,role:role,
+      salary:sal,abroad:pick.L.id!==NATIONS.find(function(nn){return nn.id===p.nat;}).lg});
+  }
+  return offers;
+}
+function transferQuestion(st,offers){
+  var p=st.p;
+  var ch=offers.map(function(o){
+    var risk=o.str-ovr(p)>3;
+    return {l:'Signer : '+o.club,
+      d:o.lgName+' · niveau '+o.str+' · '+o.role+' · '+o.salary.toFixed(1)+' M€/an'+(o.abroad?' · étranger':''),
+      transfer:o,
+      eff:{mor:6}};
+  });
+  ch.push({l:'Rester à '+p.club,d:'La fidélité a sa valeur. Continuer l’aventure ici.',
+    eff:{trust:8,mor:2,hid:{pro:1}},res:'Le club salue ton engagement. Les supporters chantent ton nom.'});
+  return {kind:'transfer',kicker:'Mercato',title:'Des offres sur la table',
+    text:'Ton téléphone chauffe : ton agent a reçu des propositions concrètes.',ch:ch};
+}
+function applyTransfer(st,o){
+  var p=st.p,rng=st.rng;
+  p.club=o.club;p.clubStr=o.str;p.lg=o.lg;p.salary=o.salary;
+  p.clubsCount++;p.clubsList.push(o.club);
+  p.trust=o.role==='star attendue'?62:o.role==='titulaire en devenir'?50:34;
+  st.prevRank=null;
+  var txt='Direction '+o.club+' ('+o.lgName+') !';
+  if(o.abroad){
+    p.abroad=true;
+    if(rng.next()*100>p.hid.adapt+18){p.form-=12;p.mor-=8;
+      txt+=' L’adaptation est rugueuse : langue, vestiaire, presse — tout est à apprivoiser.';}
+    else txt+=' Intégration éclair : au bout d’un mois, on jurerait que tu as toujours joué ici.';
+  } else txt+=' Nouveau vestiaire, nouvelles ambitions.';
+  p.moments.push(st.year+' — Transfert à '+o.club+'.');
+  return txt;
+}
+function keyMatchQuestion(st){
+  var p=st.p;
+  var what=st.rng.chance(.5)?'La finale de la coupe':'Le match du titre';
+  return {kind:'key',kicker:'Le grand soir',title:what,
+    text:'87e minute, tout est encore possible. Le ballon arrive. Le stade retient son souffle. Que fais-tu ?',
+    ch:[
+      {l:'La passe sûre vers le capitaine',d:'~75 % — conserver, ne rien gâcher.',
+       risk:{p:.75,stats:['pas'],
+        win:{eff:{trust:4},res:'Ballon conservé, ton équipe garde le contrôle jusqu’au bout.',key:.35},
+        lose:{eff:{mor:-3},res:'Ta passe est coupée ! Le contre fait passer un frisson glacé dans le stade.',key:-.2}}},
+      {l:'Le une-deux et la passe décisive',d:'~55 % — l’offrande, si la vision suit.',
+       risk:{p:.55,stats:['vis'],
+        win:{eff:{rep:4,mor:5},res:'Ta passe fend la défense — ton coéquipier n’a plus qu’à pousser le ballon !',key:.75,moment:'passe décisive dans le money-time'},
+        lose:{eff:{mor:-3},res:'Un défenseur lit ton intention. L’occasion s’envole.',key:-.15}}},
+      {l:'LA FRAPPE DE 40 MÈTRES',d:'~10 % — l’Histoire ou le ridicule.',
+       risk:{p:.10,stats:['fra'],
+        win:{eff:{rep:10,mor:10,hid:{ego:3}},res:'LE BALLON FLOTTE… ET RETOMBE SOUS LA BARRE ! But de légende. Le stade explose, le monde entier repasse la vidéo.',key:.9,moment:'but de 40 mètres dans un grand soir',gold:1},
+        lose:{eff:{mor:-4,rep:-2},res:'La frappe s’envole dans les tribunes. Le banc se prend la tête à deux mains.',key:-.3}}}
+    ]};
+}
+
+/* ================= SÉLECTION DES QUESTIONS ================= */
+function phase(p){return p.age<=17?'youth':p.age<=22?'rise':p.age<=29?'prime':'decline';}
+function pickLifeEvent(st,profile){
+  var p=st.p,rng=st.rng;
+  var pool=EVENTS.filter(function(e){
+    if(p.age<e.min||p.age>e.max)return false;
+    if(e.once&&p.seenEv.indexOf(e.id)>=0)return false;
+    if(e.cond&&!e.cond(p))return false;
+    return true;
+  });
+  if(!pool.length)return null;
+  var weighted=[];
+  pool.forEach(function(e){
+    var w=10;
+    if(p.seenEv.indexOf(e.id)>=0)w=2;
+    if(profile.seen&&profile.seen.indexOf(e.id)>=0)w=Math.max(1,w-5); // anti-répétition inter-carrières
+    for(var i=0;i<w;i++)weighted.push(e);
+  });
+  var e=rng.pick(weighted);
+  p.seenEv.push(e.id);
+  if(profile.seen){if(profile.seen.indexOf(e.id)<0)profile.seen.push(e.id);saveProfile(profile);}
+  return e;
+}
+
+/* ================= EFFETS ================= */
+function applyEffects(st,eff){
+  if(!eff)return[];
+  var p=st.p,chips=[];
+  if(eff.attrs)for(var k in eff.attrs){p.attrs[k]=Math.max(25,Math.min(97,p.attrs[k]+eff.attrs[k]));
+    chips.push({t:ATTRS[k]+(eff.attrs[k]>0?' +':' ')+eff.attrs[k],c:eff.attrs[k]>0?'up':'down'});}
+  if(eff.hid)for(var k2 in eff.hid){
+    if(k2==='pot')p.hid.pot=Math.max(60,Math.min(99,p.hid.pot+eff.hid[k2]));
+    else p.hid[k2]=Math.max(0,Math.min(100,(p.hid[k2]||50)+eff.hid[k2]));}
+  if(eff.form){p.form=Math.max(10,Math.min(95,p.form+eff.form));
+    chips.push({t:'Forme '+(eff.form>0?'+':'')+eff.form,c:eff.form>0?'up':'down'});}
+  if(eff.mor){p.mor=Math.max(10,Math.min(95,p.mor+eff.mor));
+    chips.push({t:'Moral '+(eff.mor>0?'+':'')+eff.mor,c:eff.mor>0?'up':'down'});}
+  if(eff.trust){p.trust=Math.max(5,Math.min(95,p.trust+eff.trust));
+    chips.push({t:'Coach '+(eff.trust>0?'+':'')+eff.trust,c:eff.trust>0?'up':'down'});}
+  if(eff.rep){p.rep=Math.max(0,Math.min(100,p.rep+eff.rep));
+    chips.push({t:'Réputation '+(eff.rep>0?'+':'')+eff.rep,c:eff.rep>0?'up':'down'});}
+  if(eff.money){p.money=Math.max(-5,p.money+eff.money);
+    chips.push({t:(eff.money>0?'+':'')+eff.money+' M€',c:eff.money>0?'up':'down'});}
+  if(eff.flags)for(var k3 in eff.flags)p.flags[k3]=eff.flags[k3];
+  return chips;
+}
+function resolveChoice(st,choice){
+  var rng=st.rng,p=st.p;
+  if(choice.risk){
+    var r=choice.risk;
+    var pr=r.p;
+    if(r.stats)r.stats.forEach(function(a){pr+=(p.attrs[a]-62)*.006;});
+    pr=Math.max(.03,Math.min(.8,pr)); // plafond 80 % : aucune option sans tension
+    var ok=rng.chance(pr);
+    var out=ok?r.win:r.lose;
+    var chips=applyEffects(st,out.eff);
+    if(out.moment)p.moments.push(st.year+' — '+out.moment.charAt(0).toUpperCase()+out.moment.slice(1)+'.');
+    return {text:out.res,chips:chips,good:ok,gold:!!out.gold,key:out.key||0};
+  }
+  var chips=applyEffects(st,choice.eff);
+  return {text:choice.res||'',chips:chips,good:null,key:0};
+}
+
+/* ================= SCORE DE LÉGENDE & COMPARAISON ================= */
+function legendScore(p){
+  var s=0;
+  s+=Math.max(0,(p.peakOvr-60))*1.35;
+  s+=Math.min(18,p.seasonsTop*2.2);
+  s+=p.titles*2.2+p.cups*1+p.continental*4.5;
+  s+=p.bdo*7+p.wcWon*8;
+  s+=Math.min(10,p.goals/60);
+  s+=Math.min(5,p.caps/25);
+  return Math.max(1,Math.min(100,Math.round(s)));
+}
+function legendTitle(sc){
+  if(sc>=96)return 'LE GOAT';
+  if(sc>=88)return 'Légende mondiale';
+  if(sc>=75)return 'Grand joueur';
+  if(sc>=60)return 'International respecté';
+  if(sc>=45)return 'Solide professionnel';
+  if(sc>=30)return 'Honnête carrière';
+  return 'Espoir déchu';
+}
+function compareCareer(p){
+  var sc=legendScore(p);
+  var g=POSITIONS[p.pos].g;
+  var loyal=p.clubsCount<=2;
+  var early=p.hist.length&&(function(){var best=0,bi=0;p.hist.forEach(function(h,i){if(h.note>best){best=h.note;bi=i;}});return bi<p.hist.length*.35&&p.age>=30;})();
+  var late=(function(){var pre=p.hist.slice(0,Math.floor(p.hist.length/2)),post=p.hist.slice(Math.floor(p.hist.length/2));
+    var m=function(a){return a.length?a.reduce(function(x,h){return x+h.note;},0)/a.length:0;};
+    return m(post)>m(pre)+.4&&p.peakOvr>=78;})();
+  var scored=REFS.map(function(r){
+    var pts=0;
+    if(r.g!==g)pts-=200;
+    var dl=sc<r.leg[0]?r.leg[0]-sc:sc>r.leg[1]?sc-r.leg[1]:0;
+    pts-=dl*2.2;
+    var b=p.bdo,dbdo=b<r.bdo[0]?r.bdo[0]-b:b>r.bdo[1]?b-r.bdo[1]:0;
+    pts-=Math.min(30,dbdo*7);
+    if(r.loyal===2)pts+=loyal?14:-14; else if(r.loyal===1)pts+=loyal?7:-4; else if(r.loyal===0)pts+=p.clubsCount>=4?8:-4;
+    if(r.wc)pts+=p.wcWon?12:-8;
+    if(r.inj)pts+=p.graveInjuries>=(r.inj===2?2:1)?14:-10;
+    if(r.late)pts+=late?16:-10;
+    if(r.earlyPeak)pts+=early?14:-8;
+    if(r.exile)pts+=p.clubsCount>=(r.exile===2?4:3)&&p.abroad?10:-6;
+    if(r.flop)pts+=sc<35?20:-40;
+    if(r.waste)pts+=(sc<60&&p.hid.pro<42)?18:-25;
+    if(r.long)pts+=p.age>=37?10:-4;
+    if(r.humble)pts+=(p.hid.ego<45&&g==='MIL')?10:-4;
+    if(r.tourn)pts+=p.wcWon&&!p.bdo?10:-4;
+    if(r.big)pts+=(p.hid.big>60)?6:0;
+    if(r.reconv)pts-=6; // pas de reconversion en v0.1
+    if(r.goals===2)pts+=p.goals>350?10:p.goals>200?3:-6;
+    return {r:r,pts:pts};
+  }).sort(function(a,b){return b.pts-a.pts;});
+  var best=scored[0],second=scored[1];
+  var pct=Math.max(38,Math.min(97,Math.round(82+best.pts*.55)));
+  var out={main:best.r,pct:pct,second:null};
+  if(second&&second.pts>-20&&second.r.g===g)out.second=second.r;
+  if(best.pts<-60)out.none=true;
+  return out;
+}
+
+/* ================= SAUVEGARDE ================= */
+function saveGame(st){
+  try{
+    var s=JSON.parse(JSON.stringify({world:st.world,p:st.p,year:st.year,season:st.season,
+      prevRank:st.prevRank,ovrBefore:st.ovrBefore,rngS:st.rng.s}));
+    localStorage.setItem('mycareer_save',JSON.stringify(s));
+  }catch(e){}
+}
+function loadGame(){
+  try{var s=localStorage.getItem('mycareer_save');return s?JSON.parse(s):null;}catch(e){return null;}
+}
+function clearSave(){try{localStorage.removeItem('mycareer_save');}catch(e){}}
+function loadProfile(){
+  try{return JSON.parse(localStorage.getItem('mycareer_profile'))||{seen:[],pantheon:[]};}
+  catch(e){return{seen:[],pantheon:[]};}
+}
+function saveProfile(pr){try{localStorage.setItem('mycareer_profile',JSON.stringify(pr));}catch(e){}}
+
+/* ================= UI ================= */
+var app=document.getElementById('app');
+function h(html){var d=document.createElement('div');d.innerHTML=html;return d;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function clearApp(){app.innerHTML='';}
+function topbar(st){
+  if(!st||!st.p)return '';
+  var p=st.p;
+  return '<div class="topbar"><div class="who">'+
+    '<div class="pname">'+esc(p.name)+'</div>'+
+    '<div class="pmeta">'+p.age+' ans · '+esc(POSITIONS[p.pos].label)+' · '+esc(p.club)+'</div></div>'+
+    '<div class="ovrbox"><div class="num">'+ovr(p)+'</div><div class="lbl">GÉNÉRAL</div></div></div>';
+}
+function chipsHtml(chips){
+  if(!chips||!chips.length)return '';
+  return '<div class="fx">'+chips.map(function(c){
+    return '<span class="chip '+(c.c||'')+'">'+esc(c.t)+'</span>';}).join('')+'</div>';
+}
+function waitClick(container,label,cls){
+  return new Promise(function(res){
+    var b=document.createElement('button');
+    b.className=cls||'primary';b.textContent=label;
+    b.addEventListener('click',function(){res();},{once:true});
+    container.appendChild(b);b.scrollIntoView({block:'nearest'});
+  });
+}
+async function askQuestion(st,q,idx,total){
+  clearApp();
+  app.appendChild(h(topbar(st)));
+  var card=h('<div class="card kick"><div class="kicker">'+esc(q.kicker||('Décision '+idx+'/'+total))+' · '+st.year+'</div>'+
+    '<h2>'+esc(q.title)+'</h2><p>'+esc(typeof q.text==='function'?q.text(st.p):q.text)+'</p>'+
+    '<div class="choices"></div></div>');
+  app.appendChild(card);
+  var box=card.querySelector('.choices');
+  var choice=await new Promise(function(res){
+    q.ch.forEach(function(c){
+      var b=document.createElement('button');
+      b.innerHTML='<span class="bl">'+esc(c.l)+'</span>'+(c.d?'<span class="bd">'+esc(c.d)+'</span>':'');
+      b.addEventListener('click',function(){res(c);},{once:true});
+      box.appendChild(b);
+    });
+  });
+  box.remove();
+  var out;
+  if(choice.transfer){
+    var txt=applyTransfer(st,choice.transfer);
+    out={text:txt,chips:applyEffects(st,choice.eff),good:true,key:0};
+  } else out=resolveChoice(st,choice);
+  var cls=out.gold?'gold':out.good===true?'good':out.good===false?'bad':'';
+  card.appendChild(h('<div class="result '+cls+'">'+esc(out.text||'Noté.')+chipsHtml(out.chips)+'</div>'));
+  await waitClick(card,'Continuer');
+  return out;
+}
+function statRow(l,v){return '<tr><td>'+l+'</td><td>'+v+'</td></tr>';}
+async function seasonReport(st,res){
+  clearApp();
+  app.appendChild(h(topbar(st)));
+  var p=st.p,lg=leagueOf(st);
+  var head='<div class="season-head"><span class="yr">Saison '+st.year+'</span>'+
+    '<span class="ag">'+p.age+' ans · '+esc(lg.name)+'</span></div>';
+  var trophies='';
+  if(res.champion)trophies+='<div class="press trophy">🏆 CHAMPION — '+esc(p.club)+' !</div>';
+  if(res.cup)trophies+='<div class="press trophy">🏆 Vainqueur de la coupe nationale</div>';
+  if(res.continental)trophies+='<div class="press trophy">🌟 VAINQUEUR — '+esc(res.contName)+' !</div>';
+  if(res.bdo)trophies+='<div class="press trophy">👑 BALLON D’OR — le monde s’incline.</div>';
+  if(res.nat.txt)trophies+='<div class="press">'+esc(res.nat.txt)+'</div>';
+  var injHtml=res.inj?'<div class="result bad">'+esc(res.inj.txt)+'</div>':'';
+  var d=res.ovrDelta;
+  var table='<table class="stats">'+
+    statRow('Matchs joués',res.apps)+
+    statRow('Buts / Passes déc.',res.goals+' / '+res.assists)+
+    statRow('Note moyenne',res.note.toFixed(2))+
+    statRow('Classement du club',res.rank+'ᵉ / 10')+
+    statRow('Évolution générale',(d>=0?'+':'')+d+' → <b style="color:var(--gold)">'+ovr(p)+'</b>')+
+    statRow('Salaire',p.salary.toFixed(1)+' M€/an')+
+    '</table>';
+  var card=h('<div class="card">'+head+trophies+injHtml+table+
+    '<div class="newsline">'+esc(pressLine(st,res))+'</div></div>');
+  app.appendChild(card);
+  // attributs
+  var ag='<div class="attr-grid">';
+  for(var k in ATTRS)ag+='<div class="attr"><span>'+ATTRS[k]+'</span><b>'+Math.round(p.attrs[k])+'</b></div>';
+  ag+='</div>';
+  app.appendChild(h('<div class="card"><div class="kicker grey">Attributs</div>'+ag+'</div>'));
+  var cont=h('<div></div>');app.appendChild(cont);
+  await waitClick(cont,'Saison suivante ➜');
+}
+function pressLine(st,res){
+  var p=st.p;
+  if(res.bdo)return '« Il n’y a plus de débat », écrit la presse mondiale.';
+  if(res.note>7.6)return '« Une saison stratosphérique de '+p.name.split(' ').pop()+' », s’enflamme la presse.';
+  if(res.note>7)return 'La presse salue une saison de très haut niveau.';
+  if(res.note<6&&res.apps>10)return 'Les journaux parlent d’une saison « à oublier très vite ».';
+  if(res.apps<10)return 'Trop peu de temps de jeu : la presse commence à poser des questions.';
+  if(st.rng.chance(.3))return 'Ton rival '+p.rival+' a encore fait parler de lui cette saison…';
+  return 'Une saison de plus au compteur. La suite s’écrit maintenant.';
+}
+
+/* ================= BOUCLE DE CARRIÈRE ================= */
+async function runYear(st,profile){
+  var p=st.p;
+  st.ovrBefore=ovr(p);
+  saveGame(st);
+  var questions=[];
+  // Q1 trajectoire
+  var offers=(p.age>=17)?genOffers(st):[];
+  if(offers.length&&(st.rng.chance(.75)||p.trust<35))questions.push(transferQuestion(st,offers));
+  // Q2 vie
+  var ev=pickLifeEvent(st,profile);
+  if(ev)questions.push({kind:'life',kicker:'La vie de joueur',title:ev.title,
+    text:ev.text,ch:ev.ch});
+  var ev2=null;
+  if(questions.length<2){ev2=pickLifeEvent(st,profile);
+    if(ev2)questions.push({kind:'life',kicker:'La vie de joueur',title:ev2.title,text:ev2.text,ch:ev2.ch});}
+  // Q3 optionnelle : grand soir
+  var keyBonus=0;
+  if(st.prevRank&&st.prevRank<=2&&st.rng.chance(.5)&&questions.length<3){
+    questions.push(keyMatchQuestion(st));
+  }
+  for(var i=0;i<questions.length;i++){
+    var out=await askQuestion(st,questions[i],i+1,questions.length);
+    if(questions[i].kind==='key'&&out.key)keyBonus=out.key;
+  }
+  var res=simulateSeason(st);
+  if(keyBonus>0.5&&!res.champion&&!res.cup&&st.rng.chance(keyBonus*.5)){
+    res.cup=true;p.cups++;p.palmares.push(st.year+' — Coupe nationale');
+  }
+  await seasonReport(st,res);
+  p.age++;st.year++;st.season++;
+}
+function shouldRetire(st){
+  var p=st.p;
+  if(p.age>=40)return true;
+  if(p.age>=33&&ovr(p)<64)return true;
+  if(p.age>=36&&ovr(p)<72)return st.rng.chance(.5);
+  return false;
+}
+async function retireScreen(st,profile){
+  clearSave();
+  var p=st.p;
+  var sc=legendScore(p);
+  var cmp=compareCareer(p);
+  clearApp();
+  app.appendChild(h('<div class="card kick" style="text-align:center;padding-top:24px">'+
+    '<div class="kicker">Fin de carrière · '+st.year+'</div>'+
+    '<h2 style="font-size:26px">'+esc(p.name)+' raccroche les crampons</h2>'+
+    '<div class="big-legend">'+sc+'</div>'+
+    '<div class="legend-title" style="color:var(--gold)">'+esc(legendTitle(sc))+'</div>'+
+    '<p class="small" style="margin-top:8px">Score de légende</p></div>'));
+  var t='<table class="stats">'+
+    statRow('Carrière',(p.hist[0]?p.hist[0].y:st.year)+' – '+st.year+' · '+p.hist.length+' saisons')+
+    statRow('Matchs / Buts / Passes',p.apps+' / '+p.goals+' / '+p.assists)+
+    statRow('Clubs',p.clubsList.map(esc).join(' → '))+
+    statRow('Sélections ('+esc(p.natName)+')',p.caps+' capes')+
+    statRow('Sommet atteint','<b style="color:var(--gold)">'+p.peakOvr+'</b> général')+
+    statRow('Fortune',Math.max(0,p.money).toFixed(1)+' M€')+
+    '</table>';
+  app.appendChild(h('<div class="card"><div class="kicker grey">Le bilan</div>'+t+'</div>'));
+  if(p.palmares.length)
+    app.appendChild(h('<div class="card"><div class="kicker">Palmarès</div><p>'+
+      p.palmares.map(esc).join('<br>')+'</p></div>'));
+  else
+    app.appendChild(h('<div class="card"><div class="kicker grey">Palmarès</div><p>Aucun trophée majeur. Toutes les carrières ne finissent pas en chanson — la tienne reste la tienne.</p></div>'));
+  if(p.moments.length)
+    app.appendChild(h('<div class="card"><div class="kicker">Moments gravés</div><p>'+
+      p.moments.map(esc).join('<br>')+'</p></div>'));
+  var cmpHtml;
+  if(cmp.none){
+    cmpHtml='<p>Une carrière inclassable — le football n’avait jamais vu ça.</p>';
+  } else {
+    cmpHtml='<div class="compare"><div class="cname">'+esc(cmp.main.n)+' <span class="cpct">'+cmp.pct+' %</span></div>'+
+      '<p>'+esc(cmp.main.blurb)+'</p>'+
+      (cmp.second?'<p class="small" style="margin-top:8px">…avec un soupçon de <b>'+esc(cmp.second.n)+'</b> : '+esc(cmp.second.blurb)+'</p>':'')+'</div>';
+  }
+  app.appendChild(h('<div class="card kick"><div class="kicker">Ta carrière ressemble à…</div>'+cmpHtml+'</div>'));
+  profile.pantheon.unshift({name:p.name,pos:p.pos,nat:p.natName,sc:sc,title:legendTitle(sc),
+    cmp:cmp.none?'Inclassable':cmp.main.n,year:st.year});
+  profile.pantheon=profile.pantheon.slice(0,50);
+  saveProfile(profile);
+  var cont=h('<div></div>');app.appendChild(cont);
+  await waitClick(cont,'Nouvelle carrière');
+  startScreen();
+}
+async function runCareer(st){
+  var profile=loadProfile();
+  while(!shouldRetire(st)){
+    await runYear(st,profile);
+  }
+  await retireScreen(st,profile);
+}
+
+/* ================= ÉCRANS ================= */
+function startScreen(){
+  clearApp();
+  var profile=loadProfile();
+  var save=loadGame();
+  var el=h('<div style="padding-top:48px">'+
+    '<h1 class="logo">My<em>Career</em></h1>'+
+    '<p class="tagline">Écris ta légende. Personne ne connaît son destin à l’avance.</p>'+
+    '<div class="choices" id="menu"></div>'+
+    '<div class="footer-note">v0.1 — prototype · sauvegarde locale automatique</div></div>');
+  app.appendChild(el);
+  var menu=el.querySelector('#menu');
+  if(save){
+    var b0=document.createElement('button');b0.className='primary';
+    b0.textContent='Reprendre : '+save.p.name+' ('+save.p.age+' ans)';
+    b0.addEventListener('click',function(){
+      var st={world:save.world,p:save.p,year:save.year,season:save.season,
+        prevRank:save.prevRank,ovrBefore:save.ovrBefore,rng:new RNG(1)};
+      st.rng.s=save.rngS>>>0;
+      runCareer(st);
+    });
+    menu.appendChild(b0);
+  }
+  var b1=document.createElement('button');b1.className=save?'':'primary';
+  if(!save)b1.className='primary';
+  b1.textContent='Nouvelle carrière';
+  b1.addEventListener('click',creationScreen);
+  menu.appendChild(b1);
+  if(profile.pantheon.length){
+    var b2=document.createElement('button');b2.className='ghost';
+    b2.textContent='Panthéon ('+profile.pantheon.length+' carrière'+(profile.pantheon.length>1?'s':'')+')';
+    b2.addEventListener('click',pantheonScreen);
+    menu.appendChild(b2);
+  }
+}
+function pantheonScreen(){
+  clearApp();
+  var profile=loadProfile();
+  var items=profile.pantheon.map(function(c){
+    return '<div class="pantheon-item"><span>'+esc(c.name)+'<br><span class="small">'+
+      esc(POSITIONS[c.pos]?POSITIONS[c.pos].label:c.pos)+' · '+esc(c.nat)+' · « '+esc(c.cmp)+' »</span></span>'+
+      '<span class="sc">'+c.sc+'<br><span class="small" style="color:var(--dim)">'+esc(c.title)+'</span></span></div>';
+  }).join('');
+  app.appendChild(h('<div style="padding-top:30px"><h1 class="logo" style="font-size:30px">Panthéon</h1>'+
+    '<div class="card">'+items+'</div><div class="choices" id="back"></div></div>'));
+  var back=document.getElementById('back');
+  var b=document.createElement('button');b.className='ghost';b.textContent='← Retour';
+  b.addEventListener('click',startScreen);back.appendChild(b);
+}
+function creationScreen(){
+  clearApp();
+  clearSave();
+  var sel={nat:'FR',pos:'BU',origin:'quartier',ent:'famille',style:'renard',name:''};
+  var el=h('<div style="padding-top:26px"><h1 class="logo" style="font-size:28px">Ton histoire commence</h1>'+
+    '<p class="tagline">Tu as 15 ans. Un recruteur t’a repéré. La suite t’appartient.</p>'+
+    '<label>Ton nom (optionnel)</label><input type="text" id="f-name" maxlength="24" placeholder="Laisser vide pour un nom généré">'+
+    '<label>Nationalité</label><select id="f-nat">'+NATIONS.map(function(n){
+      return '<option value="'+n.id+'">'+esc(n.name)+'</option>';}).join('')+'</select>'+
+    '<label>Poste</label><div class="optrow" id="f-pos"></div>'+
+    '<label>Style de jeu</label><select id="f-style">'+STYLES.map(function(s){
+      return '<option value="'+s.id+'">'+esc(s.name)+' — '+esc(s.desc)+'</option>';}).join('')+'</select>'+
+    '<label>Origine</label><select id="f-origin">'+ORIGINS.map(function(o){
+      return '<option value="'+o.id+'">'+esc(o.name)+' — '+esc(o.desc)+'</option>';}).join('')+'</select>'+
+    '<label>Entourage</label><select id="f-ent">'+ENTOURAGES.map(function(e){
+      return '<option value="'+e.id+'">'+esc(e.name)+' — '+esc(e.desc)+'</option>';}).join('')+'</select>'+
+    '<div class="choices" style="margin-top:22px" id="go"></div></div>');
+  app.appendChild(el);
+  var posBox=el.querySelector('#f-pos');
+  Object.keys(POSITIONS).forEach(function(pid,i){
+    var b=document.createElement('button');
+    b.textContent=POSITIONS[pid].label;
+    if(pid===sel.pos)b.classList.add('sel');
+    b.addEventListener('click',function(){
+      sel.pos=pid;
+      posBox.querySelectorAll('button').forEach(function(x){x.classList.remove('sel');});
+      b.classList.add('sel');
+    });
+    posBox.appendChild(b);
+  });
+  var go=el.querySelector('#go');
+  var b=document.createElement('button');b.className='primary';b.textContent='Commencer la carrière';
+  b.addEventListener('click',function(){
+    sel.nat=el.querySelector('#f-nat').value;
+    sel.style=el.querySelector('#f-style').value;
+    sel.origin=el.querySelector('#f-origin').value;
+    sel.ent=el.querySelector('#f-ent').value;
+    sel.name=el.querySelector('#f-name').value;
+    var seed=(Date.now()^(Math.random()*0xFFFFFFF))>>>0;
+    var world=makeWorld(seed);
+    var rng=new RNG(seed^0x9E3779B9);
+    var p=makePlayer(sel,world,rng);
+    var st={world:world,p:p,year:world.year,season:1,prevRank:null,ovrBefore:ovr(p),rng:rng};
+    introScreen(st);
+  });
+  go.appendChild(b);
+}
+async function introScreen(st){
+  clearApp();
+  var p=st.p;
+  app.appendChild(h(topbar(st)));
+  var card=h('<div class="card kick"><div class="kicker">'+st.year+' · '+esc(st.world.era.name)+'</div>'+
+    '<h2>Bienvenue dans le grand bain</h2>'+
+    '<p>'+esc(st.world.era.desc)+'</p>'+
+    '<p style="margin-top:8px">'+esc(p.name)+', '+p.age+' ans, rejoint les jeunes de <b>'+esc(p.club)+'</b>. '+
+    'Quelque part dans le monde, un certain <b>'+esc(p.rival)+'</b>, du même âge, fait déjà parler de lui. '+
+    'La presse locale vous comparera longtemps…</p></div>');
+  app.appendChild(card);
+  await waitClick(card,'C’est parti');
+  runCareer(st);
+}
+
+/* ================= TEST AUTOMATIQUE (débogage/équilibrage) ================= */
+window.__sim=function(n){
+  n=n||30;
+  var out={careers:[],avgLegend:0,maxLegend:0,bdoTotal:0,titles:0,errors:0};
+  for(var i=0;i<n;i++){
+    try{
+      var seed=(123456+i*7919)>>>0;
+      var world=makeWorld(seed);
+      var rng=new RNG(seed^0x9E3779B9);
+      var natIds=NATIONS.map(function(x){return x.id;});
+      var o={nat:natIds[i%natIds.length],pos:Object.keys(POSITIONS)[i%7],
+        origin:ORIGINS[i%4].id,ent:ENTOURAGES[i%4].id,style:STYLES[i%5].id,name:''};
+      var p=makePlayer(o,world,rng);
+      var st={world:world,p:p,year:world.year,season:1,prevRank:null,ovrBefore:ovr(p),rng:rng};
+      var profile={seen:[],pantheon:[]};
+      var guard=0;
+      while(!shouldRetire(st)&&guard++<40){
+        st.ovrBefore=ovr(p);
+        var offers=(p.age>=17)?genOffers(st):[];
+        if(offers.length&&st.rng.chance(.6)){
+          var q=transferQuestion(st,offers);
+          var c=q.ch[st.rng.int(0,q.ch.length-1)];
+          if(c.transfer)applyTransfer(st,c.transfer);else applyEffects(st,c.eff);
+        }
+        var ev=pickLifeEvent(st,profile);
+        if(ev){var cc=ev.ch[st.rng.int(0,ev.ch.length-1)];resolveChoice(st,cc);}
+        simulateSeason(st);
+        p.age++;st.year++;st.season++;
+      }
+      var sc=legendScore(p);
+      var cmp=compareCareer(p);
+      out.careers.push({name:p.name,pos:p.pos,peak:p.peakOvr,legend:sc,bdo:p.bdo,
+        titles:p.titles,goals:p.goals,clubs:p.clubsCount,cmp:cmp.none?'—':cmp.main.n,pct:cmp.pct});
+      out.avgLegend+=sc;out.maxLegend=Math.max(out.maxLegend,sc);
+      out.bdoTotal+=p.bdo;out.titles+=p.titles;
+    }catch(e){out.errors++;out.lastError=String(e&&e.stack||e);}
+  }
+  out.avgLegend=Math.round(out.avgLegend/n);
+  return out;
+};
+
+/* ================= BOOT ================= */
+startScreen();
+</script>
