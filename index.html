@@ -799,13 +799,43 @@ function simulateSeason(st){
     L2.clubs.forEach(function(c){if(c.n===p.club){p.lg=L2.id;p.clubStr=c.str;}});
   });
   var newLg=leagueOf(st);
-  var cup=rng.chance(Math.max(.02,(p.clubStr-52)/220)*(lg.level===1?1:.3));
+  /* ===== Les grands rendez-vous se jouent (pending = matchs interactifs) ===== */
+  var pending=[];
+  var canPlay=share>=.3&&!(inj&&inj.g===3);
+  // Course au titre en Élite : le dernier match décide
+  if(lg.level===1&&canPlay&&(rank===1||rank===2)){
+    var other=worldRes.tables[oldLgId][rank===1?1:0].c;
+    pending.push({type:'title',asLeader:rank===1,opp:other.n,oppStr:other.str});
+    champion=false; // à gagner sur le terrain
+  }
+  // Barrage de montée (3e d'une division inférieure)
+  if(lg.level>1&&canPlay&&rank===3){
+    var bOpp=worldRes.tables[oldLgId][3].c;
+    pending.push({type:'promo',opp:bOpp.n,oppStr:bOpp.str});
+  }
+  // Finale de coupe nationale
+  var cup=false;
+  if(canPlay&&rng.chance(Math.max(.05,(p.clubStr-48)/95)*(lg.level===1?1:.45))){
+    var elite1=st.world.leagues[lg.country+'1'];
+    var cOpp=elite1.clubs.filter(function(c){return c.n!==p.club;})[rng.int(0,3)];
+    pending.push({type:'cup',opp:cOpp.n,oppStr:cOpp.str});
+  } else if(!canPlay) cup=rng.chance(Math.max(.02,(p.clubStr-52)/220)*(lg.level===1?1:.3));
+  // Finale continentale
   var continental=false;
   var euroC=['EN','ES','IT','DE','FR','PT','NL','CH'].indexOf(lg.country)>=0;
   var samC=['BR','AR'].indexOf(lg.country)>=0;
   var contName=euroC?'Ligue des champions':'Copa Libertadores';
   if((euroC||samC)&&lg.level===1&&st.prevRank&&st.prevRank<=3){
-    continental=rng.chance(Math.max(.02,(p.clubStr-80)/60)*(share>.5?1:.6));
+    if(canPlay&&rng.chance(Math.max(.06,(p.clubStr-74)/45))){
+      var others=[];
+      Object.keys(COUNTRIES).forEach(function(cid){
+        if(cid===lg.country)return;
+        if((euroC&&['EN','ES','IT','DE','FR','PT','NL','CH'].indexOf(cid)<0)||(samC&&['BR','AR'].indexOf(cid)<0))return;
+        var L1=st.world.leagues[cid+'1'];if(L1)others.push(L1.clubs[0]);
+      });
+      var fOpp=others.sort(function(a,b4){return b4.str-a.str;})[rng.int(0,2)]||{n:'le géant du continent',str:90};
+      pending.push({type:'cont',opp:fOpp.n,oppStr:fOpp.str,name:contName});
+    } else if(!canPlay) continental=rng.chance(Math.max(.02,(p.clubStr-80)/60)*.6);
   }
   // XP & progression : matchs + entraînement (les jeunes progressent surtout au centre)
   var impMult=1+(continental?.25:0);
@@ -820,42 +850,75 @@ function simulateSeason(st){
   p.form=Math.round(Math.max(20,Math.min(95,50+(note-6.4)*22+rng.gauss()*4)));
   p.mor=Math.round(Math.max(15,Math.min(95,p.mor+(apps>25?4:apps>12?0:-7)+(champion?6:0)+(rank>7?-3:0))));
   p.trust=Math.round(Math.max(10,Math.min(95,p.trust+(note>7?10:note>6.6?4:-6)+(apps<10?-5:0))));
-  // réputation
-  var repGain=(note-6.3)*6*(lg.vis/5)+(goals+assists)*.16+(champion?4:0)+(promoted?3:0)+(continental?8:0)+(cup?2:0);
+  // réputation (performances pures — les trophées comptent au bilan)
+  var repGain=(note-6.3)*6*(lg.vis/5)+(goals+assists)*.16;
   p.rep=Math.max(0,Math.min(100,p.rep+Math.round(Math.max(-4,repGain))));
-  // sélection nationale
+  // sélection nationale (les éliminatoires de Coupe du monde se jouent)
   var natRes=simNation(st,note,apps);
+  if(natRes.wcPending)pending.push({type:'wc'});
   // salaire & argent
   var o=ovr(p);
   p.salary=Math.max(.02,Math.pow(Math.max(0,(o-52))/10,2)*(newLg.money/2.4)*.55);
   p.money+=p.salary;
-  // Ballon d'Or
-  var bdoWon=false;
-  var grp=POSITIONS[p.pos].g;
-  if((grp!=='DEF'&&grp!=='GB')||note>7.4){
-    var myScore=lvl+goals*.32+assists*.18+(champion?3:0)+(continental?7:0)+(natRes.wcWon?8:0)+(lg.vis-3)*2;
-    var rivalScore=st.world.bdoRivalBase+rng.gauss()*2.4+(st.season%4===1?2:0);
-    if(myScore>rivalScore&&o>=88){bdoWon=true;p.bdo++;}
+  var res={apps:apps,goals:goals,assists:assists,note:note,rank:rank,champion:champion,
+    cup:cup,continental:continental,contName:contName,inj:inj,bdo:false,nat:natRes,
+    ovrDelta:o-st.ovrBefore,promoted:promoted,relegated:relegated,
+    oldDiv:LVL_LABEL[oldLevel],newDiv:newLg.divLabel,lgName:lg.name,influence:influence,
+    lvl:lvl,levelPlayed:oldLevel,pending:pending,share:share};
+  st.prevRank=rank;
+  return res;
+}
+/* Applique le résultat d'une finale jouée */
+function applyFinalOutcome(st,res,m,out){
+  var p=st.p;
+  if(m.type==='title'){
+    if(out.won){res.champion=true;}
+    else{res.titleLost=true;res.rank=Math.max(res.rank,2);}
+  } else if(m.type==='promo'){
+    if(out.won){
+      var L=leagueOf(st),upper=st.world.leagues[L.country+(L.level-1)];
+      if(upper){
+        L.clubs=L.clubs.filter(function(c){return c.n!==p.club;});
+        var moved={n:p.club,str:Math.min(94,p.clubStr+2),lg:upper.id};
+        upper.clubs.push(moved);upper.clubs.sort(function(a,b){return b.str-a.str;});
+        p.lg=upper.id;p.clubStr=moved.str;
+        res.promoted=true;res.newDiv=upper.divLabel;
+      }
+    } else res.promoLost=true;
+  } else if(m.type==='cup'){
+    if(out.won)res.cup=true;else res.cupLost=true;
+  } else if(m.type==='cont'){
+    if(out.won){res.continental=true;res.contName=m.name;}
+    else{res.contLost=true;p.rep=Math.min(100,p.rep+3);}
   }
-  // trophées & historique
-  if(champion&&lg.level===1){p.titles++;p.palmares.push(st.year+' — Champion ('+lg.name+')');}
-  else if(promoted){p.palmares.push(st.year+' — Montée en '+newLg.divLabel+' avec '+p.club);
-    p.moments.push(st.year+' — '+p.club+' monte en '+newLg.divLabel+(influence>3?', porté par tes performances':'')+'.');}
-  if(relegated)p.moments.push(st.year+' — Relégation de '+p.club+' en '+newLg.divLabel+'. Saison noire.');
-  if(cup){p.cups++;p.palmares.push(st.year+' — Coupe nationale');}
-  if(continental){p.continental++;p.palmares.push(st.year+' — '+contName);}
-  if(bdoWon)p.palmares.push(st.year+' — BALLON D’OR');
-  if(natRes.wcWon)p.palmares.push(st.year+' — CHAMPION DU MONDE');
-  p.goals+=goals;p.assists+=assists;p.apps+=apps;
+}
+/* Bilan final de la saison : trophées, Ballon d'Or, historique */
+function finalizeSeason(st,res){
+  var p=st.p,rng=st.rng;
+  var o=ovr(p);
+  if(res.champion&&res.levelPlayed===1){p.titles++;p.palmares.push(st.year+' — Champion ('+res.lgName+')');}
+  else if(res.promoted){p.palmares.push(st.year+' — Montée en '+res.newDiv+' avec '+p.club);
+    p.moments.push(st.year+' — '+p.club+' monte en '+res.newDiv+(res.influence>3?', porté par tes performances':'')+'.');}
+  if(res.relegated)p.moments.push(st.year+' — Relégation de '+p.club+' en '+res.newDiv+'. Saison noire.');
+  if(res.cup){p.cups++;p.palmares.push(st.year+' — Coupe nationale');}
+  if(res.continental){p.continental++;p.palmares.push(st.year+' — '+res.contName);}
+  if(res.nat.wcWon){p.wcWon++;p.palmares.push(st.year+' — CHAMPION DU MONDE');
+    p.rep=Math.min(100,p.rep+15);
+    p.moments.push(st.year+' — Champion du monde avec '+(p.natName==='France'?'la ':'')+p.natName+'.');}
+  var repTro=(res.champion?4:0)+(res.promoted?3:0)+(res.continental?8:0)+(res.cup?2:0);
+  p.rep=Math.min(100,p.rep+repTro);
+  p.mor=Math.min(95,p.mor+(res.champion?6:0));
+  // Ballon d'Or
+  var grp=POSITIONS[p.pos].g;
+  if((grp!=='DEF'&&grp!=='GB')||res.note>7.4){
+    var myScore=res.lvl+res.goals*.32+res.assists*.18+(res.champion?3:0)+(res.continental?7:0)+(res.nat.wcWon?8:0)+(leagueOf(st).vis-3)*2;
+    var rivalScore=st.world.bdoRivalBase+rng.gauss()*2.4+(st.season%4===1?2:0);
+    if(myScore>rivalScore&&o>=88){res.bdo=true;p.bdo++;p.palmares.push(st.year+' — BALLON D’OR');}
+  }
+  p.goals+=res.goals;p.assists+=res.assists;p.apps+=res.apps;
   if(o>p.peakOvr)p.peakOvr=o;
   if(o>=85)p.seasonsTop++;
-  var res={apps:apps,goals:goals,assists:assists,note:note,rank:rank,champion:champion,
-    cup:cup,continental:continental,contName:contName,inj:inj,bdo:bdoWon,nat:natRes,
-    ovrDelta:o-st.ovrBefore,promoted:promoted,relegated:relegated,
-    oldDiv:LVL_LABEL[oldLevel],newDiv:newLg.divLabel,lgName:lg.name,influence:influence};
-  st.prevRank=rank;
-  p.hist.push({y:st.year,club:p.club,apps:apps,g:goals,a:assists,note:note});
-  return res;
+  p.hist.push({y:st.year,club:p.club,apps:res.apps,g:res.goals,a:res.assists,note:res.note});
 }
 function applyGrowth(st,xp){
   var p=st.p,rng=st.rng;
@@ -895,24 +958,63 @@ function applyDecline(st){
 }
 function simNation(st,note,apps){
   var p=st.p,rng=st.rng;
-  var res={called:false,wc:false,wcWon:false,txt:null};
+  var res={called:false,wc:false,wcWon:false,wcPending:false,txt:null};
   var natLevel=55+p.natStr*6;
   if(ovr(p)+p.rep*.25>natLevel-4&&apps>12&&p.age>=18){
+    var first=p.caps===0;
     res.called=true;var c=rng.int(3,9);p.caps+=c;
     if(POSITIONS[p.pos].g==='ATT')p.natGoals+=rng.int(0,Math.round(c*.7));
     p.natRep=Math.min(100,p.natRep+6);
+    if(first){res.txt='PREMIÈRE SÉLECTION avec '+(p.natName==='France'?'la ':'')+p.natName+' ! Le maillot national, enfin.';
+      p.moments.push(st.year+' — Première sélection nationale.');}
   }
   var wcYear=(st.year%4===2);
   if(wcYear&&res.called){
     res.wc=true;
-    var chance=Math.max(.02,(p.natStr*9+effLevel(p)*.35+(p.hid.big-50)*.15-62)/100);
-    if(rng.chance(Math.min(.4,chance))){res.wcWon=true;p.wcWon++;
-      p.rep=Math.min(100,p.rep+15);
-      p.moments.push(st.year+' — Champion du monde avec '+(p.natName==='France'?'la ':'')+p.natName+'.');
-      res.txt='CHAMPION DU MONDE. Le pays entier a chaviré.';}
-    else res.txt='Le grand tournoi s’est joué cette année — élimination en cours de route, la bête immonde du regret.';
+    // Les poules : le sort collectif. Les éliminatoires, eux, se JOUENT.
+    var pAdv=[0,.28,.30,.45,.6,.72][p.natStr]||.4;
+    if(rng.chance(pAdv))res.wcPending=true;
+    else res.txt='Coupe du monde : élimination dès les poules. Cruel — cette fois, le sort n’a pas voulu de vous.';
   }
   return res;
+}
+/* ===== Coupe du monde : les éliminatoires se jouent tour par tour ===== */
+var WC_ROUNDS=['Huitième de finale','Quart de finale','Demi-finale','FINALE DE LA COUPE DU MONDE'];
+var WC_OPPS=['la Croatie','la Belgique','l’Uruguay','la Colombie','le Nigeria','le Mexique','le Danemark','la Pologne','la Corée du Sud','le Ghana','la Suède','l’Égypte'];
+function wcRoundCfg(st,r){
+  var p=st.p,rng=st.rng;
+  var big=['le Brésil','la France','l’Argentine','l’Allemagne','l’Espagne','l’Angleterre','l’Italie','le Portugal'];
+  var opp=(r>=2||rng.chance(.35))?rng.pick(big):rng.pick(WC_OPPS);
+  var natQ=55+p.natStr*6,oppQ=62+r*6;
+  return {kicker:'Coupe du monde '+st.year,title:WC_ROUNDS[r],opp:opp,n:1,
+    edge:(natQ-oppQ)/60+(p.hid.big-50)*.002,
+    winText:'La nation exulte — encore un pas vers le rêve.',
+    loseText:'Tout un pays retient ses larmes. Le rêve s’arrête ici.',club:p.natName};
+}
+async function playWorldCup(st,res){
+  var p=st.p;
+  for(var r=0;r<4;r++){
+    var cfg=wcRoundCfg(st,r);
+    var realClub=p.club;p.club=p.natName; // le maillot national s'affiche
+    var out=await playMatch(st,cfg);
+    p.club=realClub;
+    if(!out.won){
+      res.nat.txt='Coupe du monde : parcours stoppé en '+WC_ROUNDS[r].toLowerCase().replace('finale de la coupe du monde','finale')+'. '+
+        (r>=2?'Si près du sommet…':'La marche était haute.');
+      p.natRep=Math.min(100,p.natRep+r*4);
+      return;
+    }
+  }
+  res.nat.wcWon=true;
+  res.nat.txt='CHAMPION DU MONDE ! Le pays entier a chaviré — et ton nom est au centre de la fête.';
+}
+function playWorldCupAuto(st,res){
+  for(var r=0;r<4;r++){
+    var cfg=wcRoundCfg(st,r);
+    var out=playMatchAuto(st,cfg);
+    if(!out.won){res.nat.txt='CDM : stoppé en '+WC_ROUNDS[r]+'.';return;}
+  }
+  res.nat.wcWon=true;
 }
 
 /* ================= OFFRES & QUESTIONS DYNAMIQUES ================= */
@@ -966,43 +1068,184 @@ function applyTransfer(st,o){
   p.moments.push(st.year+' — Transfert à '+o.club+'.');
   return txt;
 }
-function keyMatchQuestion(st){
-  var p=st.p;
-  var what=st.rng.chance(.5)?'La finale de la coupe':'Le match du titre';
-  if(POSITIONS[p.pos].g==='GB'){
-    return {kind:'key',kicker:'Le grand soir',title:what,
-      text:'90e+3. Penalty contre ton équipe. Tout le stade te regarde, toi et le tireur. Que fais-tu ?',
-      ch:[
-        {l:'Rester grand, réagir au tir',d:'~75 % de faire ton travail proprement.',
-         risk:{p:.55,stats:['fin','vis'],
-          win:{eff:{trust:5,rep:3},res:'Détente parfaite ! Le ballon frôle le poteau — tu avais choisi le bon côté.',key:.6,moment:'penalty arrêté dans le money-time'},
-          lose:{eff:{mor:-3},res:'Le tireur croise sa frappe. Imparable. Tu n’y es pour rien, mais ça fait mal.',key:-.2}}},
-        {l:'Jouer la guerre des nerfs',d:'~55 % — retarder, parler, faire douter.',
-         risk:{p:.55,stats:['men'],
-          win:{eff:{rep:4,mor:5},res:'Le tireur craque et tire au-dessus ! Ta provocation a payé — le stade hurle ton nom.',key:.7,moment:'guerre des nerfs gagnée sur penalty décisif'},
-          lose:{eff:{mor:-3,rep:-2},res:'Carton jaune pour gain de temps, et but. La presse parle de cirque inutile.',key:-.2}}},
-        {l:'MONTER SUR LE CORNER SUIVANT',d:'~8 % — le but du gardien, l’Histoire absolue.',
-         risk:{p:.08,stats:['phy'],
-          win:{eff:{rep:12,mor:10,hid:{ego:3}},res:'TU MARQUES DE LA TÊTE ! UN GARDIEN BUTEUR DANS LE MONEY-TIME ! Une image pour l’éternité.',key:.9,moment:'but de la tête en tant que gardien monté sur corner',gold:1},
-          lose:{eff:{mor:-4,rep:-2},res:'Le ballon te passe au-dessus — et le contre finit au fond de ton but vide. Aïe.',key:-.35}}}
-      ]};
+/* ================= MATCHS INTERACTIFS =================
+   Les grands rendez-vous se JOUENT : une palette d'actions par temps fort,
+   sans probabilités affichées — c'est ton profil qui parle. */
+var MOMENTS=[
+ // Attaquants
+ {g:'ATT',text:'Centre au second poteau — le ballon te revient à huit mètres du but.',ch:[
+  {l:'Placer calmement du plat du pied',d:'Le geste simple du renard.',stats:['fin'],base:.68,mom:1,
+   win:'BUT ! Plat du pied clinique au ras du poteau.',lose:'Ta frappe est contrée in extremis.'},
+  {l:'Reprendre de volée',d:'Le geste parfait ou rien.',stats:['fin','fra'],base:.4,mom:1.7,
+   win:'VOLÉE SOMPTUEUSE SOUS LA BARRE ! Le stade explose !',lose:'La volée s’envole dans le virage.'},
+  {l:'Remiser en une touche',d:'L’option altruiste.',stats:['pas'],base:.7,mom:.9,
+   win:'Ta remise trouve un coéquipier lancé — au fond !',lose:'La remise est coupée par le défenseur.'}]},
+ {g:'ATT',text:'PENALTY pour ton équipe — et le ballon est dans tes mains.',ch:[
+  {l:'Frapper en force',d:'La puissance ne tremble pas.',stats:['fra','men'],base:.62,mom:1.2,
+   win:'Pleine lucarne ! Le gardien n’a pas bougé.',lose:'Le gardien a tout lu. Arrêt !'},
+  {l:'Placer à ras de terre',d:'Le sang-froid du professionnel.',stats:['fin','men'],base:.66,mom:1.1,
+   win:'Le ballon frôle le poteau, gardien à contre-pied. But !',lose:'Trop près du gardien… repoussé !'},
+  {l:'PANENKA',d:'La gloire éternelle ou le ridicule éternel.',stats:['men'],base:.3,mom:2.2,gold:1,
+   win:'PANENKA ! Le ballon flotte pendant une éternité et retombe au centre. Génie absolu.',lose:'Le gardien reste planté et cueille ta feuille morte. Le banc se cache les yeux.'}]},
+ {g:'ATT',text:'Ballon récupéré au rond central, la défense est haute. Tout le monde hurle quelque chose de différent.',ch:[
+  {l:'Sécuriser et poser le jeu',d:'Ne rien précipiter.',stats:['pas'],base:.72,mom:.7,
+   win:'Possession conservée, ton équipe installe le siège.',lose:'Ta passe latérale est interceptée — frayeur.'},
+  {l:'Lancer la profondeur',d:'Percer d’une passe.',stats:['vis','pas'],base:.5,mom:1.4,
+   win:'Ton ouverture met ton coéquipier seul au but !',lose:'La passe est trop longue et meurt chez le gardien.'},
+  {l:'LA FRAPPE DE 40 MÈTRES',d:'Le gardien est avancé. L’Histoire te tend les bras.',stats:['fra'],base:.12,mom:2.6,gold:1,
+   win:'LE BALLON FLOTTE… ET RETOMBE SOUS LA BARRE !!! BUT DE LÉGENDE ! Le monde entier repassera cette vidéo.',lose:'La tentative s’envole dans les tribunes. Le coach lève les bras au ciel.'}]},
+ {g:'ATT',text:'Face-à-face avec le gardien après un contre éclair.',ch:[
+  {l:'Frapper tôt, à ras de terre',d:'Prendre le gardien de vitesse.',stats:['fin'],base:.58,mom:1.2,
+   win:'Frappe précoce entre les jambes — but !',lose:'Le gardien gagne son duel du bout du pied.'},
+  {l:'Le crochet pour l’éliminer',d:'Le geste du grand joueur.',stats:['dri'],base:.44,mom:1.7,
+   win:'Crochet dévastateur, but dans la cage vide !',lose:'Le gardien ne mord pas et te subtilise le ballon.'},
+  {l:'Le lob',d:'L’audace pure.',stats:['fin','vis'],base:.3,mom:2,gold:1,
+   win:'LE LOB PARFAIT ! Le ballon retombe en cloche sous la barre. Chef-d’œuvre.',lose:'Le lob manque de hauteur — capté sans trembler.'}]},
+ // Milieux
+ {g:'MIL',text:'Le bloc adverse est bas. 25 mètres, coup franc obtenu par ton équipe.',ch:[
+  {l:'Centrer au cordeau',d:'Servir les grands gabarits.',stats:['pas'],base:.62,mom:1,
+   win:'Ton centre trouve la tête du capitaine — BUT !',lose:'Le centre est dégagé par le premier défenseur.'},
+  {l:'Tenter la lucarne',d:'Ta patte contre le mur.',stats:['fra'],base:.35,mom:1.8,
+   win:'COUP FRANC EN PLEINE LUCARNE ! Imparable !',lose:'Le mur se lève et détourne en touche.'},
+  {l:'La combinaison travaillée à l’entraînement',d:'Personne ne s’y attendra.',stats:['vis','men'],base:.48,mom:1.5,
+   win:'La combinaison surprend tout le monde — but à la clé !',lose:'La combinaison capote, occasion gâchée. Le public grogne.'}]},
+ {g:'MIL',text:'Tu sens le renversement : le numéro 10 adverse s’apprête à lancer un contre mortel.',ch:[
+  {l:'Couper la ligne de passe',d:'La lecture avant le contact.',stats:['vis','def'],base:.6,mom:1.2,
+   win:'Interception parfaite — et ton équipe repart en surnombre !',lose:'Il te fixe et te dépasse d’un crochet. Danger.'},
+  {l:'Le tacle tranchant',d:'Récupérer, quoi qu’il en coûte.',stats:['def'],base:.5,mom:1.4,
+   win:'Tacle chirurgical, ballon récupéré sous les acclamations !',lose:'CARTON JAUNE. Le coup franc qui suit met le feu à ta surface.'},
+  {l:'Contenir et temporiser',d:'L’attente intelligente.',stats:['men'],base:.7,mom:.8,
+   win:'Tu le pousses vers la touche : contre éteint.',lose:'Il accélère au bon moment et centre — frisson.'}]},
+ {g:'MIL',text:'Le match se joue dans ta zone. Trois solutions de passe, une seule est la bonne.',ch:[
+  {l:'Le relais simple et propre',d:'Faire tourner, encore.',stats:['pas'],base:.72,mom:.7,
+   win:'Le tempo est à toi, l’adversaire court dans le vide.',lose:'Le relais est anticipé — perte dangereuse.'},
+  {l:'La passe cassante entre les lignes',d:'Celle que seuls quelques-uns voient.',stats:['vis'],base:.5,mom:1.5,
+   win:'Ta passe fend deux lignes — occasion immédiate !',lose:'Le milieu adverse coupe la trajectoire.'},
+  {l:'L’extérieur du pied lumineux',d:'Un geste de gala.',stats:['vis','dri'],base:.3,mom:2,gold:1,
+   win:'EXTÉRIEUR DU PIED SUBLIME qui met ton ailier seul au but ! Le geste de la saison !',lose:'L’extérieur du pied s’égare en touche. Tentative de trop ?'}]},
+ // Défenseurs
+ {g:'DEF',text:'Leur attaquant vedette file seul au but. Il n’y a plus que toi.',ch:[
+  {l:'Reculer et temporiser',d:'L’attendre, le forcer à la faute.',stats:['men','def'],base:.62,mom:1.1,
+   win:'Tu l’aiguilles vers l’extérieur : angle fermé, frappe anodine.',lose:'Il te fixe, accélère… et centre en retrait. Danger maximal.'},
+  {l:'Le tacle glissé',d:'Tout ou rien, maintenant.',stats:['def','vit'],base:.48,mom:1.6,
+   win:'TACLE PARFAIT ! Le ballon d’abord, l’ovation ensuite.',lose:'Tu fauches l’attaquant. Coup franc dangereux et carton.'},
+  {l:'Anticiper la passe en retrait',d:'Lire une seconde avant tout le monde.',stats:['vis'],base:.42,mom:1.8,
+   win:'Tu avais lu la passe ! Interception et relance de contre !',lose:'Il n’y avait pas de passe. Tu es éliminé du coup de rein.'}]},
+ {g:'DEF',text:'Corner pour ton équipe à la 88e. Le coach te fait signe : à toi de voir.',ch:[
+  {l:'Rester couvrir derrière',d:'La sagesse défensive.',stats:['men'],base:.72,mom:.7,
+   win:'Ta couverture éteint le contre adverse dans l’œuf.',lose:'Le dégagement te surprend — course poursuite subie.'},
+  {l:'MONTER ET ATTAQUER LE BALLON',d:'Le grand soir des défenseurs.',stats:['phy','def'],base:.35,mom:2,gold:1,
+   win:'TA TÊTE RAGEUSE AU FOND DES FILETS ! Le défenseur libère tout un peuple !',lose:'Tu prends le dessus… mais ta tête frôle le poteau. Et le contre te fait courir 80 mètres.'},
+  {l:'Jouer le corner à deux',d:'Surprendre le bloc.',stats:['pas'],base:.55,mom:1.2,
+   win:'Le corner joué court crée le décalage — frappe et but !',lose:'La combinaison se meurt dans un contre favorable.'}]},
+ {g:'DEF',text:'Pressing furieux sur ta relance. Le porteur arrive plein fer.',ch:[
+  {l:'Dégager loin devant',d:'Zéro risque, zéro relance.',stats:['def'],base:.72,mom:.6,
+   win:'Le danger est repoussé, l’équipe respire.',lose:'Ton dégagement contré revient en pleine surface !'},
+  {l:'La relance courte dans le cœur du jeu',d:'Jouer sous pression.',stats:['pas','men'],base:.5,mom:1.4,
+   win:'Relance propre qui casse tout le pressing — ton équipe ressort à trois contre deux.',lose:'Perte de balle fatale dans l’axe. Occasion adverse.'},
+  {l:'La transversale de 60 mètres',d:'Retourner le stade d’une seule passe.',stats:['pas','vis'],base:.32,mom:1.9,gold:1,
+   win:'TRANSVERSALE MILLIMÉTRÉE sur l’ailier lancé ! Le stade se lève !',lose:'La transversale file directement en touche. Le coach fulmine.'}]},
+ // Gardiens
+ {g:'GB',text:'PENALTY CONTRE TON ÉQUIPE. Toi, le tireur, et 60 000 personnes qui retiennent leur souffle.',ch:[
+  {l:'Rester grand jusqu’au bout',d:'Réagir au vrai tir.',stats:['fin','vis'],base:.42,mom:1.8,
+   win:'ARRÊT RÉFLEXE ! Tu repousses le penalty — le stade devient fou !',lose:'Le tir est trop bien placé. Imparable.'},
+  {l:'Choisir un côté et plonger',d:'Le pari assumé.',stats:['fin'],base:.38,mom:1.9,
+   win:'TU AVAIS CHOISI LE BON CÔTÉ ! Horizontale parfaite, ballon détourné !',lose:'Tu plonges à gauche… ballon à droite.'},
+  {l:'La guerre des nerfs',d:'Parler, retarder, faire douter.',stats:['men'],base:.45,mom:1.7,
+   win:'Le tireur craque et expédie le ballon au-dessus ! Ta guerre psychologique a payé !',lose:'Carton pour gain de temps — et but. La presse parlera de cirque.'}]},
+ {g:'GB',text:'Centre fort dans ta surface saturée, à la 89e.',ch:[
+  {l:'Boxer des deux poings',d:'Écarter le danger, point.',stats:['phy'],base:.68,mom:1,
+   win:'Poings fermes, ballon repoussé à 30 mètres.',lose:'Ta sortie manque le ballon — cafouillage terrifiant sur ta ligne !'},
+  {l:'Capter au point de chute',d:'L’autorité absolue.',stats:['def','vis'],base:.46,mom:1.7,
+   win:'Tu cueilles le ballon au-dessus de tout le monde. Le stade scande ton nom.',lose:'L’attaquant te gêne, le ballon t’échappe… corner concédé dans la panique.'},
+  {l:'Rester sur ta ligne',d:'Laisser ta défense vivre.',stats:['men'],base:.62,mom:.8,
+   win:'Ta défense dégage — et tu avais gardé ton angle.',lose:'La tête plonge au premier poteau : arrêt désespéré, corner.'}]},
+ {g:'GB',text:'Ton équipe pousse pour égaliser. Dernier corner du match. Le banc te regarde.',ch:[
+  {l:'Rester dans tes cages',d:'Chacun son métier.',stats:['men'],base:.68,mom:.8,
+   win:'Le corner est repris… et ta présence n’a pas manqué : but de ton équipe !',lose:'Le corner ne donne rien. Fin du rêve ?'},
+  {l:'MONTER DANS LA SURFACE ADVERSE',d:'Le but du gardien. L’Histoire absolue.',stats:['phy','def'],base:.14,mom:2.6,gold:1,
+   win:'TU MARQUES DE LA TÊTE !!! UN GARDIEN BUTEUR À LA DERNIÈRE SECONDE ! L’image restera pour l’éternité.',lose:'Le ballon te passe au-dessus — et file dans ton but vide. Le prix de l’audace.'},
+  {l:'Monter… et bloquer le gardien adverse',d:'La ruse du vieux briscard.',stats:['men','phy'],base:.4,mom:1.6,
+   win:'Ton écran parfait libère ton capitaine qui marque ! Les malins gagnent aussi.',lose:'L’arbitre siffle ta faute sur le gardien. Retour piteux dans tes cages.'}]}
+];
+function pickMoments(st,n){
+  var g=POSITIONS[st.p.pos].g;
+  var pool=MOMENTS.filter(function(m){return m.g===g;});
+  var out=[],idx=[];
+  while(out.length<n&&idx.length<pool.length){
+    var i=st.rng.int(0,pool.length-1);
+    if(idx.indexOf(i)<0){idx.push(i);out.push(pool[i]);}
   }
-  return {kind:'key',kicker:'Le grand soir',title:what,
-    text:'87e minute, tout est encore possible. Le ballon arrive. Le stade retient son souffle. Que fais-tu ?',
-    ch:[
-      {l:'La passe sûre vers le capitaine',d:'~75 % — conserver, ne rien gâcher.',
-       risk:{p:.75,stats:['pas'],
-        win:{eff:{trust:4},res:'Ballon conservé, ton équipe garde le contrôle jusqu’au bout.',key:.35},
-        lose:{eff:{mor:-3},res:'Ta passe est coupée ! Le contre fait passer un frisson glacé dans le stade.',key:-.2}}},
-      {l:'Le une-deux et la passe décisive',d:'~55 % — l’offrande, si la vision suit.',
-       risk:{p:.55,stats:['vis'],
-        win:{eff:{rep:4,mor:5},res:'Ta passe fend la défense — ton coéquipier n’a plus qu’à pousser le ballon !',key:.75,moment:'passe décisive dans le money-time'},
-        lose:{eff:{mor:-3},res:'Un défenseur lit ton intention. L’occasion s’envole.',key:-.15}}},
-      {l:'LA FRAPPE DE 40 MÈTRES',d:'~10 % — l’Histoire ou le ridicule.',
-       risk:{p:.10,stats:['fra'],
-        win:{eff:{rep:10,mor:10,hid:{ego:3}},res:'LE BALLON FLOTTE… ET RETOMBE SOUS LA BARRE ! But de légende. Le stade explose, le monde entier repasse la vidéo.',key:.9,moment:'but de 40 mètres dans un grand soir',gold:1},
-        lose:{eff:{mor:-4,rep:-2},res:'La frappe s’envole dans les tribunes. Le banc se prend la tête à deux mains.',key:-.3}}}
-    ]};
+  return out;
+}
+function resolveMoment(st,m,c){
+  var p=st.p,pr=c.base;
+  (c.stats||[]).forEach(function(a){pr+=(p.attrs[a]-62)*.006;});
+  pr=Math.max(.05,Math.min(.82,pr)); // jamais de certitude, jamais affiché
+  var ok=st.rng.chance(pr);
+  if(ok&&c.gold){p.rep=Math.min(100,p.rep+7);p.mor=Math.min(95,p.mor+6);
+    p.moments.push(st.year+' — '+c.win.split('!')[0].trim()+'.');}
+  else if(ok){p.rep=Math.min(100,p.rep+1);}
+  return {ok:ok,mom:ok?c.mom:-0.6,gold:ok&&!!c.gold};
+}
+/* Joue un grand match en interactif. cfg={kicker,title,opp,edge,n} */
+async function playMatch(st,cfg){
+  var minutes=[];var base=15+st.rng.int(0,10);
+  for(var i=0;i<cfg.n;i++)minutes.push(Math.min(90,base+Math.round(i*(70/Math.max(1,cfg.n-1))+st.rng.int(-6,6))));
+  var momentum=0,gold=false;
+  clearApp();mountTopbar(st);
+  var aff=h('<div class="card kick" style="text-align:center"><div class="kicker">'+esc(cfg.kicker)+'</div>'+
+    '<h2 style="font-size:24px">'+esc(cfg.title)+'</h2>'+
+    '<p><b>'+esc(st.p.club)+'</b>  vs  <b>'+esc(cfg.opp)+'</b></p>'+
+    '<p class="small">Tes choix vont décider de ce match.</p></div>');
+  app.appendChild(aff);
+  await waitClick(aff,'Coup d’envoi');
+  var moments=pickMoments(st,cfg.n);
+  for(var k=0;k<moments.length;k++){
+    var m=moments[k];
+    clearApp();mountTopbar(st);
+    var card=h('<div class="card kick"><div class="kicker">'+esc(cfg.title)+' · '+minutes[k]+'ᵉ minute</div>'+
+      '<h2>Temps fort</h2><p>'+esc(m.text)+'</p><div class="choices"></div></div>');
+    app.appendChild(card);
+    var box=card.querySelector('.choices');
+    var c=await new Promise(function(res){
+      m.ch.forEach(function(cc){
+        var b=document.createElement('button');
+        b.innerHTML='<span class="bl">'+esc(cc.l)+'</span><span class="bd">'+esc(cc.d)+'</span>';
+        b.addEventListener('click',function(){res(cc);},{once:true});
+        box.appendChild(b);
+      });
+    });
+    box.remove();
+    var out=resolveMoment(st,m,c);
+    momentum+=out.mom;if(out.gold)gold=true;
+    card.appendChild(h('<div class="result '+(out.gold?'gold':out.ok?'good':'bad')+'">'+esc(out.ok?c.win:c.lose)+'</div>'));
+    await waitClick(card,k<moments.length-1?'La suite du match':'Dernières minutes…');
+  }
+  var pWin=Math.max(.07,Math.min(.93,.5+(cfg.edge||0)+momentum*.11));
+  var won=st.rng.chance(pWin);
+  var sc=won?st.rng.pick(['1-0','2-1','2-0','3-1']):st.rng.pick(['0-1','1-2','0-2']);
+  if(won&&gold&&st.rng.chance(.5))sc='4-2';
+  clearApp();mountTopbar(st);
+  var fin=h('<div class="card '+(won?'kick':'')+'" style="text-align:center"><div class="kicker">'+esc(cfg.title)+' · Coup de sifflet final</div>'+
+    '<h2 style="font-size:30px">'+esc(st.p.club.split(' ').pop())+' '+sc+'</h2>'+
+    '<p>'+(won?'VICTOIRE ! '+esc(cfg.winText||'Ton équipe l’a fait — et tu y es pour beaucoup.')
+            :esc(cfg.loseText||'La défaite est cruelle. Ce soir, le vestiaire est un tombeau.'))+'</p></div>');
+  app.appendChild(fin);
+  await waitClick(fin,'Continuer');
+  st.p.mor=Math.max(10,Math.min(95,st.p.mor+(won?6:-6)));
+  return {won:won,gold:gold};
+}
+/* Résolution automatique (bots d'équilibrage) */
+function playMatchAuto(st,cfg){
+  var momentum=0;
+  var moments=pickMoments(st,cfg.n);
+  moments.forEach(function(m){
+    var c=m.ch[st.rng.int(0,m.ch.length-1)];
+    momentum+=resolveMoment(st,m,c).mom;
+  });
+  var pWin=Math.max(.07,Math.min(.93,.5+(cfg.edge||0)+momentum*.11));
+  return {won:st.rng.chance(pWin),gold:false};
 }
 
 /* ================= IDENTITÉ DE JEU (style, choisi en carrière) ================= */
@@ -1307,6 +1550,10 @@ async function seasonReport(st,res){
   if(res.promoted)trophies+='<div class="press trophy">📈 MONTÉE ! '+esc(p.club)+' jouera en '+esc(res.newDiv)+
     (res.influence>3?' — et c’est en grande partie grâce à toi.':' la saison prochaine !')+'</div>';
   if(res.relegated)trophies+='<div class="press" style="color:var(--bad)">📉 Relégation… '+esc(p.club)+' descend en '+esc(res.newDiv)+'.</div>';
+  if(res.titleLost)trophies+='<div class="press" style="color:var(--bad)">💔 Le titre s’est joué au dernier match — et perdu.</div>';
+  if(res.promoLost)trophies+='<div class="press" style="color:var(--bad)">Barrage de montée perdu. La saison prochaine sera la bonne ?</div>';
+  if(res.cupLost)trophies+='<div class="press" style="color:var(--bad)">Finale de Coupe perdue au bout du suspense.</div>';
+  if(res.contLost)trophies+='<div class="press" style="color:var(--bad)">Finale continentale perdue — le continent retiendra quand même votre épopée.</div>';
   if(res.cup)trophies+='<div class="press trophy">🏆 Vainqueur de la coupe nationale</div>';
   if(res.continental)trophies+='<div class="press trophy">🌟 VAINQUEUR — '+esc(res.contName)+' !</div>';
   if(res.bdo)trophies+='<div class="press trophy">👑 BALLON D’OR — le monde s’incline.</div>';
@@ -1361,21 +1608,37 @@ async function runYear(st,profile){
   var ev2=null;
   if(questions.length<2){ev2=pickLifeEvent(st,profile);
     if(ev2)questions.push({kind:'life',kicker:'La vie de joueur',title:ev2.title,text:ev2.text,ch:ev2.ch});}
-  // Q3 optionnelle : grand soir
-  var keyBonus=0;
-  if(st.prevRank&&st.prevRank<=2&&st.rng.chance(.5)&&questions.length<3){
-    questions.push(keyMatchQuestion(st));
-  }
   for(var i=0;i<questions.length;i++){
-    var out=await askQuestion(st,questions[i],i+1,questions.length);
-    if(questions[i].kind==='key'&&out.key)keyBonus=out.key;
+    await askQuestion(st,questions[i],i+1,questions.length);
   }
   var res=simulateSeason(st);
-  if(keyBonus>0.5&&!res.champion&&!res.cup&&st.rng.chance(keyBonus*.5)){
-    res.cup=true;p.cups++;p.palmares.push(st.year+' — Coupe nationale');
+  // Les grands rendez-vous de la saison se jouent sur le terrain
+  for(var j=0;j<res.pending.length;j++){
+    var m=res.pending[j];
+    if(m.type==='wc'){await playWorldCup(st,res);continue;}
+    var out=await playMatch(st,clubFinalCfg(st,m));
+    applyFinalOutcome(st,res,m,out);
   }
+  finalizeSeason(st,res);
   await seasonReport(st,res);
   p.age++;st.year++;st.season++;
+}
+function clubFinalCfg(st,m){
+  var lg=leagueOf(st);
+  var edge=(st.p.clubStr-m.oppStr)/60;
+  if(m.type==='title')return {kicker:lg.name+' · dernière journée',
+    title:m.asLeader?'Le match du titre':'Finale de championnat',opp:m.opp,n:3,edge:edge,
+    winText:'CHAMPIONS ! Le titre est à vous !',
+    loseText:m.asLeader?'Le titre s’envole au dernier match. Inconsolable.':'Si près du sacre… La deuxième place a un goût de cendre.'};
+  if(m.type==='promo')return {kicker:lg.name,title:'Barrage de montée',opp:m.opp,n:2,edge:edge,
+    winText:'LA MONTÉE ! Tout le club chavire de bonheur !',
+    loseText:'La montée se refuse à vous, à un match près.'};
+  if(m.type==='cup')return {kicker:'Coupe nationale',title:'FINALE de la Coupe',opp:m.opp,n:2,edge:edge,
+    winText:'La Coupe est à vous ! Un trophée pour l’histoire du club.',
+    loseText:'Finale perdue. Les médailles d’argent pèsent une tonne.'};
+  return {kicker:m.name,title:'FINALE — '+m.name,opp:m.opp,n:3,edge:edge,
+    winText:'SUR LE TOIT DU CONTINENT ! La plus grande soirée de l’histoire du club !',
+    loseText:'La plus cruelle des défaites, au pied de la plus haute marche.'};
 }
 function shouldRetire(st){
   var p=st.p;
@@ -1696,7 +1959,13 @@ window.__sim=function(n){
         }
         var ev=pickLifeEvent(st,profile);
         if(ev){var cc=ev.ch[st.rng.int(0,ev.ch.length-1)];resolveChoice(st,cc);}
-        simulateSeason(st);
+        var res=simulateSeason(st);
+        for(var pi=0;pi<res.pending.length;pi++){
+          var pm=res.pending[pi];
+          if(pm.type==='wc'){playWorldCupAuto(st,res);continue;}
+          applyFinalOutcome(st,res,pm,playMatchAuto(st,clubFinalCfg(st,pm)));
+        }
+        finalizeSeason(st,res);
         p.age++;st.year++;st.season++;
       }
       var sc=legendScore(p);
