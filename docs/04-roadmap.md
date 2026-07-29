@@ -27,7 +27,9 @@ La boucle 15 ans → retraite, entièrement jouable dans le navigateur, sans com
 - [ ] Sauvegarde locale (localStorage), reprise de partie
 - [ ] UI mobile-first, carte de joueur évolutive
 
-**Contenu cible MVP** : 1 univers (5 ligues, ~80 clubs fictifs), ~120 événements,
+**Contenu cible MVP** : 1 univers de ~10 championnats et ~160 clubs fictifs couvrant
+déjà les grandes routes mondiales — 5 grands d'Europe, Brasileirão, Argentine, Arabie
+saoudite, MLS ou Japon, D2 (détail : doc 07 §5) —, ~120 événements,
 carrière jouable en **20-30 minutes** (~40-50 questions du début à la retraite). Le pool
 d'événements doit être ~3× plus grand que ce qu'une carrière consomme, pour que deux
 carrières d'affilée ne se ressemblent pas.
@@ -64,6 +66,8 @@ Le backend arrive (comptes optionnels, Supabase ou équivalent).
 
 - [ ] Monde persistant complet : joueurs IA notables simulés individuellement,
   Ballon d'Or, records du monde battables
+- [ ] Univers des clubs complet : ~30 championnats, ~600 clubs, toutes confédérations,
+  compétitions continentales + mondial des clubs (doc 07)
 - [ ] Relations persistantes (coach, agent, coéquipiers, famille) avec historique
 - [ ] Vie hors terrain : sponsors, médias/réseaux sociaux, argent et investissements
 - [ ] Reconversion de poste en fin de carrière

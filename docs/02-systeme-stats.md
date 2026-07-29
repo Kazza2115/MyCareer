@@ -359,7 +359,9 @@ Pour que les stats du joueur aient un sens, le monde doit vivre :
 - **~2000 joueurs IA persistants** par univers de carrière : les 30-50 "notables" de ta
   génération (rivaux, coéquipiers stars) sont simulés individuellement (progression, transferts,
   palmarès) ; le reste est simulé statistiquement par club.
-- **Clubs** : force d'effectif, prestige, budget, style — évoluent selon leurs résultats simulés.
+- **Clubs** : force d'effectif, prestige, budget, style — évoluent selon leurs résultats
+  simulés. L'univers couvre le football mondial, du Brasileirão à l'Arabie saoudite
+  (cf. [07-univers-clubs.md](07-univers-clubs.md)).
 - **Palmarès du monde** : championnats, coupes, Ballon d'Or attribués chaque saison. Ton nom
   peut y figurer. Tes records peuvent être battus par l'IA des carrières suivantes.
 - **Rivaux de génération** : à la création, 2-3 rivaux sont générés (même âge, même poste ou
