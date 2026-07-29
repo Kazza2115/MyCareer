@@ -178,7 +178,29 @@ var NATIONS=[
  {id:'JP',name:'Japon',flag:'🇯🇵',pool:'jp',str:3,lg:'JP1'},
  {id:'US',name:'États-Unis',flag:'🇺🇸',pool:'en',str:2,lg:'US1'},
  {id:'SA',name:'Arabie saoudite',flag:'🇸🇦',pool:'ar',str:2,lg:'SA1'},
- {id:'TR',name:'Turquie',flag:'🇹🇷',pool:'tr',str:3,lg:'TR1'}
+ {id:'TR',name:'Turquie',flag:'🇹🇷',pool:'tr',str:3,lg:'TR1'},
+ {id:'BE',name:'Belgique',flag:'🇧🇪',pool:'fr',str:4,lg:'BE1'},
+ {id:'HR',name:'Croatie',flag:'🇭🇷',pool:'hr',str:4,lg:'HR1'},
+ {id:'RS',name:'Serbie',flag:'🇷🇸',pool:'hr',str:3,lg:'RS1'},
+ {id:'GR',name:'Grèce',flag:'🇬🇷',pool:'gr',str:2,lg:'GR1'},
+ {id:'SE',name:'Suède',flag:'🇸🇪',pool:'se',str:3,lg:'SE1'},
+ {id:'DK',name:'Danemark',flag:'🇩🇰',pool:'se',str:3,lg:'DK1'},
+ {id:'NO',name:'Norvège',flag:'🇳🇴',pool:'se',str:3,lg:'NO1'},
+ {id:'PL',name:'Pologne',flag:'🇵🇱',pool:'pl',str:3,lg:'PL1'},
+ {id:'AT',name:'Autriche',flag:'🇦🇹',pool:'de',str:2,lg:'AT1'},
+ {id:'SC',name:'Écosse',flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',pool:'en',str:2,lg:'SC1'},
+ {id:'MX',name:'Mexique',flag:'🇲🇽',pool:'es',str:4,lg:'MX1'},
+ {id:'CO',name:'Colombie',flag:'🇨🇴',pool:'es',str:3,lg:'CO1'},
+ {id:'UY',name:'Uruguay',flag:'🇺🇾',pool:'es',str:4,lg:'UY1'},
+ {id:'CL',name:'Chili',flag:'🇨🇱',pool:'es',str:2,lg:'CL1'},
+ {id:'NG',name:'Nigeria',flag:'🇳🇬',pool:'ng',str:3,lg:'NG1'},
+ {id:'GH',name:'Ghana',flag:'🇬🇭',pool:'ng',str:3,lg:'GH1'},
+ {id:'CI',name:'Côte d’Ivoire',flag:'🇨🇮',pool:'sn',str:3,lg:'CI1'},
+ {id:'CM',name:'Cameroun',flag:'🇨🇲',pool:'sn',str:3,lg:'CM1'},
+ {id:'EG',name:'Égypte',flag:'🇪🇬',pool:'ar',str:3,lg:'EG1'},
+ {id:'DZ',name:'Algérie',flag:'🇩🇿',pool:'ar',str:3,lg:'DZ1'},
+ {id:'KR',name:'Corée du Sud',flag:'🇰🇷',pool:'kr',str:3,lg:'KR1'},
+ {id:'AU',name:'Australie',flag:'🇦🇺',pool:'en',str:2,lg:'AU1'}
 ];
 var POOLS={
  fr:{f:['Lucas','Théo','Karim','Mathis','Enzo','Rayan','Nolan','Malik','Adam','Ilan'],
@@ -204,7 +226,19 @@ var POOLS={
  jp:{f:['Haruto','Ren','Sota','Yuto','Kaito','Riku','Daiki','Takumi','Shota','Kenta'],
      l:['Sato','Tanaka','Yamamoto','Kobayashi','Nakamura','Ito','Watanabe','Hayashi','Mori','Okada']},
  tr:{f:['Emre','Burak','Kerem','Arda','Mert','Can','Ozan','Yusuf','Berat','Furkan'],
-     l:['Yılmaz','Demir','Şahin','Çelik','Aydın','Öztürk','Kaya','Arslan','Doğan','Polat']}
+     l:['Yılmaz','Demir','Şahin','Çelik','Aydın','Öztürk','Kaya','Arslan','Doğan','Polat']},
+ hr:{f:['Luka','Ivan','Marko','Ante','Josip','Mateo','Niko','Petar','Dario','Tin'],
+     l:['Kovač','Perić','Babić','Šarić','Vuković','Jurić','Marić','Novak','Radić','Tomić']},
+ gr:{f:['Giorgos','Nikos','Dimitris','Kostas','Vasilis','Panos','Stelios','Thanos','Alexis','Christos'],
+     l:['Papadopoulos','Nikolaou','Georgiou','Antoniou','Dimitriou','Vlachos','Makris','Economou','Galanis','Petrou']},
+ se:{f:['Erik','Oskar','Viktor','Axel','Elias','Gustav','Anton','Filip','Isak','Nils'],
+     l:['Andersson','Johansson','Karlsson','Nilsson','Eriksson','Larsson','Olsson','Persson','Svensson','Lindberg']},
+ pl:{f:['Jakub','Kacper','Mateusz','Szymon','Filip','Wojciech','Piotr','Bartosz','Michał','Adrian'],
+     l:['Nowak','Kowalski','Wiśniewski','Wójcik','Kamiński','Mazur','Krawczyk','Zając','Pawlak','Górski']},
+ kr:{f:['Min-jun','Seo-jun','Ji-ho','Ha-joon','Do-yun','Joon-woo','Si-woo','Ye-jun','Woo-jin','Sung-min'],
+     l:['Kim','Lee','Park','Choi','Jung','Kang','Cho','Yoon','Jang','Lim']},
+ ng:{f:['Chukwu','Emeka','Tunde','Kelechi','Ade','Ifeanyi','Sola','Obinna','Femi','Kwame'],
+     l:['Okafor','Adeyemi','Balogun','Eze','Okonkwo','Obi','Mensah','Boateng','Appiah','Owusu']}
 };
 /* Pyramides nationales : chaque pays a 1 à 3 divisions avec montées/descentes.
    Niveau 1 = Élite, niveau 2 = D1, niveau 3 = D2. */
@@ -288,8 +322,98 @@ var COUNTRIES={
  SN:{name:'Sénégal',agg:1.0,
   cities:['Dakar','Thiès','Saint-Louis','Kaolack','Ziguinchor','Rufisque','Mbour','Louga','Diourbel','Guédiawaye'],
   suf:['ASC','US','Étoile','AS','Casa'],
-  divs:[{name:'Championnat sénégalais',tier:1,money:1,vis:1,dev:2}]}
+  divs:[{name:'Championnat sénégalais',tier:1,money:1,vis:1,dev:2}]},
+ BE:{name:'Belgique',agg:1.0,
+  cities:['Bruxelles','Bruges','Anvers','Gand','Liège','Charleroi','Louvain','Malines','Ostende','Genk'],
+  suf:['FC','Royal','Union','KV','Standard'],
+  divs:[{name:'Championnat de Belgique',tier:2,money:2,vis:3,dev:4}]},
+ HR:{name:'Croatie',agg:1.0,
+  cities:['Zagreb','Split','Rijeka','Osijek','Zadar','Pula','Dubrovnik','Varaždin','Šibenik','Karlovac'],
+  suf:['NK','HNK','Gradski','FC','Mladost'],
+  divs:[{name:'Championnat de Croatie',tier:1,money:1,vis:2,dev:4}]},
+ RS:{name:'Serbie',agg:1.1,
+  cities:['Belgrade','Novi Sad','Niš','Kragujevac','Subotica','Zrenjanin','Pančevo','Čačak','Novi Pazar','Leskovac'],
+  suf:['FK','OFK','Radnički','Sloga','Mladost'],
+  divs:[{name:'Championnat de Serbie',tier:1,money:1,vis:1,dev:3}]},
+ GR:{name:'Grèce',agg:1.15,
+  cities:['Athènes','Thessalonique','Le Pirée','Patras','Larissa','Héraklion','Volos','Ioannina','Kalamata','Rhodes'],
+  suf:['AO','PAE','GS','FC','Ethnikos'],
+  divs:[{name:'Championnat de Grèce',tier:2,money:1,vis:2,dev:2}]},
+ SE:{name:'Suède',agg:.9,
+  cities:['Stockholm','Göteborg','Malmö','Uppsala','Örebro','Norrköping','Helsingborg','Kalmar','Sundsvall','Umeå'],
+  suf:['IF','FF','IK','BK','SK'],
+  divs:[{name:'Championnat de Suède',tier:1,money:1,vis:1,dev:3}]},
+ DK:{name:'Danemark',agg:.9,
+  cities:['Copenhague','Aarhus','Odense','Aalborg','Esbjerg','Randers','Horsens','Vejle','Viborg','Silkeborg'],
+  suf:['FC','BK','IF','Boldklub','SK'],
+  divs:[{name:'Championnat du Danemark',tier:1,money:1,vis:2,dev:3}]},
+ NO:{name:'Norvège',agg:.9,
+  cities:['Oslo','Bergen','Trondheim','Stavanger','Tromsø','Kristiansand','Drammen','Bodø','Ålesund','Fredrikstad'],
+  suf:['FK','IL','SK','BK','IF'],
+  divs:[{name:'Championnat de Norvège',tier:1,money:1,vis:1,dev:3}]},
+ PL:{name:'Pologne',agg:1.05,
+  cities:['Varsovie','Cracovie','Gdańsk','Poznań','Wrocław','Łódź','Szczecin','Lublin','Katowice','Białystok'],
+  suf:['KS','MKS','LKS','Polonia','Hutnik'],
+  divs:[{name:'Championnat de Pologne',tier:1,money:1,vis:1,dev:2}]},
+ AT:{name:'Autriche',agg:.95,
+  cities:['Vienne','Salzbourg','Graz','Linz','Innsbruck','Klagenfurt','Sankt Pölten','Wels','Villach','Dornbirn'],
+  suf:['SK','FC','Austria','SV','Wacker'],
+  divs:[{name:'Championnat d’Autriche',tier:1,money:1,vis:1,dev:3}]},
+ SC:{name:'Écosse',agg:1.15,
+  cities:['Glasgow','Édimbourg','Aberdeen','Dundee','Perth','Inverness','Stirling','Paisley','Motherwell','Kilmarnock'],
+  suf:['FC','United','Athletic','Thistle','Rovers'],
+  divs:[{name:'Championnat d’Écosse',tier:2,money:1,vis:2,dev:2}]},
+ MX:{name:'Mexique',agg:1.0,
+  cities:['Mexico','Guadalajara','Monterrey','Puebla','Tijuana','León','Toluca','Querétaro','Pachuca','Veracruz'],
+  suf:['CF','Club','Deportivo','CD','Atlético'],
+  divs:[{name:'Liga mexicaine',tier:2,money:2,vis:2,dev:3}]},
+ CO:{name:'Colombie',agg:1.05,
+  cities:['Bogotá','Medellín','Cali','Barranquilla','Carthagène','Bucaramanga','Pereira','Manizales','Ibagué','Cúcuta'],
+  suf:['Atlético','Deportivo','Independiente','CD','Junior'],
+  divs:[{name:'Championnat de Colombie',tier:2,money:1,vis:1,dev:3}]},
+ UY:{name:'Uruguay',agg:1.15,
+  cities:['Montevideo','Salto','Paysandú','Maldonado','Rivera','Tacuarembó','Melo','Mercedes','Artigas','Durazno'],
+  suf:['CA','Club','Atlético','Sportivo','Central'],
+  divs:[{name:'Championnat d’Uruguay',tier:1,money:1,vis:1,dev:3}]},
+ CL:{name:'Chili',agg:1.0,
+  cities:['Santiago','Valparaíso','Concepción','Antofagasta','Temuco','Rancagua','Iquique','Talca','Chillán','Puerto Montt'],
+  suf:['CD','Club','Deportes','Unión','Audax'],
+  divs:[{name:'Championnat du Chili',tier:1,money:1,vis:1,dev:2}]},
+ NG:{name:'Nigeria',agg:1.05,
+  cities:['Lagos','Abuja','Kano','Ibadan','Enugu','Port Harcourt','Kaduna','Benin City','Jos','Owerri'],
+  suf:['FC','United','Pillars','Stars','Rovers'],
+  divs:[{name:'Championnat du Nigeria',tier:1,money:1,vis:1,dev:2}]},
+ GH:{name:'Ghana',agg:1.0,
+  cities:['Accra','Kumasi','Tamale','Cape Coast','Sekondi','Obuasi','Sunyani','Ho','Koforidua','Tema'],
+  suf:['FC','United','Stars','Warriors','SC'],
+  divs:[{name:'Championnat du Ghana',tier:1,money:1,vis:1,dev:2}]},
+ CI:{name:'Côte d’Ivoire',agg:1.0,
+  cities:['Abidjan','Bouaké','Yamoussoukro','San-Pédro','Korhogo','Daloa','Man','Gagnoa','Divo','Abengourou'],
+  suf:['AS','FC','Stella','Racing','Étoile'],
+  divs:[{name:'Championnat de Côte d’Ivoire',tier:1,money:1,vis:1,dev:2}]},
+ CM:{name:'Cameroun',agg:1.05,
+  cities:['Douala','Yaoundé','Garoua','Bafoussam','Bamenda','Maroua','Limbé','Kumba','Ngaoundéré','Ebolowa'],
+  suf:['AS','FC','Union','Racing','Dynamo'],
+  divs:[{name:'Championnat du Cameroun',tier:1,money:1,vis:1,dev:2}]},
+ EG:{name:'Égypte',agg:1.1,
+  cities:['Le Caire','Alexandrie','Gizeh','Port-Saïd','Suez','Louxor','Assouan','Tanta','Mansoura','Ismaïlia'],
+  suf:['Al','SC','FC','Nadi','Étoile'],
+  divs:[{name:'Championnat d’Égypte',tier:2,money:1,vis:1,dev:2}]},
+ DZ:{name:'Algérie',agg:1.1,
+  cities:['Alger','Oran','Constantine','Annaba','Blida','Sétif','Tlemcen','Béjaïa','Batna','Tizi Ouzou'],
+  suf:['JS','MC','USM','CR','ES'],
+  divs:[{name:'Championnat d’Algérie',tier:1,money:1,vis:1,dev:2}]},
+ KR:{name:'Corée du Sud',agg:.85,
+  cities:['Séoul','Busan','Incheon','Daegu','Daejeon','Gwangju','Ulsan','Suwon','Jeonju','Pohang'],
+  suf:['FC','United','SC','City','Stars'],
+  divs:[{name:'K-League coréenne',tier:2,money:1,vis:1,dev:3}]},
+ AU:{name:'Australie',agg:.95,
+  cities:['Sydney','Melbourne','Brisbane','Perth','Adélaïde','Canberra','Newcastle','Wollongong','Gold Coast','Hobart'],
+  suf:['FC','United','City','Glory','Mariners'],
+  divs:[{name:'Championnat d’Australie',tier:1,money:1,vis:1,dev:2}]}
 };
+var EURO_C=['EN','ES','IT','DE','FR','PT','NL','CH','BE','HR','RS','GR','SE','DK','NO','PL','AT','SC','TR'];
+var SAM_C=['BR','AR','MX','CO','UY','CL'];
 var LEAGUES=[];
 Object.keys(COUNTRIES).forEach(function(cid){
   COUNTRIES[cid].divs.forEach(function(d,i){
@@ -727,6 +851,7 @@ function makePlayer(o,world,rng){
     origin:o.origin,ent:o.ent,age:15,attrs:attrs,hid:hid,
     form:50,mor:60,trust:Math.max(22,Math.min(60,60-Math.round((club.str-55)*.8))),
     rep:(org.hid.rep||0)+(ent.hid.rep||0)+2,natRep:0,
+    aura:10+rng.int(0,8)+(o.origin==='filspro'?7:0),
     money:0,salary:0.02,club:club.n,clubStr:club.str,lg:lg.id,
     caps:0,natGoals:0,seenEv:[],flags:{},rival:rival,rivalLevel:70+rng.int(0,15),
     hist:[],palmares:[],moments:[],bdo:0,wcWon:0,continental:0,titles:0,cups:0,
@@ -822,15 +947,15 @@ function simulateSeason(st){
   } else if(!canPlay) cup=rng.chance(Math.max(.02,(p.clubStr-52)/220)*(lg.level===1?1:.3));
   // Finale continentale
   var continental=false;
-  var euroC=['EN','ES','IT','DE','FR','PT','NL','CH'].indexOf(lg.country)>=0;
-  var samC=['BR','AR'].indexOf(lg.country)>=0;
+  var euroC=EURO_C.indexOf(lg.country)>=0;
+  var samC=SAM_C.indexOf(lg.country)>=0;
   var contName=euroC?'Ligue des champions':'Copa Libertadores';
   if((euroC||samC)&&lg.level===1&&st.prevRank&&st.prevRank<=3){
     if(canPlay&&rng.chance(Math.max(.06,(p.clubStr-74)/45))){
       var others=[];
       Object.keys(COUNTRIES).forEach(function(cid){
         if(cid===lg.country)return;
-        if((euroC&&['EN','ES','IT','DE','FR','PT','NL','CH'].indexOf(cid)<0)||(samC&&['BR','AR'].indexOf(cid)<0))return;
+        if((euroC&&EURO_C.indexOf(cid)<0)||(samC&&SAM_C.indexOf(cid)<0))return;
         var L1=st.world.leagues[cid+'1'];if(L1)others.push(L1.clubs[0]);
       });
       var fOpp=others.sort(function(a,b4){return b4.str-a.str;})[rng.int(0,2)]||{n:'le géant du continent',str:90};
@@ -851,7 +976,7 @@ function simulateSeason(st){
   p.mor=Math.round(Math.max(15,Math.min(95,p.mor+(apps>25?4:apps>12?0:-7)+(champion?6:0)+(rank>7?-3:0))));
   p.trust=Math.round(Math.max(10,Math.min(95,p.trust+(note>7?10:note>6.6?4:-6)+(apps<10?-5:0))));
   // réputation (performances pures — les trophées comptent au bilan)
-  var repGain=(note-6.3)*6*(lg.vis/5)+(goals+assists)*.16;
+  var repGain=(note-6.3)*6*(lg.vis/5)+(goals+assists)*.16+Math.max(0,((p.aura||0)-30))*.05;
   p.rep=Math.max(0,Math.min(100,p.rep+Math.round(Math.max(-4,repGain))));
   // sélection nationale (les éliminatoires de Coupe du monde se jouent)
   var natRes=simNation(st,note,apps);
@@ -987,6 +1112,7 @@ function wcRoundCfg(st,r){
   var opp=(r>=2||rng.chance(.35))?rng.pick(big):rng.pick(WC_OPPS);
   var natQ=55+p.natStr*6,oppQ=62+r*6;
   return {kicker:'Coupe du monde '+st.year,title:WC_ROUNDS[r],opp:opp,n:1,
+    auraGold:r===3?10:7, // la Panenka en finale de Coupe du monde = +10 AURA
     edge:(natQ-oppQ)/60+(p.hid.big-50)*.002,
     winText:'La nation exulte — encore un pas vers le rêve.',
     loseText:'Tout un pays retient ses larmes. Le rêve s’arrête ici.',club:p.natName};
@@ -1178,15 +1304,30 @@ function pickMoments(st,n){
   }
   return out;
 }
-function resolveMoment(st,m,c){
+function resolveMoment(st,m,c,cfg){
   var p=st.p,pr=c.base;
   (c.stats||[]).forEach(function(a){pr+=(p.attrs[a]-62)*.006;});
+  pr+=((p.aura||0)-40)*.0015; // l'aura pèse dans les grands moments
   pr=Math.max(.05,Math.min(.82,pr)); // jamais de certitude, jamais affiché
   var ok=st.rng.chance(pr);
-  if(ok&&c.gold){p.rep=Math.min(100,p.rep+7);p.mor=Math.min(95,p.mor+6);
-    p.moments.push(st.year+' — '+c.win.split('!')[0].trim()+'.');}
-  else if(ok){p.rep=Math.min(100,p.rep+1);}
-  return {ok:ok,mom:ok?c.mom:-0.6,gold:ok&&!!c.gold};
+  var chips=[];
+  if(ok){
+    // le geste réussi forge la compétence utilisée
+    var main=(c.stats&&c.stats[0])||null;
+    if(main){p.attrs[main]=Math.min(97,p.attrs[main]+1);
+      chips.push({t:attrLabel(p,main)+' +1',c:'up'});}
+    p.rep=Math.min(100,p.rep+1);
+    if(c.gold){
+      var aGain=(cfg&&cfg.auraGold)||8; // ex. Panenka en finale = +10 AURA
+      p.aura=Math.min(100,(p.aura||0)+aGain);
+      p.rep=Math.min(100,p.rep+6);p.mor=Math.min(95,p.mor+6);
+      chips.push({t:'AURA +'+aGain,c:'gold'});
+      p.moments.push(st.year+' — '+c.win.split('!')[0].trim()+' ('+((cfg&&cfg.title)||'grand match')+').');
+    }
+  } else {
+    p.aura=Math.max(0,(p.aura||0)-(c.gold?1:0)); // l'audace ratée coûte un peu de superbe
+  }
+  return {ok:ok,mom:ok?c.mom:-0.6,gold:ok&&!!c.gold,chips:chips};
 }
 /* Joue un grand match en interactif. cfg={kicker,title,opp,edge,n} */
 async function playMatch(st,cfg){
@@ -1217,9 +1358,9 @@ async function playMatch(st,cfg){
       });
     });
     box.remove();
-    var out=resolveMoment(st,m,c);
+    var out=resolveMoment(st,m,c,cfg);
     momentum+=out.mom;if(out.gold)gold=true;
-    card.appendChild(h('<div class="result '+(out.gold?'gold':out.ok?'good':'bad')+'">'+esc(out.ok?c.win:c.lose)+'</div>'));
+    card.appendChild(h('<div class="result '+(out.gold?'gold':out.ok?'good':'bad')+'">'+esc(out.ok?c.win:c.lose)+chipsHtml(out.chips)+'</div>'));
     await waitClick(card,k<moments.length-1?'La suite du match':'Dernières minutes…');
   }
   var pWin=Math.max(.07,Math.min(.93,.5+(cfg.edge||0)+momentum*.11));
@@ -1242,7 +1383,7 @@ function playMatchAuto(st,cfg){
   var moments=pickMoments(st,cfg.n);
   moments.forEach(function(m){
     var c=m.ch[st.rng.int(0,m.ch.length-1)];
-    momentum+=resolveMoment(st,m,c).mom;
+    momentum+=resolveMoment(st,m,c,cfg).mom;
   });
   var pWin=Math.max(.07,Math.min(.93,.5+(cfg.edge||0)+momentum*.11));
   return {won:st.rng.chance(pWin),gold:false};
@@ -1337,6 +1478,7 @@ function resolveChoice(st,choice){
 function legendScore(p){
   var s=0;
   s+=Math.max(0,(p.peakOvr-60))*1.35;
+  s+=(p.aura||0)*.12; // l'aura fait la légende autant que les chiffres
   s+=Math.min(18,p.seasonsTop*2.2);
   s+=p.titles*2.2+p.cups*1+p.continental*4.5;
   s+=p.bdo*7+p.wcWon*8;
@@ -1430,6 +1572,13 @@ function mountTopbar(st){
   if(b)b.addEventListener('click',function(){openProfile(st);});
   app.appendChild(el);
 }
+function auraLabel(v){
+  if(v>=85)return 'Légende vivante';
+  if(v>=65)return 'Icône';
+  if(v>=45)return 'Charismatique';
+  if(v>=25)return 'Respecté';
+  return 'Discret';
+}
 function repLabel(r){
   if(r>=80)return 'Star mondiale';
   if(r>=60)return 'Connu dans le monde entier';
@@ -1456,7 +1605,8 @@ function openProfile(st){
     stateRow('Forme',p.form,stateLabel(p.form,['En feu','En rythme','Irrégulière','Dans le dur']))+
     stateRow('Moral',p.mor,stateLabel(p.mor,['Épanoui','Serein','Contrarié','Au fond du seau']))+
     stateRow('Relation avec le coach',p.trust,stateLabel(p.trust,['Homme de confiance','Apprécié','Sous observation','En froid']))+
-    stateRow('Réputation',p.rep,repLabel(p.rep));
+    stateRow('Réputation',p.rep,repLabel(p.rep))+
+    stateRow('Aura',p.aura||0,auraLabel(p.aura||0));
   var info='<table class="stats">'+
     statRow('Club',esc(p.club))+
     statRow('Championnat',esc(leagueOf(st).name)+' <span class="small">('+esc(leagueOf(st).divLabel)+')</span>')+
@@ -1574,6 +1724,7 @@ async function seasonReport(st,res){
   // attributs
   var ag='<div class="attr-grid">';
   for(var k in ATTRS)ag+='<div class="attr"><span>'+attrLabel(p,k)+'</span><b>'+Math.round(p.attrs[k])+'</b></div>';
+  ag+='<div class="attr"><span style="color:var(--gold)">Aura</span><b style="color:var(--gold)">'+Math.round(p.aura||0)+'</b></div>';
   ag+='</div>';
   app.appendChild(h('<div class="card"><div class="kicker grey">Attributs</div>'+ag+'</div>'));
   var cont=h('<div></div>');app.appendChild(cont);
@@ -1626,17 +1777,17 @@ async function runYear(st,profile){
 function clubFinalCfg(st,m){
   var lg=leagueOf(st);
   var edge=(st.p.clubStr-m.oppStr)/60;
-  if(m.type==='title')return {kicker:lg.name+' · dernière journée',
+  if(m.type==='title')return {kicker:lg.name+' · dernière journée',auraGold:8,
     title:m.asLeader?'Le match du titre':'Finale de championnat',opp:m.opp,n:3,edge:edge,
     winText:'CHAMPIONS ! Le titre est à vous !',
     loseText:m.asLeader?'Le titre s’envole au dernier match. Inconsolable.':'Si près du sacre… La deuxième place a un goût de cendre.'};
-  if(m.type==='promo')return {kicker:lg.name,title:'Barrage de montée',opp:m.opp,n:2,edge:edge,
+  if(m.type==='promo')return {kicker:lg.name,title:'Barrage de montée',opp:m.opp,n:2,edge:edge,auraGold:6,
     winText:'LA MONTÉE ! Tout le club chavire de bonheur !',
     loseText:'La montée se refuse à vous, à un match près.'};
-  if(m.type==='cup')return {kicker:'Coupe nationale',title:'FINALE de la Coupe',opp:m.opp,n:2,edge:edge,
+  if(m.type==='cup')return {kicker:'Coupe nationale',title:'FINALE de la Coupe',opp:m.opp,n:2,edge:edge,auraGold:10,
     winText:'La Coupe est à vous ! Un trophée pour l’histoire du club.',
     loseText:'Finale perdue. Les médailles d’argent pèsent une tonne.'};
-  return {kicker:m.name,title:'FINALE — '+m.name,opp:m.opp,n:3,edge:edge,
+  return {kicker:m.name,title:'FINALE — '+m.name,opp:m.opp,n:3,edge:edge,auraGold:9,
     winText:'SUR LE TOIT DU CONTINENT ! La plus grande soirée de l’histoire du club !',
     loseText:'La plus cruelle des défaites, au pied de la plus haute marche.'};
 }
