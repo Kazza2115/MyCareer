@@ -131,9 +131,19 @@
   .btn-profile{width:auto;flex:none;font-size:12px;letter-spacing:.6px;font-weight:700;
     text-transform:uppercase;color:var(--accent);border-color:#BCE3CB;background:var(--accent-soft);
     padding:7px 12px;border-radius:20px;box-shadow:none}
-  .overlay{position:fixed;inset:0;background:rgba(29,43,34,.45);z-index:50;overflow-y:auto;
-    padding:18px 14px 40px}
-  .overlay .inner{max-width:470px;margin:0 auto}
+  .overlay{position:fixed;inset:0;background:rgba(29,43,34,.45);z-index:50}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;max-height:86vh;overflow-y:auto;
+    background:var(--card);border-radius:22px 22px 0 0;box-shadow:0 -12px 40px rgba(29,43,34,.25);
+    padding:10px 18px 30px;max-width:470px;margin:0 auto}
+  .sheet-grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:2px auto 12px}
+  .sheet .sec{padding:12px 0;border-bottom:1px solid var(--card2)}
+  .sheet .sec:last-child{border-bottom:none}
+  .sheet-close{position:absolute;top:12px;right:14px;width:32px;height:32px;border-radius:50%;
+    padding:0;text-align:center;font-size:16px;line-height:1;color:var(--dim)}
+  @media (prefers-reduced-motion:no-preference){
+    .sheet{animation:slideup .22s ease-out}
+    @keyframes slideup{from{transform:translateY(30%);opacity:.6}to{transform:none;opacity:1}}
+  }
   .bar{height:7px;background:var(--card2);border:1px solid var(--line);border-radius:5px;
     overflow:hidden;margin-top:4px}
   .bar i{display:block;height:100%;background:var(--accent);border-radius:4px}
@@ -1644,14 +1654,11 @@ function openProfile(st){
     stateRow('Réputation',p.rep,repLabel(p.rep))+
     stateRow('Aura',p.aura||0,auraLabel(p.aura||0));
   var info='<table class="stats">'+
-    statRow('Club',esc(p.club))+
-    statRow('Championnat',esc(leagueOf(st).name)+' <span class="small">('+esc(leagueOf(st).divLabel)+')</span>')+
-    statRow('Poste',esc(POSITIONS[p.pos].label))+
-    statRow('Identité de jeu',sty?esc(sty.name):'<span class="small">à définir au centre de formation</span>')+
-    statRow('Salaire',p.salary.toFixed(1)+' M€/an')+
-    statRow('Fortune',Math.max(0,p.money).toFixed(1)+' M€')+
+    statRow('Club',esc(p.club)+' <span class="small">('+esc(leagueOf(st).divLabel)+')</span>')+
+    statRow('Championnat',esc(leagueOf(st).name))+
+    statRow('Salaire · Fortune',p.salary.toFixed(1)+' M€/an · '+Math.max(0,p.money).toFixed(1)+' M€')+
     statRow('Sélection '+natFlag,p.caps>0?(p.caps+' capes'+(p.natGoals?' · '+p.natGoals+' buts':'')):'jamais appelé')+
-    statRow('Rival de génération',esc(p.rival))+
+    statRow('Rival',esc(p.rival))+
     '</table>';
   var carStats='<table class="stats">'+
     statRow('Saisons pro',p.hist.length)+
@@ -1660,25 +1667,36 @@ function openProfile(st){
     statRow('Sommet atteint',p.peakOvr+' général')+
     '</table>';
   var ag='<div class="attr-grid">';
-  for(var k in ATTRS)ag+='<div class="attr"><span>'+attrLabel(p,k)+'</span><b>'+Math.round(p.attrs[k])+'</b></div>';
+  for(var k in ATTRS){
+    var cur=Math.round(p.attrs[k]);
+    var dd=st.attrsBefore?cur-st.attrsBefore[k]:0;
+    var dl=dd>0?'<span class="dl up2">▲'+dd+'</span>':dd<0?'<span class="dl down2">▼'+(-dd)+'</span>':'';
+    ag+='<div class="attr"><span>'+attrLabel(p,k)+dl+'</span><b>'+cur+'</b></div>';
+  }
   ag+='</div>';
-  var palm=p.palmares.length?p.palmares.map(esc).join('<br>'):'<span class="small">Rien pour l’instant — tout reste à écrire.</span>';
-  ov.appendChild(h('<div class="inner">'+
-    '<div class="card kick"><div class="profile-head"><div>'+
-    '<div class="kicker">Fiche joueur · '+st.year+'</div>'+
-    '<h2>'+esc(p.name)+'</h2>'+
-    '<p class="small">'+natFlag+' '+esc(p.natName)+' · '+p.age+' ans</p></div>'+
-    '<div class="ovrbox"><div class="num">'+ovr(p)+'</div><div class="lbl">GÉNÉRAL</div></div></div></div>'+
-    '<div class="card"><div class="kicker grey">États du moment</div>'+states+'</div>'+
-    '<div class="card"><div class="kicker grey">Situation</div>'+info+'</div>'+
-    '<div class="card"><div class="kicker grey">Attributs</div>'+ag+'</div>'+
-    '<div class="card"><div class="kicker grey">Carrière</div>'+carStats+'</div>'+
-    '<div class="card"><div class="kicker">Palmarès</div><p>'+palm+'</p></div>'+
-    '<div class="choices" id="close-profile"></div></div>'));
+  var palm=p.palmares.length?p.palmares.slice(-5).map(esc).join('<br>')+
+    (p.palmares.length>5?'<br><span class="small">… et '+(p.palmares.length-5)+' autres lignes</span>':'')
+    :'<span class="small">Rien pour l’instant — tout reste à écrire.</span>';
+  var sheet=document.createElement('div');sheet.className='sheet';
+  sheet.appendChild(h('<div>'+
+    '<div class="sheet-grab"></div>'+
+    '<button type="button" class="ghost sheet-close" aria-label="Fermer">✕</button>'+
+    '<div class="profile-head"><div>'+
+    '<h2 style="font-size:21px;font-weight:800">'+esc(p.name)+'</h2>'+
+    '<p class="small">'+natFlag+' '+esc(p.natName)+' · '+p.age+' ans · '+esc(POSITIONS[p.pos].label)+
+    (sty?' · '+esc(sty.name):'')+'</p></div>'+
+    '<div class="ovrbox"><div class="num">'+ovr(p)+'</div><div class="lbl">GÉNÉRAL</div></div></div>'+
+    '<div class="sec">'+states+'</div>'+
+    '<div class="sec"><div class="kicker grey">Situation</div>'+info+'</div>'+
+    '<div class="sec"><div class="kicker grey">Attributs</div>'+ag+'</div>'+
+    '<div class="sec"><div class="kicker grey">Carrière</div>'+carStats+'</div>'+
+    '<div class="sec"><div class="kicker">Palmarès</div><p style="font-size:13.5px">'+palm+'</p></div>'+
+    '</div>'));
+  function close(){ov.remove();sheet.remove();}
+  ov.addEventListener('click',close,{once:true});
+  sheet.querySelector('.sheet-close').addEventListener('click',close,{once:true});
   document.body.appendChild(ov);
-  var b=document.createElement('button');b.className='primary';b.textContent='Retour au jeu';
-  b.addEventListener('click',function(){ov.remove();},{once:true});
-  ov.querySelector('#close-profile').appendChild(b);
+  document.body.appendChild(sheet);
 }
 function chipsHtml(chips){
   if(!chips||!chips.length)return '';
@@ -1728,8 +1746,13 @@ async function seasonReport(st,res){
   clearApp();
   mountTopbar(st);
   var p=st.p,lg=leagueOf(st);
-  /* ---- En-tête de saison : club, division, note en badge ---- */
+  /* ---- Carte unique : club, division, note, chiffres clés ---- */
   var noteCls=res.apps<8?'':res.note>=7.2?'gold':res.note>=6.6?'good':res.note<6?'bad':'';
+  var d=res.ovrDelta;
+  var isGB=POSITIONS[p.pos].g==='GB';
+  var extras='';
+  if(res.inj)extras+='<div class="result bad" style="margin-top:10px">'+esc(res.inj.txt)+'</div>';
+  if(res.nat.txt&&!res.nat.wcWon)extras+='<div class="press" style="margin-top:10px">'+esc(res.nat.txt)+'</div>';
   app.appendChild(h('<div class="card">'+
     '<div class="season-head" style="margin:0 0 10px"><span class="yr">Saison '+st.year+'</span>'+
     '<span class="ag">'+p.age+' ans</span></div>'+
@@ -1739,7 +1762,13 @@ async function seasonReport(st,res){
     '<span class="divchip">'+esc(res.oldDiv||lg.divLabel)+' · '+res.rank+'ᵉ / 10</span></div>'+
     '<div class="notebadge '+noteCls+'"><span class="v">'+res.note.toFixed(1)+'</span><span class="l">Note</span></div>'+
     '</div>'+
-    '<div class="newsline">'+esc(pressLine(st,res))+'</div></div>'));
+    '<div class="tiles" style="margin-top:14px">'+
+    '<div class="tile"><div class="v">'+res.apps+'</div><div class="l">Matchs</div></div>'+
+    '<div class="tile"><div class="v">'+res.goals+'</div><div class="l">'+(isGB&&res.goals>0?'Buts 🤯':'Buts')+'</div></div>'+
+    '<div class="tile"><div class="v">'+res.assists+'</div><div class="l">Passes déc.</div></div>'+
+    '<div class="tile"><div class="v" style="color:var(--gold)">'+(d>=0?'+':'')+d+'</div><div class="l">Général → '+ovr(p)+'</div></div>'+
+    '</div>'+
+    '<div class="newsline">'+esc(pressLine(st,res))+'</div>'+extras+'</div>'));
   /* ---- Trophées & coups durs, bien visibles ---- */
   var tr=[];
   if(res.champion&&res.levelPlayed===1)tr.push({ic:'🏆',tl:'CHAMPION',sub:res.lgName});
@@ -1762,46 +1791,21 @@ async function seasonReport(st,res){
       '</div>';
     app.appendChild(h('<div class="card kick"><div class="kicker">Le palmarès de la saison</div>'+tg+'</div>'));
   }
-  /* ---- Objectifs du club : atteints ou pas ---- */
+  /* ---- Objectifs + exploits, dans une seule carte ---- */
+  var oHtml='';
   if(res.objectives&&res.objectives.length){
-    var oHtml=res.objectives.map(function(o){
-      return '<div class="obj '+(o.ok?'ok':'ko')+'"><span>'+esc(o.label)+'</span><span class="st">'+(o.ok?'✓ Atteint':'✗ Manqué')+'</span></div>';
-    }).join('');
     var okCount=res.objectives.filter(function(o){return o.ok;}).length;
-    app.appendChild(h('<div class="card"><div class="kicker grey">Objectifs du club · '+okCount+'/'+res.objectives.length+'</div>'+oHtml+'</div>'));
+    oHtml='<div class="kicker grey">Objectifs du club · '+okCount+'/'+res.objectives.length+'</div>'+
+      res.objectives.map(function(o){
+        return '<div class="obj '+(o.ok?'ok':'ko')+'"><span>'+esc(o.label)+'</span><span class="st">'+(o.ok?'✓ Atteint':'✗ Manqué')+'</span></div>';
+      }).join('');
   }
-  /* ---- Stats de la saison en tuiles ---- */
-  var isGB=POSITIONS[p.pos].g==='GB';
-  var tiles='<div class="tiles">'+
-    '<div class="tile"><div class="v">'+res.apps+'</div><div class="l">Matchs</div></div>'+
-    '<div class="tile"><div class="v">'+res.goals+'</div><div class="l">'+(isGB&&res.goals>0?'Buts 🤯':'Buts')+'</div></div>'+
-    '<div class="tile"><div class="v">'+res.assists+'</div><div class="l">Passes déc.</div></div>'+
-    '<div class="tile '+(noteCls?'':'')+'"><div class="v"'+(noteCls==='gold'?' style="color:var(--gold)"':noteCls==='good'?' style="color:var(--ok)"':noteCls==='bad'?' style="color:var(--bad)"':'')+'>'+res.note.toFixed(2)+'</div><div class="l">Note moy.</div></div>'+
-    '</div>';
-  var d=res.ovrDelta;
-  var table='<table class="stats" style="margin-top:12px">'+
-    statRow('Évolution générale',(d>=0?'+':'')+d+' → <b style="color:var(--gold)">'+ovr(p)+'</b>')+
-    statRow('Salaire',p.salary.toFixed(1)+' M€/an')+
-    '</table>';
-  var injHtml=res.inj?'<div class="result bad" style="margin-top:10px">'+esc(res.inj.txt)+'</div>':'';
-  var natHtml=(res.nat.txt&&!res.nat.wcWon)?'<div class="press" style="margin-top:10px">'+esc(res.nat.txt)+'</div>':'';
-  app.appendChild(h('<div class="card"><div class="kicker grey">Ta saison en chiffres</div>'+tiles+table+injHtml+natHtml+'</div>'));
-  /* ---- Exploits gravés cette année ---- */
+  var exHtml='';
   if(res.exploits&&res.exploits.length){
-    var ex=res.exploits.map(function(e){return '<div class="exploit">'+esc(e.replace(st.year+' — ',''))+'</div>';}).join('');
-    app.appendChild(h('<div class="card"><div class="kicker">Gravé dans les mémoires</div>'+ex+'</div>'));
+    exHtml='<div class="kicker" style="margin-top:14px">Gravé dans les mémoires</div>'+
+      res.exploits.map(function(e){return '<div class="exploit">'+esc(e.replace(st.year+' — ',''))+'</div>';}).join('');
   }
-  /* ---- Attributs avec évolution ---- */
-  var ag='<div class="attr-grid">';
-  for(var k in ATTRS){
-    var cur=Math.round(p.attrs[k]);
-    var dd=st.attrsBefore?cur-st.attrsBefore[k]:0;
-    var dl=dd>0?'<span class="dl up2">▲'+dd+'</span>':dd<0?'<span class="dl down2">▼'+(-dd)+'</span>':'';
-    ag+='<div class="attr"><span>'+attrLabel(p,k)+dl+'</span><b>'+cur+'</b></div>';
-  }
-  ag+='<div class="attr"><span style="color:var(--gold)">Aura</span><b style="color:var(--gold)">'+Math.round(p.aura||0)+'</b></div>';
-  ag+='</div>';
-  app.appendChild(h('<div class="card"><div class="kicker grey">Attributs</div>'+ag+'</div>'));
+  if(oHtml||exHtml)app.appendChild(h('<div class="card">'+oHtml+exHtml+'</div>'));
   var cont=h('<div></div>');app.appendChild(cont);
   await waitClick(cont,'Saison suivante ➜');
 }
