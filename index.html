@@ -913,6 +913,33 @@ function ovr(p){
 function effLevel(p){
   return ovr(p)+(p.form-50)/12+(p.mor-50)/15;
 }
+/* Production offensive attendue par poste : [buts, passes] */
+var POS_PROD={BU:[1,.45],AIL:[.62,.75],MO:[.5,.85],MC:[.2,.5],MDC:[.08,.22],DC:[.07,.08],LAT:[.08,.35],GB:[.004,.015]};
+/* Part de temps de jeu ATTENDUE pour la saison : niveau vs division, confiance
+   du coach, popularité et forme. L'aléa de saison s'ajoute par-dessus dans la simu. */
+function expectedShare(st){
+  var p=st.p,lg=leagueOf(st);
+  var opposition=50+lg.tier*7.5;
+  var diff=effLevel(p)-opposition;
+  var base=Math.max(.05,Math.min(1,.15+(diff+16)/38));
+  var trustF=.35+.75*(p.trust/100);
+  var popF=1+Math.max(0,p.rep-15)/250;   // un joueur populaire force la porte
+  var formF=1+(p.form-50)/250;
+  var s=base*trustF*popF*formF;
+  if(p.age<=16)s*=.3; else if(p.age===17)s*=.55; else if(p.age===18)s*=.8;
+  return Math.max(.02,Math.min(1,s));
+}
+/* Estimations pour les objectifs (mêmes formules que la simulation, sans l'aléa) */
+function expectedStats(st){
+  var p=st.p,lg=leagueOf(st);
+  var opposition=50+lg.tier*7.5;
+  var expApps=expectedShare(st)*46;
+  var atk=(p.attrs.fin*.5+p.attrs.vit*.2+p.attrs.dri*.15+p.attrs.fra*.15);
+  var crea=(p.attrs.pas*.55+p.attrs.vis*.45);
+  var gpm=Math.min(.62,Math.max(.01,(atk-opposition+16)/42)*POS_PROD[p.pos][0])*1.35;
+  var apm=Math.min(.5,Math.max(.01,(crea-opposition+14)/48)*POS_PROD[p.pos][1]);
+  return {apps:Math.round(expApps),goals:gpm*expApps,assists:apm*expApps};
+}
 
 /* ================= SAISON ================= */
 function leagueOf(st){return st.world.leagues[st.p.lg];}
@@ -921,9 +948,10 @@ function simulateSeason(st){
   var opposition=50+lg.tier*7.5;
   var lvl=effLevel(p);
   var diff=lvl-opposition;
-  // temps de jeu
-  var share=Math.max(.05,Math.min(1,.15+(diff+16)/38))*(.45+.55*(p.trust/100));
-  if(p.age<=16)share*=.35; if(p.age===17)share*=.6;
+  // temps de jeu : attente (niveau, confiance, popularité, forme) × aléa de saison
+  // (concurrence au poste, choix du coach, occasions à saisir)
+  var share=expectedShare(st)*(1+rng.gauss()*.18);
+  share=Math.max(.02,Math.min(1,share));
   // blessure ?
   var inj=null;
   var pInj=(.10+p.hid.frag*.0022)*lg.agg*(p.age>30?1.3:1);
@@ -939,11 +967,10 @@ function simulateSeason(st){
   }
   var apps=Math.round(46*share);
   // production
-  var w={BU:[1,.45],AIL:[.62,.75],MO:[.5,.85],MC:[.2,.5],MDC:[.08,.22],DC:[.07,.08],LAT:[.08,.35],GB:[.004,.015]};
   var atk=(p.attrs.fin*.5+p.attrs.vit*.2+p.attrs.dri*.15+p.attrs.fra*.15);
   var crea=(p.attrs.pas*.55+p.attrs.vis*.45);
-  var gpm=Math.max(.01,(atk-opposition+16)/42)*w[p.pos][0];
-  var apm=Math.max(.01,(crea-opposition+14)/48)*w[p.pos][1];
+  var gpm=Math.min(.62,Math.max(.01,(atk-opposition+16)/42)*POS_PROD[p.pos][0]);
+  var apm=Math.min(.5,Math.max(.01,(crea-opposition+14)/48)*POS_PROD[p.pos][1]);
   var goals=0,assists=0;
   for(var i=0;i<apps;i++){if(rng.chance(Math.min(.9,gpm)))goals++;if(rng.chance(gpm*.35))goals++;
     if(rng.chance(Math.min(.85,apm)))assists++;}
@@ -1822,23 +1849,41 @@ function pressLine(st,res){
 
 /* ================= BOUCLE DE CARRIÈRE ================= */
 /* Objectifs fixés par le club pour la saison */
+/* Objectifs du club : calibrés sur ce que le joueur peut RAISONNABLEMENT faire
+   cette saison-là (son niveau, sa place dans la hiérarchie, son âge, sa division).
+   Un objectif est fixé légèrement en dessous de l'attente : atteignable, jamais acquis. */
 function genObjectives(st){
   var p=st.p,lg=leagueOf(st);
   var idx=lg.clubs.findIndex(function(c){return c.n===p.club;});
+  var exp=expectedStats(st);
   var obj=[];
-  if(lg.level===1&&idx<=1)obj.push({label:'Viser le titre',check:function(r){return r.champion;}});
-  else if(lg.level>1&&idx<=2)obj.push({label:'Obtenir la montée en '+LVL_LABEL[lg.level-1],check:function(r){return r.promoted;}});
+  // 1. Objectif collectif, selon le standing réel du club dans sa division
+  if(lg.level===1&&idx<=1)obj.push({label:'Jouer le titre jusqu’au bout',check:function(r){return r.champion||r.rank<=2;}});
+  else if(lg.level===1&&idx<=3)obj.push({label:'Accrocher le podium',check:function(r){return r.rank<=3;}});
+  else if(lg.level>1&&idx<=2)obj.push({label:'Jouer la montée en '+LVL_LABEL[lg.level-1],check:function(r){return r.promoted||r.rank<=3;}});
+  else if(lg.level>1&&idx<=5)obj.push({label:'Viser le haut de tableau',check:function(r){return r.rank<=5;}});
   else if(idx>=7)obj.push({label:'Assurer le maintien',check:function(r){return !r.relegated;}});
-  else obj.push({label:'Finir dans le top 5',check:function(r){return r.rank<=5;}});
-  var target=p.age<=17?8:p.trust>55?28:18;
-  obj.push({label:'Disputer '+target+' matchs',check:function(r){return r.apps>=target;}});
-  var g=POSITIONS[p.pos].g,young=p.age<=17;
-  if(g==='ATT'){var gb=young?3:(lg.level===1?(p.age<=19?8:14):(p.age<=19?10:17));
-    obj.push({label:'Marquer '+gb+' buts',check:function(r){return r.goals>=gb;}});}
-  else if(g==='MIL'){var ab=young?3:(lg.level===1?7:9);
-    obj.push({label:'Délivrer '+ab+' passes décisives',check:function(r){return r.assists>=ab;}});}
-  else if(young)obj.push({label:'Tenir une note moyenne de 6,3',check:function(r){return r.note>=6.3;}});
-  else obj.push({label:'Tenir une note moyenne de 6,8',check:function(r){return r.note>=6.8;}});
+  else obj.push({label:'Finir dans la première moitié',check:function(r){return r.rank<=5;}});
+  // 2. Temps de jeu : dérivé de l'attente de la saison, arrondi à 2 près
+  var appsT=Math.max(3,Math.round(exp.apps*.8/2)*2);
+  var appsLabel=appsT<=8?'Grappiller '+appsT+' apparitions':
+                appsT<=18?'S’installer dans la rotation : '+appsT+' matchs':
+                'Être un cadre : '+appsT+' matchs joués';
+  obj.push({label:appsLabel,check:function(r){return r.apps>=appsT;}});
+  // 3. Objectif de poste, dérivé lui aussi de l'attente
+  var g=POSITIONS[p.pos].g;
+  if(g==='ATT'||(g==='MIL'&&exp.goals>=exp.assists)){
+    var gT=Math.max(1,Math.round(exp.goals*.8));
+    obj.push({label:'Marquer '+gT+' but'+(gT>1?'s':''),check:function(r){return r.goals>=gT;}});
+  } else if(g==='MIL'){
+    var aT=Math.max(1,Math.round(exp.assists*.8));
+    obj.push({label:'Délivrer '+aT+' passe'+(aT>1?'s':'')+' décisive'+(aT>1?'s':''),check:function(r){return r.assists>=aT;}});
+  } else {
+    var nT=p.age<=17?6.2:(6.4+Math.min(.5,Math.max(0,(ovr(p)-(50+lg.tier*7.5))/25)));
+    nT=Math.round(nT*10)/10;
+    obj.push({label:'Tenir une note moyenne de '+nT.toFixed(1).replace('.',','),
+      check:function(r){return r.note>=nT;}});
+  }
   return obj;
 }
 async function roadmapScreen(st,objs){
