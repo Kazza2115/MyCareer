@@ -3,118 +3,121 @@
 <title>MyCareer — Écris ta légende</title>
 <style>
   :root{
-    --pitch:#0B120E; --card:#131C16; --card2:#18241C;
-    --line:#2C3D31; --chalk:#EDF2EA; --dim:#9BAA9E;
-    --gold:#E8B84B; --gold-soft:#B98F35;
-    --ok:#6FCF8E; --bad:#E06C5B; --info:#7FB6D9;
+    --bg:#F3F6F2; --card:#FFFFFF; --card2:#F5F8F4;
+    --line:#E1E7DE; --ink:#1D2B22; --dim:#6A796E;
+    --accent:#0F8A4B; --accent-soft:#E4F3EA;
+    --gold:#B8860B; --gold-soft:#E7CE8F; --gold-tint:#FBF4E3;
+    --ok:#1E9E58; --bad:#D6503E; --info:#3B82C4;
+    --chalk:var(--ink);
+    --pitch:var(--bg);
     --cond:"Roboto Condensed","Archivo Narrow","Arial Narrow",system-ui,sans-serif;
     --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --shadow:0 1px 2px rgba(29,43,34,.05),0 8px 22px rgba(29,43,34,.07);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html{background:var(--pitch)}
+  html{background:var(--bg)}
   body{
-    font-family:var(--body);color:var(--chalk);background:var(--pitch);
+    font-family:var(--body);color:var(--ink);background:var(--bg);
     min-height:100vh;line-height:1.5;
   }
-  #app{max-width:460px;margin:0 auto;padding:0 14px 60px}
+  #app{max-width:470px;margin:0 auto;padding:0 14px 60px}
   .topbar{
-    position:sticky;top:0;z-index:10;background:linear-gradient(var(--pitch) 82%,transparent);
-    padding:10px 0 14px;display:flex;align-items:center;gap:12px;
+    position:sticky;top:0;z-index:10;background:linear-gradient(var(--bg) 82%,transparent);
+    padding:12px 0 14px;display:flex;align-items:center;gap:12px;
   }
   .topbar .who{flex:1;min-width:0}
-  .topbar .pname{font-family:var(--cond);font-weight:700;font-size:17px;letter-spacing:.4px;
-    text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .topbar .pmeta{font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .ovrbox{text-align:center;flex:none}
-  .ovrbox .num{font-family:var(--cond);font-weight:700;font-size:30px;color:var(--gold);
-    line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(232,184,75,.35)}
-  .ovrbox .lbl{font-size:9px;letter-spacing:2px;color:var(--dim)}
-  h1.logo{font-family:var(--cond);font-weight:700;text-transform:uppercase;letter-spacing:1px;
-    font-size:42px;line-height:1.05;text-wrap:balance}
-  h1.logo em{font-style:normal;color:var(--gold)}
+  .topbar .pname{font-weight:800;font-size:17px;letter-spacing:.1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar .pmeta{font-size:12.5px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ovrbox{text-align:center;flex:none;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:5px 10px;box-shadow:var(--shadow)}
+  .ovrbox .num{font-family:var(--cond);font-weight:700;font-size:26px;color:var(--gold);
+    line-height:1.05;font-variant-numeric:tabular-nums}
+  .ovrbox .lbl{font-size:8.5px;letter-spacing:2px;color:var(--dim)}
+  h1.logo{font-weight:800;font-size:38px;line-height:1.08;text-wrap:balance;letter-spacing:-.5px}
+  h1.logo em{font-style:normal;color:var(--accent)}
   .tagline{color:var(--dim);margin:10px 0 26px;font-size:15px}
   .card{
-    background:var(--card);border:1px solid var(--line);border-radius:10px;
-    padding:16px;margin:12px 0;position:relative;
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:18px;margin:12px 0;position:relative;box-shadow:var(--shadow);
   }
-  .card.kick{border-color:var(--gold-soft)}
-  .kicker{font-family:var(--cond);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;
-    color:var(--gold);margin-bottom:6px}
+  .card.kick{border-color:var(--accent);border-width:1px}
+  .kicker{font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;
+    color:var(--accent);margin-bottom:6px}
   .kicker.grey{color:var(--dim)}
-  .card h2{font-family:var(--cond);text-transform:uppercase;letter-spacing:.5px;font-size:21px;
-    line-height:1.15;margin-bottom:8px;text-wrap:balance}
-  .card p{font-size:14.5px;color:#CBD6CC}
-  .choices{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  .card h2{font-weight:800;font-size:21px;line-height:1.2;margin-bottom:8px;text-wrap:balance}
+  .card p{font-size:14.5px;color:#405046}
+  .choices{display:flex;flex-direction:column;gap:9px;margin-top:14px}
   button{
-    font-family:var(--body);font-size:14.5px;color:var(--chalk);
-    background:var(--card2);border:1px solid var(--line);border-radius:8px;
-    padding:11px 13px;text-align:left;cursor:pointer;width:100%;
+    font-family:var(--body);font-size:14.5px;color:var(--ink);
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:12px 14px;text-align:left;cursor:pointer;width:100%;
+    box-shadow:0 1px 2px rgba(29,43,34,.04);transition:border-color .12s,box-shadow .12s;
   }
-  button:hover{border-color:var(--gold-soft)}
-  button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-  button .bl{font-weight:600;display:block}
+  button:hover{border-color:var(--accent);box-shadow:0 3px 10px rgba(15,138,75,.12)}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  button .bl{font-weight:700;display:block}
   button .bd{display:block;font-size:12.5px;color:var(--dim);margin-top:2px}
-  button.primary{background:var(--gold);color:#161206;border-color:var(--gold);
-    font-family:var(--cond);text-transform:uppercase;letter-spacing:1.5px;font-weight:700;
-    text-align:center;font-size:16px}
-  button.ghost{text-align:center;color:var(--dim)}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent);
+    font-weight:800;text-align:center;font-size:15.5px;letter-spacing:.3px;
+    box-shadow:0 6px 16px rgba(15,138,75,.25)}
+  button.primary:hover{border-color:var(--accent);box-shadow:0 8px 20px rgba(15,138,75,.3)}
+  button.ghost{text-align:center;color:var(--dim);box-shadow:none;background:transparent}
   .result{border-left:3px solid var(--line);padding:10px 12px;margin-top:12px;font-size:14px;
-    background:rgba(255,255,255,.02);border-radius:0 8px 8px 0}
-  .result.good{border-left-color:var(--ok)}
-  .result.bad{border-left-color:var(--bad)}
-  .result.gold{border-left-color:var(--gold)}
+    background:var(--card2);border-radius:0 10px 10px 0}
+  .result.good{border-left-color:var(--ok);background:#EDF7F0}
+  .result.bad{border-left-color:var(--bad);background:#FBEFED}
+  .result.gold{border-left-color:var(--gold);background:var(--gold-tint)}
   .fx{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
-  .chip{font-family:var(--cond);font-size:12px;letter-spacing:.5px;padding:2px 8px;
-    border-radius:20px;border:1px solid var(--line);color:var(--dim);
+  .chip{font-size:12px;font-weight:600;letter-spacing:.2px;padding:2px 9px;
+    border-radius:20px;border:1px solid var(--line);color:var(--dim);background:var(--card);
     font-variant-numeric:tabular-nums}
-  .chip.up{color:var(--ok);border-color:rgba(111,207,142,.4)}
-  .chip.down{color:var(--bad);border-color:rgba(224,108,91,.4)}
-  .chip.gold{color:var(--gold);border-color:rgba(232,184,75,.5)}
+  .chip.up{color:var(--ok);border-color:#BCE3CB;background:#EDF7F0}
+  .chip.down{color:var(--bad);border-color:#F2C6BF;background:#FBEFED}
+  .chip.gold{color:var(--gold);border-color:var(--gold-soft);background:var(--gold-tint)}
   .season-head{display:flex;justify-content:space-between;align-items:baseline;margin:22px 0 4px}
-  .season-head .yr{font-family:var(--cond);font-size:26px;font-weight:700;color:var(--gold);
+  .season-head .yr{font-weight:800;font-size:24px;color:var(--accent);
     font-variant-numeric:tabular-nums}
   .season-head .ag{font-size:13px;color:var(--dim)}
   table.stats{width:100%;border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums}
-  table.stats td{padding:5px 2px;font-size:14px;border-bottom:1px solid rgba(44,61,49,.5)}
-  table.stats td:last-child{text-align:right;font-family:var(--cond);font-size:15px}
+  table.stats td{padding:6px 2px;font-size:14px;border-bottom:1px solid var(--card2)}
+  table.stats td:last-child{text-align:right;font-weight:700;font-size:14px}
   table.stats tr:last-child td{border-bottom:none}
   .attr-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;margin-top:8px}
-  .attr{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;
-    border-bottom:1px solid rgba(44,61,49,.45)}
-  .attr b{font-family:var(--cond);font-variant-numeric:tabular-nums;font-weight:700}
+  .attr{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;
+    border-bottom:1px solid var(--card2)}
+  .attr b{font-variant-numeric:tabular-nums;font-weight:700}
   .attr .d{font-size:11px;margin-left:4px}
   .up2{color:var(--ok)} .down2{color:var(--bad)}
-  .trophy{color:var(--gold);font-weight:600}
+  .trophy{color:var(--gold);font-weight:700}
   .divider{border:none;border-top:1px dashed var(--line);margin:18px 0}
   .big-legend{font-family:var(--cond);font-size:64px;font-weight:700;color:var(--gold);
-    text-align:center;line-height:1;font-variant-numeric:tabular-nums;
-    text-shadow:0 0 30px rgba(232,184,75,.3)}
-  .legend-title{font-family:var(--cond);text-transform:uppercase;letter-spacing:2px;
-    text-align:center;font-size:15px;margin-top:6px}
+    text-align:center;line-height:1;font-variant-numeric:tabular-nums}
+  .legend-title{text-transform:uppercase;letter-spacing:2px;font-weight:800;
+    text-align:center;font-size:14px;margin-top:6px}
   .compare{margin-top:10px}
-  .compare .cname{font-family:var(--cond);font-size:22px;font-weight:700;text-transform:uppercase}
+  .compare .cname{font-size:21px;font-weight:800}
   .compare .cpct{color:var(--gold);font-variant-numeric:tabular-nums}
-  label{display:block;font-family:var(--cond);font-size:11px;letter-spacing:2px;
+  label{display:block;font-size:11px;letter-spacing:2px;font-weight:700;
     text-transform:uppercase;color:var(--dim);margin:14px 0 5px}
   select,input[type=text]{
-    width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);
-    background:var(--card2);color:var(--chalk);font-size:15px;font-family:var(--body)}
+    width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);
+    background:var(--card);color:var(--ink);font-size:15px;font-family:var(--body)}
   .optrow{display:flex;flex-wrap:wrap;gap:6px}
   .optrow button{width:auto;flex:1 1 28%;text-align:center;font-size:13.5px;padding:9px 6px}
-  .optrow button.sel{border-color:var(--gold);color:var(--gold)}
+  .optrow button.sel{border-color:var(--accent);color:var(--accent)}
   .small{font-size:12.5px;color:var(--dim)}
-  .newsline{font-size:13px;color:var(--dim);font-style:italic;margin-top:8px}
-  .press{font-family:var(--cond);text-transform:uppercase;font-size:17px;letter-spacing:.5px;
-    border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin-top:10px;
-    background:var(--card2)}
-  .pantheon-item{display:flex;justify-content:space-between;gap:10px;padding:9px 0;
-    border-bottom:1px solid rgba(44,61,49,.5);font-size:14px}
+  .newsline{font-size:13px;color:var(--dim);font-style:italic;margin-top:10px}
+  .press{font-weight:700;font-size:14.5px;border:1px solid var(--line);border-radius:10px;
+    padding:9px 12px;margin-top:10px;background:var(--card2)}
+  .pantheon-item{display:flex;justify-content:space-between;gap:10px;padding:10px 0;
+    border-bottom:1px solid var(--card2);font-size:14px}
   .pantheon-item .sc{font-family:var(--cond);color:var(--gold);font-variant-numeric:tabular-nums;
     font-weight:700}
   .footer-note{margin-top:26px;text-align:center;font-size:12px;color:var(--dim)}
   .wiz-progress{display:flex;gap:6px;margin:18px 0 6px}
-  .wiz-progress span{height:3px;flex:1;background:var(--line);border-radius:2px}
-  .wiz-progress span.done{background:var(--gold)}
+  .wiz-progress span{height:4px;flex:1;background:var(--line);border-radius:2px}
+  .wiz-progress span.done{background:var(--accent)}
   .flag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
   .flag-btn{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;
     padding:12px 4px;font-size:13px}
@@ -123,58 +126,56 @@
   .big-btn{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
     padding:22px 8px}
   .big-btn .ic{font-size:38px;line-height:1}
-  .big-btn .bl{font-family:var(--cond);text-transform:uppercase;letter-spacing:1px;font-size:17px;
-    font-weight:700}
+  .big-btn .bl{font-size:16px;font-weight:800}
   .wiz-back{margin-top:16px}
-  .btn-profile{width:auto;flex:none;font-family:var(--cond);font-size:12px;letter-spacing:1px;
-    text-transform:uppercase;color:var(--gold);border-color:var(--gold-soft);padding:7px 10px;
-    border-radius:20px}
-  .overlay{position:fixed;inset:0;background:rgba(5,9,7,.88);z-index:50;overflow-y:auto;
+  .btn-profile{width:auto;flex:none;font-size:12px;letter-spacing:.6px;font-weight:700;
+    text-transform:uppercase;color:var(--accent);border-color:#BCE3CB;background:var(--accent-soft);
+    padding:7px 12px;border-radius:20px;box-shadow:none}
+  .overlay{position:fixed;inset:0;background:rgba(29,43,34,.45);z-index:50;overflow-y:auto;
     padding:18px 14px 40px}
-  .overlay .inner{max-width:460px;margin:0 auto}
-  .bar{height:6px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:4px}
-  .bar i{display:block;height:100%;background:var(--gold);border-radius:4px}
+  .overlay .inner{max-width:470px;margin:0 auto}
+  .bar{height:7px;background:var(--card2);border:1px solid var(--line);border-radius:5px;
+    overflow:hidden;margin-top:4px}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:4px}
   .bar.ok i{background:var(--ok)} .bar.bad i{background:var(--bad)}
   .staterow{margin:10px 0}
   .staterow .lbl2{display:flex;justify-content:space-between;font-size:13.5px}
-  .staterow .lbl2 b{font-family:var(--cond);font-variant-numeric:tabular-nums}
+  .staterow .lbl2 b{font-variant-numeric:tabular-nums}
   .profile-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .profile-head h2{font-size:24px}
   /* Bilan de saison */
   .hero-season{display:flex;justify-content:space-between;align-items:center;gap:12px}
-  .hero-season .club{font-family:var(--cond);font-size:20px;font-weight:700;text-transform:uppercase;
-    letter-spacing:.5px;line-height:1.1}
-  .divchip{display:inline-block;font-family:var(--cond);font-size:11px;letter-spacing:1.5px;
-    text-transform:uppercase;border:1px solid var(--gold-soft);color:var(--gold);border-radius:20px;
-    padding:2px 9px;margin-top:6px}
-  .notebadge{flex:none;width:64px;height:64px;border-radius:12px;display:flex;flex-direction:column;
+  .hero-season .club{font-size:19px;font-weight:800;line-height:1.15}
+  .divchip{display:inline-block;font-size:11px;letter-spacing:1px;font-weight:700;
+    text-transform:uppercase;border:1px solid var(--gold-soft);color:var(--gold);
+    background:var(--gold-tint);border-radius:20px;padding:3px 10px;margin-top:6px}
+  .notebadge{flex:none;width:64px;height:64px;border-radius:14px;display:flex;flex-direction:column;
     align-items:center;justify-content:center;border:1px solid var(--line);background:var(--card2)}
   .notebadge .v{font-family:var(--cond);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
   .notebadge .l{font-size:8px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
-  .notebadge.good{border-color:rgba(111,207,142,.5)} .notebadge.good .v{color:var(--ok)}
-  .notebadge.gold{border-color:rgba(232,184,75,.6)} .notebadge.gold .v{color:var(--gold)}
-  .notebadge.bad{border-color:rgba(224,108,91,.5)} .notebadge.bad .v{color:var(--bad)}
+  .notebadge.good{border-color:#BCE3CB;background:#EDF7F0} .notebadge.good .v{color:var(--ok)}
+  .notebadge.gold{border-color:var(--gold-soft);background:var(--gold-tint)} .notebadge.gold .v{color:var(--gold)}
+  .notebadge.bad{border-color:#F2C6BF;background:#FBEFED} .notebadge.bad .v{color:var(--bad)}
   .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
-  .tile{background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px 4px;text-align:center}
+  .tile{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center}
   .tile .v{font-family:var(--cond);font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
-  .tile .l{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim)}
+  .tile .l{font-size:9px;letter-spacing:1px;font-weight:700;text-transform:uppercase;color:var(--dim)}
   .trophy-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .trophy-card{border:1px solid rgba(232,184,75,.55);border-radius:8px;padding:10px 8px;text-align:center;
-    background:linear-gradient(160deg,rgba(232,184,75,.15),rgba(232,184,75,.02))}
-  .trophy-card .ic{font-size:26px;line-height:1.2}
-  .trophy-card .tl{font-family:var(--cond);text-transform:uppercase;font-size:13px;letter-spacing:.5px;
+  .trophy-card{border:1px solid var(--gold-soft);border-radius:12px;padding:12px 8px;text-align:center;
+    background:linear-gradient(160deg,var(--gold-tint),#fff)}
+  .trophy-card .ic{font-size:27px;line-height:1.2}
+  .trophy-card .tl{text-transform:uppercase;font-size:12.5px;font-weight:800;letter-spacing:.4px;
     margin-top:3px;color:var(--gold)}
   .trophy-card .sub{font-size:10.5px;color:var(--dim)}
-  .trophy-card.sad{border-color:rgba(224,108,91,.4);
-    background:linear-gradient(160deg,rgba(224,108,91,.12),transparent)}
+  .trophy-card.sad{border-color:#F2C6BF;background:linear-gradient(160deg,#FBEFED,#fff)}
   .trophy-card.sad .tl{color:var(--bad)}
-  .obj{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;
-    border-bottom:1px solid rgba(44,61,49,.5);font-size:14px}
+  .obj{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;
+    border-bottom:1px solid var(--card2);font-size:14px}
   .obj:last-child{border-bottom:none}
-  .obj .st{font-family:var(--cond);font-weight:700;flex:none;font-size:15px}
+  .obj .st{font-weight:800;flex:none;font-size:13.5px}
   .obj.ok .st{color:var(--ok)} .obj.ko .st{color:var(--bad)}
-  .exploit{padding:7px 0 7px 12px;border-left:2px solid var(--gold-soft);font-size:13.5px;margin:6px 0}
-  .attr .dl{font-family:var(--cond);font-size:11px;margin-left:5px;font-variant-numeric:tabular-nums}
+  .exploit{padding:7px 0 7px 12px;border-left:3px solid var(--gold-soft);font-size:13.5px;margin:6px 0}
+  .attr .dl{font-size:11px;margin-left:5px;font-weight:700;font-variant-numeric:tabular-nums}
   @media (prefers-reduced-motion:no-preference){
     .card{animation:rise .25s ease-out}
     @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
