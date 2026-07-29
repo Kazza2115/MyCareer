@@ -1195,9 +1195,19 @@ var WC_OPPS=['la Croatie','la Belgique','l’Uruguay','la Colombie','le Nigeria'
 function wcRoundCfg(st,r){
   var p=st.p,rng=st.rng;
   var big=['le Brésil','la France','l’Argentine','l’Allemagne','l’Espagne','l’Angleterre','l’Italie','le Portugal'];
-  var opp=(r>=2||rng.chance(.35))?rng.pick(big):rng.pick(WC_OPPS);
+  // On ne peut évidemment pas affronter sa propre nation : on l'exclut des tirages,
+  // et on n'affronte jamais deux fois le même adversaire dans le tournoi.
+  var mine=p.natName;
+  var already=st.wcFaced||[];
+  var no=function(list){return list.filter(function(x){
+    var bare=x.replace(/^(le |la |l’|les |l')/,'');
+    return bare!==mine&&already.indexOf(x)<0;});};
+  var bigP=no(big),smallP=no(WC_OPPS);
+  var pickFrom=(r>=2||rng.chance(.35))?(bigP.length?bigP:smallP):(smallP.length?smallP:bigP);
+  var opp=rng.pick(pickFrom);
+  st.wcFaced=already.concat([opp]);
   var natQ=55+p.natStr*6,oppQ=62+r*6;
-  return {kicker:'Coupe du monde '+st.year,title:WC_ROUNDS[r],opp:opp,n:1,
+  return {kicker:'Coupe du monde '+st.year,title:WC_ROUNDS[r],opp:opp,n:1,nation:true,
     auraGold:r===3?10:7, // la Panenka en finale de Coupe du monde = +10 AURA
     edge:(natQ-oppQ)/60+(p.hid.big-50)*.002,
     winText:'La nation exulte — encore un pas vers le rêve.',
@@ -1205,11 +1215,10 @@ function wcRoundCfg(st,r){
 }
 async function playWorldCup(st,res){
   var p=st.p;
+  st.wcFaced=[];
   for(var r=0;r<4;r++){
     var cfg=wcRoundCfg(st,r);
-    var realClub=p.club;p.club=p.natName; // le maillot national s'affiche
     var out=await playMatch(st,cfg);
-    p.club=realClub;
     if(!out.won){
       res.nat.txt='Coupe du monde : parcours stoppé en '+WC_ROUNDS[r].toLowerCase().replace('finale de la coupe du monde','finale')+'. '+
         (r>=2?'Si près du sommet…':'La marche était haute.');
@@ -1221,6 +1230,7 @@ async function playWorldCup(st,res){
   res.nat.txt='CHAMPION DU MONDE ! Le pays entier a chaviré — et ton nom est au centre de la fête.';
 }
 function playWorldCupAuto(st,res){
+  st.wcFaced=[];
   for(var r=0;r<4;r++){
     var cfg=wcRoundCfg(st,r);
     var out=playMatchAuto(st,cfg);
@@ -1423,7 +1433,7 @@ async function playMatch(st,cfg){
   clearApp();mountTopbar(st);
   var aff=h('<div class="card kick" style="text-align:center"><div class="kicker">'+esc(cfg.kicker)+'</div>'+
     '<h2 style="font-size:24px">'+esc(cfg.title)+'</h2>'+
-    '<p><b>'+esc(st.p.club)+'</b>  vs  <b>'+esc(cfg.opp)+'</b></p>'+
+    '<p><b>'+esc(cfg.nation?st.p.natName:st.p.club)+'</b>  vs  <b>'+esc(cfg.opp)+'</b></p>'+
     '<p class="small">Tes choix vont décider de ce match.</p></div>');
   app.appendChild(aff);
   await waitClick(aff,'Coup d’envoi');
@@ -1455,7 +1465,7 @@ async function playMatch(st,cfg){
   if(won&&gold&&st.rng.chance(.5))sc='4-2';
   clearApp();mountTopbar(st);
   var fin=h('<div class="card '+(won?'kick':'')+'" style="text-align:center"><div class="kicker">'+esc(cfg.title)+' · Coup de sifflet final</div>'+
-    '<h2 style="font-size:30px">'+esc(st.p.club.split(' ').pop())+' '+sc+'</h2>'+
+    '<h2 style="font-size:30px">'+esc(cfg.nation?st.p.natName:st.p.club.split(' ').pop())+' '+sc+'</h2>'+
     '<p>'+(won?'VICTOIRE ! '+esc(cfg.winText||'Ton équipe l’a fait — et tu y es pour beaucoup.')
             :esc(cfg.loseText||'La défaite est cruelle. Ce soir, le vestiaire est un tombeau.'))+'</p></div>');
   app.appendChild(fin);
