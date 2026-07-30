@@ -1033,7 +1033,7 @@ function makePlayer(o,world,rng){
   return {
     name:name,nat:o.nat,natName:nat.name,natStr:nat.str,pos:pos,macro:o.macro,style:null,
     origin:o.origin,ent:o.ent,age:15,attrs:attrs,hid:hid,
-    form:50,mor:60,trust:Math.max(22,Math.min(60,60-Math.round((club.str-55)*.8))),
+    form:50,mor:60,trust:Math.max(12,Math.min(58,58-Math.round((club.str-52)*1.15))),
     rep:(org.hid.rep||0)+(ent.hid.rep||0)+2,natRep:0,
     aura:10+rng.int(0,8)+(o.origin==='filspro'?7:0),
     money:0,salary:0.02,club:club.n,clubStr:club.str,lg:lg.id,
@@ -1187,8 +1187,10 @@ function simulateSeason(st){
   p.mor=Math.round(Math.max(15,Math.min(95,p.mor+(apps>25?4:apps>12?0:-7)+(champion?6:0)+(rank>7?-3:0))));
   p.trust=Math.round(Math.max(10,Math.min(95,p.trust+(note>7?10:note>6.6?4:-6)+(apps<10?-5:0))));
   // réputation (performances pures — les trophées comptent au bilan)
-  var repGain=(note-6.3)*6*(lg.vis/5)+(goals+assists)*.16+Math.max(0,((p.aura||0)-30))*.05;
-  p.rep=Math.max(0,Math.min(100,p.rep+Math.round(Math.max(-4,repGain))));
+  var repGain=(note-6.3)*5*(lg.vis/5)+(goals+assists)*.14+Math.max(0,((p.aura||0)-30))*.05;
+  // la notoriété se construit : elle monte d'autant plus lentement qu'elle est déjà haute
+  repGain*=(1-Math.min(.65,p.rep/150));
+  p.rep=Math.max(0,Math.min(100,p.rep+Math.round(Math.max(-4,Math.min(9,repGain)))));
   // sélection nationale (les éliminatoires de Coupe du monde se jouent)
   var natRes=simNation(st,note,apps);
   if(natRes.wcPending)pending.push({type:'wc'});
@@ -1243,6 +1245,9 @@ function finalizeSeason(st,res){
     p.moments.push(st.year+' — Champion du monde avec '+(p.natName==='France'?'la ':'')+p.natName+'.');}
   var repTro=(res.champion?4:0)+(res.promoted?3:0)+(res.continental?8:0)+(res.cup?2:0);
   p.rep=Math.min(100,p.rep+repTro);
+  // la notoriété grimpe vite avec les trophées, mais jamais d'un bond irréaliste :
+  // au plus 18 points de réputation gagnés dans une même saison
+  if(st.repStart!=null)p.rep=Math.min(p.rep,Math.max(st.repStart,st.repStart+18));
   p.mor=Math.min(95,p.mor+(res.champion?6:0));
   // Ballon d'Or
   var grp=POSITIONS[p.pos].g;
@@ -1260,7 +1265,10 @@ function applyGrowth(st,xp){
   var p=st.p,rng=st.rng;
   // gain d'OVR visé pour la saison, freiné à l'approche du potentiel
   var o=ovr(p);
-  var ovrGain=Math.min(6,xp*.35)*(1+rng.gauss()*.15);
+  // progression graduelle : jamais plus de ~4 points de général par saison,
+  // et de moins en moins à mesure qu'on approche du très haut niveau
+  var cap=o<70?4:o<80?3:o<88?2.2:1.5;
+  var ovrGain=Math.min(cap,xp*.30)*(1+rng.gauss()*.12);
   var head=p.hid.pot-o;
   if(head<=0)ovrGain*=.08;
   else if(head<10)ovrGain*=Math.max(.15,head/10);
@@ -1365,25 +1373,89 @@ function playWorldCupAuto(st,res){
 }
 
 /* ================= OFFRES & QUESTIONS DYNAMIQUES ================= */
+/* Marché progressif : on gravit la pyramide marche par marche.
+   Un club ne recrute que si le joueur a le niveau ET la réputation
+   correspondant à son standing — pas de saut de la D2 au sommet. */
+function clubDemand(L,c){
+  var idx=L.clubs.indexOf(c);
+  // exigence de réputation : un cador d'Élite veut un joueur déjà connu
+  var base=(L.vis*4)+(L.level===1?14:L.level===2?4:0);
+  if(idx<2)base+=18; else if(idx<5)base+=8;
+  return Math.max(0,base-16);
+}
 function genOffers(st){
   var p=st.p,rng=st.rng,offers=[];
-  if(p.rep<8&&ovr(p)<62)return offers;
-  var lvl=ovr(p)+p.rep*.1;
+  if(p.rep<6&&ovr(p)<60)return offers;
+  var lvl=ovr(p)+p.rep*.08;
+  var myLg=leagueOf(st);
   var all=[];
   for(var id in st.world.leagues){
     var L=st.world.leagues[id];
     L.clubs.forEach(function(c){if(c.n!==p.club)all.push({c:c,L:L});});
   }
-  var cands=all.filter(function(x){return Math.abs(x.c.str-lvl)<11&&(x.c.str>p.clubStr-6||x.L.money>3);});
-  var n=Math.min(rng.chance(.65)?2:1,cands.length);
+  var cands=all.filter(function(x){
+    // 1. le club doit correspondre à ton niveau (fenêtre resserrée)
+    if(x.c.str-lvl>7||lvl-x.c.str>13)return false;
+    // 2. il doit vouloir de toi : réputation exigée par son standing
+    if(p.rep<clubDemand(x.L,x.c))return false;
+    // 3. progression par paliers : au plus une division d'écart vers le haut
+    var jump=myLg.level-x.L.level;
+    if(jump>1)return false;
+    if(jump===1&&p.rep<clubDemand(x.L,x.c)+8)return false; // monter d'un cran se mérite
+    // 4. un club nettement plus faible n'intéresse que s'il paie mieux
+    if(x.c.str<p.clubStr-7&&x.L.money<=myLg.money)return false;
+    return true;
+  });
+  var n=Math.min(rng.chance(.6)?2:1,cands.length);
   for(var i=0;i<n&&cands.length;i++){
     var pick=cands.splice(rng.int(0,cands.length-1),1)[0];
-    var role=pick.c.str-lvl>4?'rotation':pick.c.str-lvl>-4?'titulaire en devenir':'star attendue';
+    var role=pick.c.str-lvl>3?'rotation':pick.c.str-lvl>-4?'titulaire en devenir':'star attendue';
     var sal=Math.max(.05,Math.pow(Math.max(0,(ovr(p)-52))/10,2)*(pick.L.money/2.4)*.7*(1+rng.next()*.4));
-    offers.push({club:pick.c.n,lg:pick.L.id,lgName:pick.L.name,div:pick.L.divLabel,country:pick.L.country,str:pick.c.str,role:role,
-      salary:sal,abroad:pick.L.country!==NATIONS.find(function(nn){return nn.id===p.nat;}).lg.slice(0,2)});
+    offers.push({club:pick.c.n,lg:pick.L.id,lgName:pick.L.name,div:pick.L.divLabel,country:pick.L.country,
+      str:pick.c.str,role:role,salary:sal,
+      abroad:pick.L.country!==NATIONS.find(function(nn){return nn.id===p.nat;}).lg.slice(0,2)});
   }
   return offers;
+}
+/* Prêt : la soupape des jeunes coincés dans un effectif trop fort.
+   Temps de jeu garanti ailleurs, retour au club parent ensuite. */
+function genLoanOffer(st){
+  var p=st.p,rng=st.rng,myLg=leagueOf(st);
+  if(p.loanFrom||p.age<17||p.age>24)return null;
+  if(expectedShare(st)>=.3)return null;
+  var pool=[];
+  countryDivisions(st.world,myLg.country).forEach(function(L){
+    if(L.level<=myLg.level&&L.id!==myLg.id)return;
+    L.clubs.forEach(function(c){
+      if(c.n!==p.club&&c.str<p.clubStr-4&&c.str>ovr(p)-16)pool.push({c:c,L:L});
+    });
+  });
+  if(!pool.length)return null;
+  var pick=pool[rng.int(0,pool.length-1)];
+  return {club:pick.c.n,lg:pick.L.id,lgName:pick.L.name,div:pick.L.divLabel,
+    country:pick.L.country,str:pick.c.str,salary:Math.max(.03,p.salary*.6)};
+}
+function applyLoan(st,o){
+  var p=st.p;
+  p.loanFrom={club:p.club,lg:p.lg,str:p.clubStr,salary:p.salary};
+  p.club=o.club;p.clubStr=o.str;p.lg=o.lg;p.salary=o.salary;
+  p.trust=72;st.prevRank=null;
+  if(p.clubsList[p.clubsList.length-1]!==o.club)p.clubsList.push(o.club);
+  p.moments.push(st.year+' — Prêt à '+o.club+' pour enfin jouer.');
+  return 'Prêt validé : direction '+o.club+' ('+(COUNTRIES[o.country]||{}).name+', '+o.div+
+    '). Tu y arrives avec un statut de titulaire — à toi de saisir ta chance.';
+}
+function endLoan(st,res){
+  var p=st.p,L=p.loanFrom;
+  if(!L)return null;
+  p.loanFrom=null;
+  var good=res.note>=6.7&&res.apps>=15;
+  p.club=L.club;p.lg=L.lg;p.clubStr=L.str;p.salary=L.salary;
+  if(p.clubsList[p.clubsList.length-1]!==L.club)p.clubsList.push(L.club);
+  p.trust=good?Math.min(70,p.trust+14):Math.max(15,p.trust-8);
+  st.prevRank=null;
+  return good?'Retour de prêt réussi : ta saison a convaincu le staff de '+L.club+'. On compte enfin sur toi.'
+             :'Retour de prêt en demi-teinte à '+L.club+'. Il faudra encore convaincre.';
 }
 function transferQuestion(st,offers){
   var p=st.p;
@@ -1930,6 +2002,9 @@ async function askQuestion(st,q,idx,total){
   if(choice.transfer){
     var txt=applyTransfer(st,choice.transfer);
     out={text:txt,chips:applyEffects(st,choice.eff),good:true,key:0};
+  } else if(choice.loan){
+    var txtL=applyLoan(st,choice.loan);
+    out={text:txtL,chips:applyEffects(st,choice.eff),good:true,key:0};
   } else if(choice.identity){
     var txt2=applyIdentity(st,choice.identity);
     out={text:txt2,chips:applyEffects(st,choice.eff),good:true,key:0};
@@ -1974,6 +2049,7 @@ async function seasonReport(st,res){
   var extras='';
   if(res.inj)extras+='<div class="miniline bad">\ud83e\ude79 '+esc(res.inj.txt)+'</div>';
   if(res.nat.txt&&!res.nat.wcWon)extras+='<div class="miniline">\ud83c\udfbd '+esc(res.nat.txt)+'</div>';
+  if(res.loanReturn)extras+='<div class="miniline">\ud83d\udd01 '+esc(res.loanReturn)+'</div>';
   /* ---- Une seule carte pour toute la saison ---- */
   app.appendChild(h('<div class="card">'+
     '<div class="season-head" style="margin:0 0 8px"><span class="yr">Saison '+st.year+'</span>'+
@@ -2244,15 +2320,27 @@ async function roadmapScreen(st,objs){
 async function runYear(st,profile){
   var p=st.p;
   st.ovrBefore=ovr(p);
+  st.repStart=p.rep;
   st.attrsBefore={};for(var ak in p.attrs)st.attrsBefore[ak]=Math.round(p.attrs[ak]);
   st.momentsBefore=p.moments.length;
   saveGame(st);
   var questions=[];
   // Identité de jeu : à 16-17 ans, question garantie
   if(!p.style&&p.age>=16)questions.push(identityQuestion(st));
-  // Q1 trajectoire
+  // Q1 trajectoire : transfert, ou prêt si le temps de jeu manque
   var offers=(p.age>=17)?genOffers(st):[];
-  if(offers.length&&(st.rng.chance(.75)||p.trust<35))questions.push(transferQuestion(st,offers));
+  var loan=genLoanOffer(st);
+  if(loan&&(!offers.length||st.rng.chance(.7))){
+    questions.push({kind:'loan',kicker:'Mercato',title:'Une porte de sortie : le prêt',
+      text:'Tu ne joues pas. Ton agent a trouvé un club prêt à te faire confiance dès maintenant, le temps d’une saison.',
+      ch:[
+        {l:'Partir en prêt à '+loan.club,
+         d:(COUNTRIES[loan.country]||{}).name+' · '+loan.div+' · titulaire annoncé',
+         flagId:loan.country,loan:loan,eff:{mor:5}},
+        {l:'Rester et t’imposer ici',d:'S’accrocher, s’entraîner, attendre sa chance.',
+         eff:{hid:{pro:3},mor:-3},res:'Tu restes. Les entraînements seront ta seule scène — pour l’instant.'}
+      ]});
+  } else if(offers.length&&(st.rng.chance(.75)||p.trust<35))questions.push(transferQuestion(st,offers));
   // Q2 vie
   var ev=pickLifeEvent(st,profile);
   if(ev)questions.push({kind:'life',kicker:'La vie de joueur',title:ev.title,
@@ -2275,6 +2363,7 @@ async function runYear(st,profile){
     applyFinalOutcome(st,res,m,out);
   }
   finalizeSeason(st,res);
+  res.loanReturn=endLoan(st,res);
   res.objectives=objs.map(function(o){return {label:o.label,ok:!!o.check(res)};});
   res.allObjectives=res.objectives.every(function(o){return o.ok;});
   res.exploits=p.moments.slice(st.momentsBefore);
@@ -2625,7 +2714,9 @@ window.__sim=function(n){
           var sts=STYLES.filter(function(s){return s.macro===p.macro;});
           applyIdentity(st,sts[st.rng.int(0,sts.length-1)].id);
         }
-        var offers=(p.age>=17)?genOffers(st):[];
+        var loanA=genLoanOffer(st);
+        if(loanA&&st.rng.chance(.6))applyLoan(st,loanA);
+        var offers=(p.age>=17&&!p.loanFrom)?genOffers(st):[];
         if(offers.length&&st.rng.chance(.6)){
           var q=transferQuestion(st,offers);
           var c=q.ch[st.rng.int(0,q.ch.length-1)];
