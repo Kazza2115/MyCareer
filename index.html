@@ -486,6 +486,15 @@ var COUNTRIES={
   suf:['FC','United','City','Glory','Mariners'],
   divs:[{name:'Championnat d’Australie',tier:1,money:1,vis:1,dev:2}]}
 };
+/* Tout pays n'ayant qu'une division reÃ§oit une seconde division :
+   la pyramide existe partout, et l'Ã©lite se mÃ©rite dans chaque pays. */
+Object.keys(COUNTRIES).forEach(function(cid){
+  var C=COUNTRIES[cid];
+  if(C.divs.length>1)return;
+  var e=C.divs[0];
+  C.divs.push({name:'D1 — '+C.name,tier:Math.max(1,e.tier-1),
+    money:1,vis:1,dev:Math.max(1,e.dev-1)});
+});
 var EURO_C=['EN','ES','IT','DE','FR','PT','NL','CH','BE','HR','RS','GR','SE','DK','NO','PL','AT','SC','TR'];
 var SAM_C=['BR','AR','MX','CO','UY','CL'];
 var LEAGUES=[];
@@ -915,12 +924,22 @@ function makeWorld(seed){
             level:L.level,divLabel:L.divLabel,tier:L.tier,agg:L.agg,
             money:Math.min(6,L.money*mult),vis:L.vis+(mult>1?1:0),dev:L.dev,clubs:[]};
     var used=usedByCountry[L.country]=usedByCountry[L.country]||{};
+    // Les grandes villes peuplent l'élite, les villes moyennes les divisions
+    // inférieures : la carte du pays reste crédible d'une division à l'autre.
+    var cityPool=L.level===1?L.cities.slice(0,7):
+                 L.level===2?L.cities.slice(2):L.cities.slice(4).concat(L.cities.slice(2,4));
     for(var i=0;i<10;i++){
       var name,guard=0;
       do{
-        var city=rng.pick(L.cities),suf=rng.pick(L.suf);
+        var city=rng.pick(cityPool),suf=rng.pick(L.suf);
         name=(suf==='Al')?('Al-'+city):(suf+' '+city);
-      }while(used[name]&&guard++<60);
+      }while(used[name]&&guard++<80);
+      if(used[name]){ // pool épuisé : on complète avec toutes les villes du pays
+        do{
+          var c2=rng.pick(L.cities),s2=rng.pick(L.suf);
+          name=(s2==='Al')?('Al-'+c2):(s2+' '+c2);
+        }while(used[name]&&guard++<200);
+      }
       used[name]=1;
       // hiérarchie retirée par seed : 1-2 cadors, un ventre mou, des petits
       var base=46+L.tier*7;
@@ -1388,7 +1407,9 @@ function applyTransfer(st,o){
   p.clubsCount++;p.clubsList.push(o.club);
   p.trust=o.role==='star attendue'?62:o.role==='titulaire en devenir'?50:34;
   st.prevRank=null;
-  var txt='Direction '+o.club+' — '+COUNTRIES[o.country].name+', '+o.div+' ('+o.lgName+') !';
+  var L=st.world.leagues[o.lg];
+  var cName=(COUNTRIES[o.country||(L&&L.country)]||{}).name||(L&&L.countryName)||'';
+  var txt='Direction '+o.club+' — '+cName+', '+(o.div||(L&&L.divLabel)||'')+' ('+o.lgName+') !';
   if(o.abroad){
     p.abroad=true;
     if(rng.next()*100>p.hid.adapt+18){p.form-=12;p.mor-=8;
@@ -2156,7 +2177,8 @@ function surpriseOffer(st){
         esc(g.c.n)+' ('+esc(g.L.name)+') envoie une offre hors délai, en dehors de tout mercato prévu.',
       ch:[
         {l:'Signer chez '+g.c.n,d:'Le grand saut, tout de suite.',
-         transfer:{club:g.c.n,lg:g.L.id,lgName:g.L.name,div:g.L.divLabel,str:g.c.str,role:'titulaire en devenir',
+         flagId:g.L.country,
+         transfer:{club:g.c.n,lg:g.L.id,lgName:g.L.name,div:g.L.divLabel,country:g.L.country,str:g.c.str,role:'titulaire en devenir',
            salary:Math.max(.4,Math.pow(Math.max(0,(ovr(p)-52))/10,2)*(g.L.money/2.4)*.9),
            abroad:true},eff:{mor:8,rep:5}},
         {l:'Refuser et finir le travail ici',d:'La fidélité paie parfois plus cher.',
@@ -2394,34 +2416,42 @@ function pantheonScreen(){
   b.addEventListener('click',startScreen);back.appendChild(b);
 }
 /* Offres de contrat jeune : clubs du pays, très rarement un cador */
-function genStartOffers(world,natId,rng){
+function genStartOffers(world,natId,rng,origin){
   var nat=NATIONS.find(function(n){return n.id===natId;});
   var cid=nat.lg.slice(0,2);
   var divs=countryDivisions(world,cid);
   var low=divs[divs.length-1],offers=[],used={};
+  // Percer dans un club d'Ã©lite Ã  15 ans est un privilÃ¨ge rarissime : seuls
+  // une formation huppÃ©e ou un nom dÃ©jÃ  connu ouvrent (un peu) cette porte.
+  var pElite=.012,pEliteMid=.05;
+  if(origin==='academie'){pElite=.05;pEliteMid=.15;}
+  else if(origin==='filspro'){pElite=.035;pEliteMid=.12;}
+  else if(origin==='quartier'){pElite=.015;pEliteMid=.06;}
   function pushClub(c,L){
-    if(used[c.n])return false;
+    if(!c||used[c.n])return false;
     used[c.n]=1;
     var idx=L.clubs.indexOf(c);
     var standing=idx<3?'cador':idx<7?'ventre mou':'modeste';
     var d;
-    if(L.level===1&&idx<3)d='⚠️ Grand club : formation d’élite, mais concurrence féroce pour percer.';
-    else if(L.level===1)d=L.name+' — le grand bain tout de suite, temps de jeu à conquérir.';
+    if(L.level===1&&idx<3)d='⚠️ Centre de formation d’élite — des dizaines d’espoirs pour une place. Très peu perceront.';
+    else if(L.level===1)d=L.name+' — le grand bain tout de suite : formation solide, mais temps de jeu à arracher.';
     else if(standing==='cador')d=L.name+' ('+L.divLabel+') — un club ambitieux qui vise la montée.';
     else d=L.name+' ('+L.divLabel+') — club '+standing+', temps de jeu quasi garanti pour un jeune.';
     offers.push({n:c.n,lg:L.id,desc:d,div:L.divLabel});
     return true;
   }
   var guard=0;
-  while(offers.length<3&&guard++<50){
+  while(offers.length<3&&guard++<60){
     var r=rng.next();
-    if(r<.04&&divs[0].level===1){ // le rêve : un cador de l'Élite (très rare)
+    if(r<pElite&&divs[0].level===1){            // le rêve : un cador de l'Élite
       pushClub(rng.pick(divs[0].clubs.slice(0,3)),divs[0]);
-    } else if(r<.18&&divs.length>1){ // milieu/bas d'Élite
-      pushClub(rng.pick(divs[0].clubs.slice(4)),divs[0]);
-    } else if(divs.length>2&&r<.5){ // division intermédiaire
-      pushClub(rng.pick(divs[1].clubs.slice(3)),divs[1]);
-    } else { // bas de la pyramide (le départ normal)
+    } else if(r<pElite+pEliteMid&&divs[0].level===1){ // bas de tableau de l'Élite
+      pushClub(rng.pick(divs[0].clubs.slice(5)),divs[0]);
+    } else if(divs.length>2&&r<.45){            // division intermédiaire
+      pushClub(rng.pick(divs[1].clubs.slice(2)),divs[1]);
+    } else if(divs.length===2&&r<.42){          // seconde division du pays
+      pushClub(rng.pick(divs[1].clubs.slice(1)),divs[1]);
+    } else {                                     // bas de la pyramide : le départ normal
       pushClub(rng.pick(low.clubs.slice(3)),low);
     }
   }
@@ -2533,7 +2563,7 @@ function creationScreen(){
   }
   function stepClub(world,rng){
     clearApp();
-    var offers=genStartOffers(world,sel.nat,rng);
+    var offers=genStartOffers(world,sel.nat,rng,sel.origin);
     var el=h('<div style="padding-top:16px">'+head(6,'Premier contrat','Trois clubs te veulent',
       'Des contrats jeunes sont sur la table. Le choix du départ pèse lourd : temps de jeu ou prestige ?')+
       '<div class="choices" id="grid"></div></div>');
